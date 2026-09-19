@@ -633,6 +633,27 @@ body.mainpage .firstHeading{ display:none; }
 .panel .inner > :first-child{ margin-top:0; }
 .panel .inner > :last-child{ margin-bottom:0; }
 
+/* ---------- click-to-edit placeholder panels -- click the header to type
+   real lore directly in place, click it again (or click away) to stop.
+   Edits save to this browser's own localStorage only (this is a static
+   site with no backend), so they'll stick around for you on this device,
+   but won't show up for anyone else until the real text gets copied back
+   into the page's actual HTML. ---------- */
+.panel.editable > h2{ cursor:pointer; user-select:none; }
+.panel.editable > h2 .edit-hint{
+  float:right; font-size:0.8em; font-weight:normal; color:#767676;
+  opacity:0; transition:opacity .15s ease;
+}
+.panel.editable > h2:hover .edit-hint{ opacity:1; }
+.panel.editable.editing{ outline:2px dashed var(--accent); outline-offset:2px; }
+.panel.editable.editing > h2 .edit-hint{ opacity:1; }
+.panel.editable .inner[contenteditable="true"]{
+  cursor:text;
+  outline:none;
+  background:#fffef0;
+  box-shadow:inset 0 0 0 1px #e6dfa0;
+}
+
 .grid-2{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:12px; }
 .grid-half{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 
@@ -1188,23 +1209,23 @@ body.drag-mode .resize-handle{ display:block; }
 
     <div id="cave-peek"></div>
 
-    <div class="panel">
-      <h2>The Story So Far</h2>
+    <div class="panel editable" data-panel-key="story">
+      <h2>The Story So Far<span class="edit-hint">click to edit</span></h2>
       <div class="inner">
         <p>Placeholder intro -- the opening lore for Imperial Topaz goes here. Set the scene: where the server picks up, who the major players are, and what's at stake this season.</p>
       </div>
     </div>
 
     <div class="grid-half" style="margin-bottom:12px">
-      <div class="panel">
-        <h2>Season One</h2>
+      <div class="panel editable" data-panel-key="season-one">
+        <h2>Season One<span class="edit-hint">click to edit</span></h2>
         <div class="inner">
           <p>Placeholder recap of Season One's major beats.</p>
           <ul><li>Placeholder plot point</li><li>Placeholder plot point</li><li>Placeholder plot point</li></ul>
         </div>
       </div>
-      <div class="panel">
-        <h2>Season Two</h2>
+      <div class="panel editable" data-panel-key="season-two">
+        <h2>Season Two<span class="edit-hint">click to edit</span></h2>
         <div class="inner">
           <p>Placeholder teaser for what's coming in Season Two.</p>
           <ul><li>Placeholder plot point</li><li>Placeholder plot point</li></ul>
@@ -1335,6 +1356,110 @@ document.querySelectorAll('.franchise-tabs a').forEach(tab => {
     }
   });
 });
+
+// ---------- click-to-edit panels, backed by ToutaBot's site-content API ----------
+// Click a ".panel.editable"'s own <h2> header to start typing real text
+// straight into its .inner area in place; click the header again (or click
+// anywhere outside the panel) to save and stop. First edit of the session
+// asks for the same password as the ToutaBot dashboard (checked server-side,
+// not just hidden in this file) and remembers it in sessionStorage for the
+// rest of the tab's session. Content loads from the server for every
+// visitor on page load, so a saved edit shows up for everyone -- not just
+// the browser that made it -- falling back to this page's own placeholder
+// HTML (already sitting in the page) if the server has nothing saved yet or
+// can't be reached.
+(function(){
+  var API_BASE = 'https://toutabot-production.up.railway.app';
+  var PAGE_KEY = 'lore';
+  var TOKEN_KEY = 'siteEditToken';
+
+  var panels = Array.prototype.slice.call(document.querySelectorAll('.panel.editable'));
+  if (!panels.length) return;
+
+  function getToken(){ try{ return sessionStorage.getItem(TOKEN_KEY); }catch(e){ return null; } }
+  function setToken(t){ try{ sessionStorage.setItem(TOKEN_KEY, t); }catch(e){} }
+  function clearToken(){ try{ sessionStorage.removeItem(TOKEN_KEY); }catch(e){} }
+
+  fetch(API_BASE + '/api/public/site-content/' + PAGE_KEY)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var saved = (data && data.panels) || {};
+      panels.forEach(function(panel){
+        var key = panel.dataset.panelKey;
+        var inner = panel.querySelector(':scope > .inner');
+        if (inner && key && typeof saved[key] === 'string') inner.innerHTML = saved[key];
+      });
+    })
+    .catch(function(e){ console.warn('[site-content] load failed, showing placeholder text:', e); });
+
+  function login(){
+    var pw = window.prompt('Enter the site password to edit this page:');
+    if (!pw) return Promise.resolve(false);
+    return fetch(API_BASE + '/api/public/site-content-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    })
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        if (data && data.success){ setToken(data.token); return true; }
+        window.alert('Wrong password.');
+        return false;
+      })
+      .catch(function(){ window.alert('Could not reach the server -- try again in a moment.'); return false; });
+  }
+
+  function save(panel){
+    var key = panel.dataset.panelKey;
+    var inner = panel.querySelector(':scope > .inner');
+    var token = getToken();
+    if (!key || !inner || !token) return;
+    fetch(API_BASE + '/api/public/site-content/' + PAGE_KEY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Token': token },
+      body: JSON.stringify({ key: key, html: inner.innerHTML })
+    })
+      .then(function(r){
+        if (r.status === 401){
+          clearToken();
+          window.alert('Your session expired -- click the header again to log back in, then redo the edit.');
+        }
+      })
+      .catch(function(){ window.alert('Save failed -- check your connection and try again.'); });
+  }
+
+  panels.forEach(function(panel){
+    var heading = panel.querySelector(':scope > h2');
+    var inner = panel.querySelector(':scope > .inner');
+    if (!heading || !inner) return;
+
+    function beginEditing(){
+      panel.classList.add('editing');
+      inner.setAttribute('contenteditable', 'true');
+      inner.focus();
+    }
+    function stopEditing(){
+      panel.classList.remove('editing');
+      inner.removeAttribute('contenteditable');
+      save(panel);
+    }
+
+    heading.addEventListener('click', function(){
+      if (panel.classList.contains('editing')){
+        stopEditing();
+        return;
+      }
+      if (getToken()){
+        beginEditing();
+      } else {
+        login().then(function(ok){ if (ok) beginEditing(); });
+      }
+    });
+    inner.addEventListener('blur', function(){
+      if (panel.classList.contains('editing')) stopEditing();
+    });
+  });
+})();
 
 // ---------- layout editor: drag/resize elements, snap to alignment guides, positions persist ----------
 (function(){
