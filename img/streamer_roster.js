@@ -3,10 +3,10 @@
 // no YouTube/Kick entries this time.
 var STREAMER_ROSTER = [
   { name: 'BaitrOrange', platform: 'Twitch', url: 'https://www.twitch.tv/baitrorange', icon: 'img/icons/twitch_icon_bg.png' },
-  { name: 'Lune', platform: 'Twitch', url: 'https://www.twitch.tv/baitrorange', icon: 'img/icons/twitch_icon_bg.png' },
+  { name: 'Lune', platform: 'Twitch', url: 'https://www.twitch.tv/lune', icon: 'img/icons/twitch_icon_bg.png' },
   { name: 'Nova Laine', platform: 'Twitch', url: 'https://www.twitch.tv/novalaine', icon: 'img/icons/twitch_icon_bg.png' },
   { name: 'FadingNight79 aka Big Steppa', platform: 'Twitch', url: 'https://www.twitch.tv/fadingnight79', icon: 'img/icons/twitch_icon_bg.png' },
-  { name: 'Andoucondo', platform: 'Twitch', url: 'https://www.twitch.tv/baitrorange', icon: 'img/icons/twitch_icon_bg.png' },
+  { name: 'Andoucondo', platform: 'Twitch', url: 'https://www.twitch.tv/andoucondo', icon: 'img/icons/twitch_icon_bg.png' },
   { name: 'Touta2x', platform: 'Twitch', url: 'https://www.twitch.tv/touta2x', icon: 'img/icons/twitch_icon_bg.png' },
   { name: 'Andrew', platform: 'Twitch', url: 'https://www.twitch.tv/shaliin_', icon: 'img/icons/twitch_icon_bg.png' },
   { name: 'Bunnyopss', platform: 'Twitch', url: 'https://www.twitch.tv/bunnyopss', icon: 'img/icons/twitch_icon_bg.png' },
@@ -52,7 +52,7 @@ var STREAMER_ROSTER = [
   { name: 'Lowkeyvinny', platform: 'Twitch', url: 'https://www.twitch.tv/viskipoint', icon: 'img/icons/twitch_icon_bg.png' },
   { name: 'Goomay', platform: 'Twitch', url: 'https://www.twitch.tv/goomay', icon: 'img/icons/twitch_icon_bg.png' },
   { name: 'Ronin', platform: 'Twitch', url: 'https://www.twitch.tv/roninsherry', icon: 'img/icons/twitch_icon_bg.png' },
-  { name: 'Bombdiggy', platform: 'Twitch', url: 'https://www.twitch.tv/morsecde_', icon: 'img/icons/twitch_icon_bg.png' },
+  { name: 'Bombdiggy', platform: 'Twitch', url: 'https://www.twitch.tv/bombdiggy', icon: 'img/icons/twitch_icon_bg.png' },
   { name: 'Zeritt', platform: 'Twitch', url: 'https://www.twitch.tv/zerittyt', icon: 'img/icons/twitch_icon_bg.png' },
   { name: 'Dots', platform: 'Twitch', url: 'https://www.twitch.tv/dots420', icon: 'img/icons/twitch_icon_bg.png' },
 ];
