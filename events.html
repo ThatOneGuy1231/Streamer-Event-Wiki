@@ -653,6 +653,41 @@ body.mainpage .firstHeading{ display:none; }
   box-shadow:inset 0 0 0 1px #e6dfa0;
 }
 
+/* ---------- password modal for entering edit mode -- same panel/button
+   language as the rest of the site (not a bare browser prompt()). ---------- */
+#edit-login-modal{
+  display:none; position:fixed; inset:0; z-index:5000;
+  background:rgba(0,0,0,.6);
+  align-items:center; justify-content:center;
+}
+#edit-login-modal.open{ display:flex; }
+#edit-login-modal .box{
+  width:320px; max-width:calc(100% - 32px);
+  background:#fff; border-radius:0;
+  border:var(--panel-border-width) solid var(--panel-border);
+  box-shadow:inset 0 0 0 3px var(--panel-ring);
+}
+#edit-login-modal h3{
+  margin:0; padding:calc(0.5em + 2px) 12px 15px;
+  background:#EBEBEB; box-shadow:inset 0 0 0 3px var(--panel-ring);
+  color:var(--color-base); font-size:1em; font-weight:bold; position:relative;
+}
+#edit-login-modal h3::after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:6px;
+  background:#C0C0C0; border-top:3px solid var(--panel-ring); border-bottom:var(--panel-border-width) solid var(--panel-border);
+}
+#edit-login-modal .body{ padding:12px; }
+#edit-login-modal input{
+  width:100%; box-sizing:border-box; padding:8px; margin-bottom:4px;
+  border:2px solid var(--panel-border); border-radius:0;
+  font-family:inherit; font-size:0.9em; color:var(--color-base);
+}
+#edit-login-modal .error{
+  display:none; color:#ba0000; font-size:0.8em; margin:2px 0 8px;
+}
+#edit-login-modal .error.show{ display:block; }
+#edit-login-modal .actions{ display:flex; gap:8px; margin-top:10px; }
+
 .grid-2{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:12px; }
 .grid-half{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 
@@ -1237,6 +1272,23 @@ body.drag-mode .resize-handle{ display:block; }
   </div>
 </div>
 
+<!-- ===================== EDIT PASSWORD MODAL ===================== -->
+<div id="edit-login-modal">
+  <div class="box">
+    <h3>Enter password to edit</h3>
+    <div class="body">
+      <form id="edit-login-form">
+        <input type="password" id="edit-login-input" autocomplete="off" placeholder="Password">
+        <div class="error" id="edit-login-error">Wrong password.</div>
+        <div class="actions">
+          <button type="button" class="button" id="edit-login-cancel">Cancel</button>
+          <button type="submit" class="button go" id="edit-login-submit">Unlock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <!-- ===================== FOOTER ===================== -->
 <div id="footer">
   <ul id="footer-info">
@@ -1380,21 +1432,68 @@ document.querySelectorAll('.franchise-tabs a').forEach(tab => {
     })
     .catch(function(e){ console.warn('[site-content] load failed, showing placeholder text:', e); });
 
-  function login(){
-    var pw = window.prompt('Enter the site password to edit this page:');
-    if (!pw) return Promise.resolve(false);
-    return fetch(API_BASE + '/api/public/site-content-login', {
+  // ---------- small styled toast for error/status messages, instead of
+  // window.alert()'s plain browser popup ----------
+  var toastEl = null;
+  function toast(msg){
+    if (!toastEl){
+      toastEl = document.createElement('div');
+      toastEl.style.cssText = 'position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:5100; ' +
+        'background:#fff; color:var(--color-base); font-size:0.85em; font-weight:bold; padding:10px 16px; max-width:90vw; text-align:center; ' +
+        'border:3px solid var(--panel-border); box-shadow:inset 0 0 0 3px var(--panel-ring); ' +
+        'opacity:0; transition:opacity .2s ease;';
+      document.body.appendChild(toastEl);
+    }
+    toastEl.textContent = msg;
+    toastEl.style.opacity = '1';
+    clearTimeout(toastEl._t);
+    toastEl._t = setTimeout(function(){ toastEl.style.opacity = '0'; }, 3200);
+  }
+
+  // ---------- password modal (replaces window.prompt) ----------
+  var modal = document.getElementById('edit-login-modal');
+  var modalForm = document.getElementById('edit-login-form');
+  var modalInput = document.getElementById('edit-login-input');
+  var modalError = document.getElementById('edit-login-error');
+  var modalCancel = document.getElementById('edit-login-cancel');
+  var modalResolve = null;
+
+  function openModal(){
+    modalError.classList.remove('show');
+    modalInput.value = '';
+    modal.classList.add('open');
+    setTimeout(function(){ modalInput.focus(); }, 0);
+  }
+  function closeModal(result){
+    modal.classList.remove('open');
+    if (modalResolve){ modalResolve(result); modalResolve = null; }
+  }
+  modalCancel.addEventListener('click', function(){ closeModal(false); });
+  modal.addEventListener('click', function(e){ if (e.target === modal) closeModal(false); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && modal.classList.contains('open')) closeModal(false); });
+  modalForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    var pw = modalInput.value;
+    if (!pw) return;
+    modalError.classList.remove('show');
+    fetch(API_BASE + '/api/public/site-content-login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password: pw })
     })
       .then(function(r){ return r.json(); })
       .then(function(data){
-        if (data && data.success){ setToken(data.token); return true; }
-        window.alert('Wrong password.');
-        return false;
+        if (data && data.success){ setToken(data.token); closeModal(true); }
+        else { modalError.classList.add('show'); modalInput.select(); }
       })
-      .catch(function(){ window.alert('Could not reach the server -- try again in a moment.'); return false; });
+      .catch(function(){ modalError.textContent = 'Could not reach the server -- try again in a moment.'; modalError.classList.add('show'); });
+  });
+
+  function login(){
+    return new Promise(function(resolve){
+      modalResolve = resolve;
+      openModal();
+    });
   }
 
   function save(panel){
@@ -1410,10 +1509,10 @@ document.querySelectorAll('.franchise-tabs a').forEach(tab => {
       .then(function(r){
         if (r.status === 401){
           clearToken();
-          window.alert('Your session expired -- click the header again to log back in, then redo the edit.');
+          toast('Session expired -- click the header again to log back in, then redo the edit.');
         }
       })
-      .catch(function(){ window.alert('Save failed -- check your connection and try again.'); });
+      .catch(function(){ toast('Save failed -- check your connection and try again.'); });
   }
 
   panels.forEach(function(panel){
