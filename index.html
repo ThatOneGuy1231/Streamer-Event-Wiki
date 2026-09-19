@@ -1552,41 +1552,7 @@ body.drag-mode .resize-handle{ display:block; }
     <div class="panel">
       <h2>Top streamers</h2>
       <div class="inner">
-        <div class="streamers-grid">
-          <div class="streamer-card">
-            <a class="card-link" href="https://www.twitch.tv/BaitrOrange" target="_blank" rel="noopener" aria-label="BaitrOrange"></a>
-            <span class="avatar has-thumb" style="background-image:url('img/cave.png'); background-size:cover; background-position:center;"><span class="live offline" id="preview-live-baitrorange">OFFLINE</span></span>
-            <div class="info">
-              <div class="info-text">
-                <div class="name">BaitrOrange</div>
-                <div class="game" id="preview-game-baitrorange">Twitch streamer</div>
-              </div>
-              <a class="platform-link" href="https://www.twitch.tv/BaitrOrange" target="_blank" rel="noopener" title="Twitch" aria-label="Watch on Twitch"><img src="img/icons/twitch_icon_bg.png" alt=""></a>
-            </div>
-          </div>
-          <div class="streamer-card">
-            <a class="card-link" href="https://www.twitch.tv/Touta2x" target="_blank" rel="noopener" aria-label="Touta2x"></a>
-            <span class="avatar"><span class="live offline" id="preview-live-touta2x">OFFLINE</span></span>
-            <div class="info">
-              <div class="info-text">
-                <div class="name">Touta2x</div>
-                <div class="game" id="preview-game-touta2x">Twitch streamer</div>
-              </div>
-              <a class="platform-link" href="https://www.twitch.tv/Touta2x" target="_blank" rel="noopener" title="Twitch" aria-label="Watch on Twitch"><img src="img/icons/twitch_icon_bg.png" alt=""></a>
-            </div>
-          </div>
-          <div class="streamer-card">
-            <a class="card-link" href="https://www.youtube.com/@Sterbenbruh" target="_blank" rel="noopener" aria-label="Sterbenbruh"></a>
-            <span class="avatar"><span class="live offline">OFFLINE</span></span>
-            <div class="info">
-              <div class="info-text">
-                <div class="name">Sterbenbruh</div>
-                <div class="game">YouTube streamer</div>
-              </div>
-              <a class="platform-link" href="https://www.youtube.com/@Sterbenbruh" target="_blank" rel="noopener" title="YouTube" aria-label="Watch on YouTube"><img src="img/icons/youtube_icon.png" alt=""></a>
-            </div>
-          </div>
-        </div>
+        <div class="streamers-grid" id="top-streamers-grid"></div>
         <div class="buttons" style="margin-top:10px"><a class="button go" href="streamers">View all streamers</a></div>
       </div>
     </div>
@@ -1875,30 +1841,106 @@ document.querySelectorAll('.portal h3, .collapsible-bar .bar-head').forEach(h =>
   startAuto();
 })();
 
-// ---------- Top streamers preview: real live-status check (Twitch only for
-// now, via ToutaBot's public endpoint) for the two Twitch preview cards.
-// Sterbenbruh (YouTube) has no live source hooked up yet, so it just stays
-// OFFLINE here -- same limitation as the full streamers.html page. ----------
+// ---------- Top streamers preview: shows whichever 2 Twitch streamers from
+// the full roster are currently live in Minecraft with the most viewers
+// (via ToutaBot's /api/public/top-live). If nobody's live, falls back to
+// BaitrOrange + Touta2x (the spot's long-standing defaults) shown OFFLINE,
+// same as before this became viewer-count-driven. ----------
 (function(){
-  var previewLive = {
-    'baitrorange': { badge: document.getElementById('preview-live-baitrorange'), game: document.getElementById('preview-game-baitrorange') },
-    'touta2x':     { badge: document.getElementById('preview-live-touta2x'),     game: document.getElementById('preview-game-touta2x') }
-  };
-  var channels = Object.keys(previewLive).filter(function(k){ return previewLive[k].badge; });
-  if (!channels.length) return;
+  var grid = document.getElementById('top-streamers-grid');
+  if (!grid || !window.STREAMER_ROSTER) return;
 
-  fetch('https://toutabot-production.up.railway.app/api/public/live-status?channels=' + encodeURIComponent(channels.join(',')))
+  var FALLBACK_NAMES = ['BaitrOrange', 'Touta2x'];
+
+  // channel login (lowercase, taken from the URL -- not the display name,
+  // since several roster entries stream under a different handle than the
+  // name shown on the card) -> roster entry.
+  var byChannel = {};
+  var byName = {};
+  var twitchChannels = [];
+  window.STREAMER_ROSTER.forEach(function(s){
+    byName[s.name] = s;
+    if (s.platform !== 'Twitch') return;
+    var login = (s.url.split('/').filter(Boolean).pop() || '').toLowerCase();
+    if (!login) return;
+    byChannel[login] = s;
+    twitchChannels.push(login);
+  });
+
+  function renderCard(s, isLive){
+    var card = document.createElement('div');
+    card.className = 'streamer-card';
+
+    var link = document.createElement('a');
+    link.className = 'card-link';
+    link.href = s.url;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.setAttribute('aria-label', s.name);
+    card.appendChild(link);
+
+    var avatar = document.createElement('span');
+    avatar.className = 'avatar';
+    var live = document.createElement('span');
+    live.className = isLive ? 'live' : 'live offline';
+    live.textContent = isLive ? 'LIVE' : 'OFFLINE';
+    avatar.appendChild(live);
+    card.appendChild(avatar);
+
+    var info = document.createElement('div');
+    info.className = 'info';
+    var infoText = document.createElement('div');
+    infoText.className = 'info-text';
+    var name = document.createElement('div');
+    name.className = 'name';
+    name.textContent = s.name;
+    infoText.appendChild(name);
+    var game = document.createElement('div');
+    game.className = 'game';
+    game.textContent = isLive ? 'Playing Minecraft' : (s.platform + ' streamer');
+    infoText.appendChild(game);
+    info.appendChild(infoText);
+
+    var platformLink = document.createElement('a');
+    platformLink.className = 'platform-link';
+    platformLink.href = s.url;
+    platformLink.target = '_blank';
+    platformLink.rel = 'noopener';
+    platformLink.title = s.platform;
+    platformLink.setAttribute('aria-label', 'Watch on ' + s.platform);
+    var platformImg = document.createElement('img');
+    platformImg.src = s.icon;
+    platformImg.alt = '';
+    platformLink.appendChild(platformImg);
+    info.appendChild(platformLink);
+
+    card.appendChild(info);
+    grid.appendChild(card);
+  }
+
+  function renderFallback(exclude){
+    var needed = 2 - exclude.length;
+    FALLBACK_NAMES.forEach(function(n){
+      if (needed <= 0) return;
+      if (exclude.indexOf(n) !== -1) return;
+      var s = byName[n];
+      if (s) { renderCard(s, false); needed--; }
+    });
+  }
+
+  if (!twitchChannels.length) { renderFallback([]); return; }
+
+  fetch('https://toutabot-production.up.railway.app/api/public/top-live?limit=2&channels=' + encodeURIComponent(twitchChannels.join(',')))
     .then(function(res){ return res.json(); })
     .then(function(data){
-      (data.live || []).forEach(function(channel){
-        var entry = previewLive[channel];
-        if (!entry) return;
-        entry.badge.className = 'live';
-        entry.badge.textContent = 'LIVE';
-        if (entry.game) entry.game.textContent = 'Playing Minecraft';
-      });
+      var top = (data.top || []).map(function(t){ return byChannel[t.channel]; }).filter(Boolean);
+      top.forEach(function(s){ renderCard(s, true); });
+      if (top.length < 2) renderFallback(top.map(function(s){ return s.name; }));
     })
-    .catch(function(e){ console.warn('[live-status] fetch failed:', e); });
+    .catch(function(e){
+      console.warn('[top-live] fetch failed:', e);
+      renderFallback([]);
+    });
 })();
 
 // ---------- vector tabs (Main Page/Talk/Read/Edit/History): same deal as
