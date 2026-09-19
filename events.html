@@ -655,6 +655,21 @@ body.mainpage .firstHeading{ display:none; }
 }
 .panel.editable > h2 .panel-title[contenteditable="true"]{ padding:0 2px; }
 
+/* ---------- "+ Add row" button for tables inside an editable panel (e.g.
+   Season Timeline) -- only shown while that panel is actively being
+   edited, sits outside .inner so it's never part of the saved content. ---------- */
+.panel-add-row{
+  display:none;
+  margin:0 12px 12px;
+  padding:6px 12px; border-radius:0;
+  border:var(--panel-border-width) solid var(--panel-border);
+  box-shadow:inset 0 0 0 2px var(--panel-ring);
+  background:#EBEBEB; color:var(--color-base);
+  font-family:inherit; font-size:0.8em; font-weight:bold; cursor:pointer;
+}
+.panel-add-row:hover{ background:#dcdcdc; }
+.panel.editable.editing .panel-add-row{ display:inline-block; }
+
 /* ---------- password modal for entering edit mode -- same panel/button
    language as the rest of the site (not a bare browser prompt()). ---------- */
 #edit-login-modal{
@@ -1257,6 +1272,7 @@ body.drag-mode .resize-handle{ display:block; }
           <tr><td>Chapter 4</td><td>Placeholder</td><td>Upcoming</td></tr>
         </table>
       </div>
+      <button type="button" class="panel-add-row">+ Add row</button>
     </div>
 
     <div class="panel editable" data-panel-key="upcoming-events">
@@ -1572,6 +1588,31 @@ document.querySelectorAll('.franchise-tabs a').forEach(tab => {
         if (panel.classList.contains('editing') && !panel.contains(document.activeElement)) stopEditing();
       });
     });
+
+    // "+ Add row" -- only present on panels with a table (e.g. Season
+    // Timeline); appends a blank row with the same column count as the
+    // existing rows and drops the cursor into its first cell. The row is
+    // just normal table markup inside .inner, so it saves the same way any
+    // other edit does -- no separate save path needed.
+    var addRowBtn = panel.querySelector(':scope > .panel-add-row');
+    if (addRowBtn){
+      addRowBtn.addEventListener('click', function(e){
+        e.preventDefault();
+        var table = inner.querySelector('table');
+        if (!table || !table.rows.length) return;
+        var cellCount = table.rows[0].children.length;
+        var tr = document.createElement('tr');
+        for (var i = 0; i < cellCount; i++) tr.appendChild(document.createElement('td'));
+        table.appendChild(tr);
+        var range = document.createRange();
+        range.selectNodeContents(tr.children[0]);
+        range.collapse(true);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        inner.focus();
+      });
+    }
   });
 })();
 
