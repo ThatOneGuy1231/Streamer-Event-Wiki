@@ -1841,16 +1841,18 @@ document.querySelectorAll('.portal h3, .collapsible-bar .bar-head').forEach(h =>
   startAuto();
 })();
 
-// ---------- Top streamers preview: shows whichever 2 Twitch streamers from
-// the full roster are currently live in Minecraft with the most viewers
-// (via ToutaBot's /api/public/top-live). If nobody's live, falls back to
-// BaitrOrange + Touta2x (the spot's long-standing defaults) shown OFFLINE,
-// same as before this became viewer-count-driven. ----------
+// ---------- Top streamers preview: shows the 3 Twitch streamers from the
+// full roster currently live in Minecraft with the most viewers (via
+// ToutaBot's /api/public/top-live). Any slots not filled by someone live
+// fall back to Touta2x, then BaitrOrange, then Lune (in that priority
+// order, skipping whoever's already shown live) so the panel always has 3
+// cards. ----------
 (function(){
   var grid = document.getElementById('top-streamers-grid');
   if (!grid || !window.STREAMER_ROSTER) return;
 
-  var FALLBACK_NAMES = ['BaitrOrange', 'Touta2x'];
+  var TOTAL_SLOTS = 3;
+  var FALLBACK_NAMES = ['Touta2x', 'BaitrOrange', 'Lune'];
 
   // channel login (lowercase, taken from the URL -- not the display name,
   // since several roster entries stream under a different handle than the
@@ -1919,7 +1921,7 @@ document.querySelectorAll('.portal h3, .collapsible-bar .bar-head').forEach(h =>
   }
 
   function renderFallback(exclude){
-    var needed = 2 - exclude.length;
+    var needed = TOTAL_SLOTS - exclude.length;
     FALLBACK_NAMES.forEach(function(n){
       if (needed <= 0) return;
       if (exclude.indexOf(n) !== -1) return;
@@ -1930,12 +1932,12 @@ document.querySelectorAll('.portal h3, .collapsible-bar .bar-head').forEach(h =>
 
   if (!twitchChannels.length) { renderFallback([]); return; }
 
-  fetch('https://toutabot-production.up.railway.app/api/public/top-live?limit=2&channels=' + encodeURIComponent(twitchChannels.join(',')))
+  fetch('https://toutabot-production.up.railway.app/api/public/top-live?limit=' + TOTAL_SLOTS + '&channels=' + encodeURIComponent(twitchChannels.join(',')))
     .then(function(res){ return res.json(); })
     .then(function(data){
       var top = (data.top || []).map(function(t){ return byChannel[t.channel]; }).filter(Boolean);
       top.forEach(function(s){ renderCard(s, true); });
-      if (top.length < 2) renderFallback(top.map(function(s){ return s.name; }));
+      if (top.length < TOTAL_SLOTS) renderFallback(top.map(function(s){ return s.name; }));
     })
     .catch(function(e){
       console.warn('[top-live] fetch failed:', e);
