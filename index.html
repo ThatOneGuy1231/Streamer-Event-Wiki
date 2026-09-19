@@ -1609,8 +1609,8 @@ body.drag-mode .resize-handle{ display:block; }
     </div>
 
     <div class="panel">
-      <h2>Season Timeline</h2>
-      <div class="inner">
+      <h2><span id="season-timeline-title">Season Timeline</span></h2>
+      <div class="inner" id="season-timeline-inner">
         <p>Full chapter-by-chapter rundown on the <a href="events">Events</a> page -- same table, kept in sync from there.</p>
         <table class="wikitable" style="width:100%;margin:0">
           <tr><th>Chapter</th><th>Streamer POV</th><th>Status</th></tr>
@@ -1943,6 +1943,27 @@ document.querySelectorAll('.portal h3, .collapsible-bar .bar-head').forEach(h =>
       console.warn('[top-live] fetch failed:', e);
       renderFallback([]);
     });
+})();
+
+// ---------- Season Timeline mirror: read-only copy of the Events page's
+// "season-timeline" panel (same ToutaBot site-content API events.html's own
+// click-to-edit panels use). This is display-only -- no edit hint, no login,
+// no click handler -- editing only ever happens on the Events page itself;
+// this just shows whatever was last saved there, falling back to the
+// placeholder table already sitting in this page if nothing's saved yet or
+// the request fails. ----------
+(function(){
+  var inner = document.getElementById('season-timeline-inner');
+  if (!inner) return;
+  var titleEl = document.getElementById('season-timeline-title');
+  fetch('https://toutabot-production.up.railway.app/api/public/site-content/events')
+    .then(function(res){ return res.json(); })
+    .then(function(data){
+      var saved = (data && data.panels) || {};
+      if (typeof saved['season-timeline'] === 'string') inner.innerHTML = saved['season-timeline'];
+      if (titleEl && typeof saved['season-timeline-title'] === 'string') titleEl.textContent = saved['season-timeline-title'];
+    })
+    .catch(function(e){ console.warn('[season-timeline mirror] load failed, showing placeholder:', e); });
 })();
 
 // ---------- vector tabs (Main Page/Talk/Read/Edit/History): same deal as
