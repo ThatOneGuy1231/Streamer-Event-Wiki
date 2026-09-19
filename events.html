@@ -670,6 +670,17 @@ body.mainpage .firstHeading{ display:none; }
 .panel-add-row:hover{ background:#dcdcdc; }
 .panel.editable.editing .panel-add-row{ display:inline-block; }
 
+/* per-row delete "x", injected into each data row only while editing (see
+   addDeleteCell in the script below) -- never part of the saved table. */
+.row-delete-cell{ width:1%; white-space:nowrap; text-align:center; padding:2px !important; }
+.row-delete{
+  width:20px; height:20px; padding:0; border-radius:0;
+  border:2px solid #8a2a2a;
+  background:#c94141; color:#fff;
+  font-family:inherit; font-size:0.85em; font-weight:bold; line-height:1; cursor:pointer;
+}
+.row-delete:hover{ background:#e05252; }
+
 /* ---------- password modal for entering edit mode -- same panel/button
    language as the rest of the site (not a bare browser prompt()). ---------- */
 #edit-login-modal{
@@ -1556,13 +1567,39 @@ document.querySelectorAll('.franchise-tabs a').forEach(tab => {
     function ensureAuthed(){
       return getToken() ? Promise.resolve(true) : login();
     }
+    // A small "x" delete button appended to a data row (skips header rows --
+    // only <td> rows get one). UI-only, like the add-row button: injected
+    // fresh every time editing starts and stripped back out before saving,
+    // so it never ends up as part of the persisted table markup.
+    function addDeleteCell(tr){
+      var td = document.createElement('td');
+      td.className = 'row-delete-cell';
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'row-delete';
+      btn.textContent = '×';
+      btn.setAttribute('aria-label', 'Remove row');
+      btn.addEventListener('click', function(e){ e.preventDefault(); tr.remove(); });
+      td.appendChild(btn);
+      tr.appendChild(td);
+    }
     function beginEditing(){
       panel.classList.add('editing');
       inner.setAttribute('contenteditable', 'true');
       titleEl.setAttribute('contenteditable', 'true');
       titleEl.focus();
+      var table = inner.querySelector('table');
+      if (table){
+        Array.prototype.forEach.call(table.rows, function(row){
+          if (row.querySelector('td')) addDeleteCell(row);
+        });
+      }
     }
     function stopEditing(){
+      var table = inner.querySelector('table');
+      if (table){
+        Array.prototype.forEach.call(table.querySelectorAll('.row-delete-cell'), function(td){ td.remove(); });
+      }
       panel.classList.remove('editing');
       inner.removeAttribute('contenteditable');
       titleEl.removeAttribute('contenteditable');
@@ -1604,6 +1641,7 @@ document.querySelectorAll('.franchise-tabs a').forEach(tab => {
         var tr = document.createElement('tr');
         for (var i = 0; i < cellCount; i++) tr.appendChild(document.createElement('td'));
         table.appendChild(tr);
+        addDeleteCell(tr);
         var range = document.createRange();
         range.selectNodeContents(tr.children[0]);
         range.collapse(true);
