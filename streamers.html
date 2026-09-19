@@ -1308,15 +1308,22 @@ body.drag-mode .resize-handle{ display:block; }
           info.appendChild(platformLink);
 
           card.appendChild(info);
-          allCards.push({ el: card, name: s.name.toLowerCase() });
+          var cardEntry = { el: card, name: s.name.toLowerCase(), live: false };
+          allCards.push(cardEntry);
 
           // live-status checking only covers Twitch right now (see ToutaBot's
           // /api/public/live-status) -- YouTube/Kick cards just stay OFFLINE
-          // until that's added too.
+          // until that's added too. Keyed by the actual channel login parsed
+          // out of the URL, not the display name -- several roster entries
+          // stream under a different handle than the name shown on the card
+          // (e.g. "Andrew" is twitch.tv/shaliin_), so keying off the name
+          // meant those never matched as live even while actually live.
           if (s.platform === 'Twitch') {
-            var key = s.name.toLowerCase();
-            liveBadges[key] = { badge: live, game: game, platform: s.platform };
-            twitchChannels.push(key);
+            var key = (s.url.split('/').filter(Boolean).pop() || '').toLowerCase();
+            if (key) {
+              liveBadges[key] = { badge: live, game: game, platform: s.platform, card: cardEntry };
+              twitchChannels.push(key);
+            }
           }
         });
 
@@ -1330,7 +1337,13 @@ body.drag-mode .resize-handle{ display:block; }
                 entry.badge.className = 'live';
                 entry.badge.textContent = 'LIVE';
                 entry.game.textContent = 'Playing Minecraft';
+                entry.card.live = true;
               });
+              // live people bubble to the front (stable sort keeps everyone
+              // else in their original roster order) -- re-apply whatever
+              // search filter is currently active on top of the new order.
+              allCards.sort(function(a, b){ return (b.live ? 1 : 0) - (a.live ? 1 : 0); });
+              applyFilter();
             })
             .catch(function(e){ console.warn('[live-status] fetch failed:', e); });
         }
@@ -1359,11 +1372,19 @@ body.drag-mode .resize-handle{ display:block; }
           nextBtn.disabled = page >= totalPages;
         }
 
-        searchInput.addEventListener('input', function(){
+        // re-applies whatever's currently typed in the search box against
+        // allCards' current order -- pulled out on its own so the live-status
+        // fetch above can call it too after re-sorting allCards, without
+        // resetting the page the user's currently on.
+        function applyFilter(){
           var q = searchInput.value.trim().toLowerCase();
           filtered = q ? allCards.filter(function(c){ return c.name.indexOf(q) !== -1; }) : allCards;
-          page = 1;
           render();
+        }
+
+        searchInput.addEventListener('input', function(){
+          page = 1;
+          applyFilter();
         });
 
         prevBtn.addEventListener('click', function(){ page--; render(); });
