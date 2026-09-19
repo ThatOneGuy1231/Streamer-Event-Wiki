@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Imperial Topaz SMP</title>
+<link rel="icon" type="image/png" href="img/Webico.png">
+<script>
+/* This layout is fixed-px, not responsive -- the same page reads a
+   different *relative* size on different screens depending on both raw
+   resolution and the OS's own display-scaling setting (e.g. a 1080p
+   laptop panel is often set to >100% Windows scaling, which shrinks the
+   *effective* CSS-px viewport further than the resolution alone suggests),
+   so it can comfortably fit with room to spare on one monitor while
+   overflowing into a horizontal scrollbar on another, forcing a manual
+   browser zoom-out to compensate.
+
+   This shrinks the whole page via zoom (not transform: zoom scales
+   everything together -- text, layout, images, fixed-position elements --
+   the same way real browser zoom does) only when the viewport is actually
+   narrower than the page needs, so it never scrolls horizontally and
+   reads as the same relative size everywhere. A screen with room to
+   spare is left completely untouched (zoom stays 1); this is purely a
+   shrink-to-fit floor, not a fixed target size. */
+(function(){
+  var html = document.documentElement;
+  html.style.visibility = 'hidden';
+  function fit(){
+    document.body.style.zoom = 1;
+    var needed = html.scrollWidth;
+    var available = window.innerWidth;
+    var ratio = available / needed;
+    if (ratio < 1) ratio *= 0.96; // a bit of breathing room instead of an exact edge-to-edge fit
+    ratio = Math.min(1, ratio);
+    document.body.style.zoom = ratio;
+    html.style.visibility = '';
+  }
+  document.addEventListener('DOMContentLoaded', fit);
+  window.addEventListener('resize', fit);
+})();
+</script>
+<style>
+@font-face{
+  font-family:'Silkscreen';
+  src:url('fonts/slkscr.ttf') format('truetype');
+  font-weight:400; font-style:normal; font-display:swap;
+}
+@font-face{
+  font-family:'Silkscreen';
+  src:url('fonts/slkscrb.ttf') format('truetype');
+  font-weight:700; font-style:normal; font-display:swap;
+}
+@font-face{
+  font-family:'Minecraft';
+  src:url('fonts/Minecraft.ttf') format('truetype');
+  font-weight:400; font-style:normal; font-display:swap;
+}
+/* ============================================================
+   Layout ported from Vector-legacy skinning.
+
+   Real measurements:
+     sidebar 10em (11em >=982px) · header base 85px · tabs 36px
+     content border-top 6px · border-left 6px · right margin 10px
+     3D corners via #mw-page-base::after and #content::after
+
+   Swap the image variables for your own art and the skin changes.
+   ============================================================ */
+
+:root{
+  /* --- your artwork. leave as none to use the CSS fallbacks. --- */
+  --base-background:   url('img/Background-medium.png'); /* the 936x936 seamless stone tile, pre-tiled 4x4 (3744x3744) into one single static image -- no CSS background-repeat at all for this layer anymore (see body below), so there's no tile grid for the browser to re-round independently at each zoom level. That per-tile rounding (not simple image resampling) was the actual cause of the ore specks visibly reordering/shifting relative to each other while zooming -- a single image has no tile boundaries to reorder. */
+  --header-background: url('img/Header-background.png'); /* 468x468 seamless sky/grass/dirt/stone strip, repeats horizontally at a fixed height so it lines up on any screen/zoom */
+  --mascot:            none;  /* url('img/mascot.png')      256px, sits behind    */
+  --wiki-logo:         url('img/logo.png');
+  --vector-tabs:             url('img/Vector-tabs.png');
+  --vector-tabs-first:       url('img/Vector-tabs-first.png');
+  --vector-tabs-hidpi:       url('img/Vector-tabs-HiDPI.png');
+  --vector-tabs-first-hidpi: url('img/Vector-tabs-first-HiDPI.png');
+  --content-border-left:     url('img/grass_border.png'); /* 14x417 grass/dirt cross-section, tiles vertically */
+
+  /* --- palette. override this block per section for themed areas. --- */
+  --base-background-color:          #303030;
+  --content-background-color:       #E6EFF4;
+  --content-border-top-color:       #B4BEC3;
+  --content-border-left-color:      #171717;
+  --content-border-top-right-color: #784c2a;
+  --search-top-border:              #FFFFFF;
+  --search-left-border:             #888888;
+  --accent:                         #6BA41E;
+  --search-placeholder:             #72777D;
+
+  /* shared border/ring pair every content box below now uses -- lifted
+     straight from .franchise-tabs' own unselected outer-border/inset-ring
+     colors, so panels/cards/buttons/tables read as the same skin as the
+     tabs and sidebar instead of a separate plain-white MediaWiki look. */
+  --panel-border: #838991;
+  --panel-border-width: 3px;
+  --panel-ring:   #EFEFEF;
+
+  --color-base:     #202122;
+  --link:           #0645ad;
+  --link-visited:   #0b0080;
+  --border-base:    #a2a9b1;
+  --border-subtle:  #c8ccd1;
+  --neutral:        #f8f9fa;
+  --neutral-strong: #eaecf0;
+
+  /* height of the sky+grass zone before tabs/content start. Fixed (not
+     computed) because Header-background.png is a repeat-x strip, not a
+     cover photo -- the grass row sits at a constant pixel offset no matter
+     the window size or browser zoom. The tile's own grass row is at y=90 of
+     468px; extra plain sky (solid-color fill, same blue as the tile's own
+     sky so the seam is invisible) is added above it to push this taller,
+     giving the big logo more room. Raise/lower this to resize the sky. */
+  --header-h: 335px;
+}
+
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  font-family:"Minecraft", "Silkscreen", "Liberation Sans", Arial, Helvetica, FreeSans, sans-serif;
+  letter-spacing:0.1em;
+  color:var(--color-base);
+  background-color:var(--base-background-color);
+  background-image:
+    var(--mascot),
+    var(--header-background),
+    linear-gradient(rgb(88,181,254), rgb(88,181,254)), /* extra plain sky, same blue as the tile's own sky */
+    var(--base-background),
+    repeating-conic-gradient(rgba(255,255,255,.022) 0% 25%, transparent 0% 50%);
+  background-repeat:no-repeat, repeat-x, no-repeat, no-repeat, repeat;
+  background-position:center 570px, left calc(var(--header-h) - 90px), top left, top center, top left;
+  background-size:256px, auto 468px, 4000px calc(var(--header-h) - 90px + 2px), 3744px 3744px, 16px 16px; /* flat-sky layer is a large fixed width instead of 100% -- dynamic %-sizing on an otherwise fixed-px layout was what let this layer drift out of sync with everything else under zoom. 4000px comfortably covers any realistic window/monitor width while staying fixed (not recomputed). extended 2px past where the tile begins -- the tile draws on top and never moves, so tabs/content stay put, but any sub-pixel rounding gap is now  The stone layer's own position was "top left" (anchored to body's raw left edge) while #page is centered via margin:auto -- as the effective viewport width changes with browser zoom, #page's centered offset shifts but the stone block's left-anchored one didn't, so the texture visibly drifted relative to the page framing. "top center" anchors it the same way #page is centered, so both move together and the gap between them stays constant instead of changing with zoom. */
+  background-attachment:scroll, scroll, scroll, scroll, scroll;
+  overflow-y:scroll;
+}
+
+a{ color:var(--link); text-decoration:none; }
+a:visited{ color:var(--link-visited); }
+a:hover,a:focus{ text-decoration:underline; }
+a.new{ color:#ba0000; }
+:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
+
+/* ---------- page wrapper: centers the whole layout (sidebar, tabs, search, login move with it) ---------- */
+#page{
+  position:relative;
+  width:1200px;
+  min-width:1200px;
+  max-width:none;
+  margin:0 auto;
+}
+body{ min-width:1200px; }
+
+/* ---------- header strip (transparent: real background image shows through) ---------- */
+#mw-page-base{
+  position:relative;
+  height:var(--header-h);
+}
+/* top-right 3D corner where the slab meets the header */
+#mw-page-base::after{
+  content:"";
+  position:absolute;
+  border-top:6px solid var(--content-border-top-right-color);
+  border-left:6px solid var(--content-border-top-color);
+  z-index:1;
+  top:334px; right:10px; /* header-h(335px) - 1px, hardcoded -- see #page-tabs comment above */
+}
+#mw-head-base{ height:80px; margin-top:-80px; }
+
+/* ---------- head nav ---------- */
+#mw-head{ position:absolute; top:0; right:0; width:100%; z-index:3; }
+#page-tabs{ float:left; margin-left:calc(10em - 103px); margin-top:352.75px; } /* header-h(335px) + 17.75px, hardcoded -- calc(var(--header-h) + Npx) here was landing at the wrong offset (rendering up near the top of the viewport) under zoom, since --header-h never actually varies in this file anyway */
+#p-search{ float:right; margin-top:360px; margin-right:115px; width:312px; height:63px; } /* header-h(335px) + 25px, hardcoded for the same reason */
+
+/* ---------- tabs ---------- */
+/* tab-sprite-w/h keep the Vector-tabs.png corner graphic (natural 262x72,
+   two 36px-tall frames) scaled in lockstep with --tab-h so the frames still
+   land exactly on the tab's top/bottom edges instead of getting cut mid-frame. */
+.vector-tabs{ --tab-h:40px; height:var(--tab-h); margin:0; float:left; }
+.vector-tabs ul{ list-style:none; margin:0; padding:0; height:100%; float:left; }
+.vector-tabs li{
+  position:relative; float:left; height:100%; width:104px; margin:0 8px 0 0; padding:0;
+  --ca-bg:var(--content-border-top-color);
+  --ca-img:var(--vector-tabs);
+  background:var(--ca-img) no-repeat right 8px top,
+             linear-gradient(to right, var(--ca-bg) calc(100% - 14px), transparent 0)
+             no-repeat left 6px top 6px;
+  background-size:calc(var(--tab-h) * 7.2778) calc(var(--tab-h) * 2), auto;
+  image-rendering:pixelated; image-rendering:crisp-edges;
+}
+.vector-tabs li.selected,
+.vector-tabs li:hover{
+  --ca-bg:var(--content-background-color);
+  background-position-y:bottom, 6px;
+}
+.vector-tabs li::before{
+  content:""; position:absolute; left:0; top:0;
+  width:6px; height:100%;
+  background:var(--ca-img) var(--content-border-top-color) no-repeat left top;
+  background-size:calc(var(--tab-h) * 7.2778) calc(var(--tab-h) * 2);
+  image-rendering:pixelated; image-rendering:crisp-edges;
+  pointer-events:none;
+}
+.vector-tabs li:first-child::before{
+  background:var(--vector-tabs-first) no-repeat left top;
+}
+@media (min-resolution:1.5dppx){
+  .vector-tabs li{ --ca-img:var(--vector-tabs-hidpi); }
+  .vector-tabs li:first-child::before{
+    background-image:var(--vector-tabs-first-hidpi); background-size:6px auto;
+  }
+}
+.vector-tabs li a{
+  display:block; width:100%; box-sizing:border-box;
+  height:21px; padding:19px 8px 0; text-align:center;
+  font-size:0.875em; font-weight:bold; color:#42464a;
+  text-decoration:none; cursor:pointer;
+}
+.vector-tabs li a:hover{ text-decoration:none; }
+
+/* ---------- search ---------- */
+/* Fixed px sizing throughout (not vw) so this scales uniformly with browser
+   zoom instead of drifting relative to the rest of the fixed-px chrome --
+   width is driven by #p-search's own (resizable) width. */
+#p-search form{ position:relative; width:100%; margin-top:6px; padding:0 4px 0 5px; height:27px; }
+.search-wrap{
+  position:relative; top:-3px;
+  height:27px; width:100%; min-width:80px;
+  border:0;
+  border-top:3px solid var(--search-top-border);
+  border-left:3px solid var(--search-left-border);
+  background-image:linear-gradient(#C3C3C3,#DBDBDB);
+}
+.search-wrap::before{
+  content:""; position:absolute; bottom:0; left:-3px;
+  border-top:3px solid var(--search-left-border);
+  border-left:3px solid var(--content-border-top-color);
+  z-index:1;
+}
+.search-wrap::after{
+  content:""; position:absolute; top:-3px; right:0;
+  border-top:3px solid var(--accent);
+  border-left:3px solid var(--search-top-border);
+}
+.search-wrap input{
+  width:100%; height:100%;
+  padding:5px 26px 5px 0.6em;
+  border:0; border-radius:0; outline:none; box-shadow:none;
+  background-color:rgba(255,255,255,0.5); color:#000;
+  font-family:inherit; font-size:0.8em;
+}
+.search-wrap .search-icon{
+  display:block; position:absolute; top:0; right:0; bottom:0;
+  width:28px;
+  background:no-repeat center/16px url('img/search.svg');
+  opacity:.67;
+  pointer-events:none;
+}
+.search-wrap input::placeholder{ color:var(--search-placeholder); }
+
+.site-search-results{
+  position:absolute; top:100%; left:5px; right:4px;
+  background:#fff; border:1px solid var(--search-left-border);
+  box-shadow:0 3px 8px rgba(0,0,0,0.35);
+  z-index:50; max-height:320px; overflow-y:auto;
+}
+.site-search-results a{
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding:6px 10px; font-size:0.8em; color:var(--color-base); text-decoration:none;
+}
+.site-search-results a:hover, .site-search-results a.active{ background:#EBEBEB; }
+.site-search-results .result-title{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.site-search-results .result-type{ flex:none; font-size:0.85em; color:#72777D; }
+
+/* ---------- sidebar ---------- */
+#mw-panel{
+  display:none; /* hidden from the page -- markup/JS untouched, just not rendered */
+  position:absolute; top:207px; left:-101px; width:10em;
+  padding:180px 0 10px 0.5em; /* was calc(header-h - 10px) = 325px -- pushed the first portal (y~540) way below #content's own top (y~387). 180px lines the two up. */
+  z-index:2;
+}
+
+/* ---------- masthead logo: big, centered across the top of the page ---------- */
+#p-logo{
+  position:absolute; top:-15px; left:calc(50% + 6px);
+  width:870px; height:339px;
+  transform:translateX(-50%);
+  z-index:4;
+}
+#p-logo a{
+  display:block; width:100%; height:100%;
+  background-image:var(--wiki-logo);
+  background-position:center center; background-repeat:no-repeat;
+  background-size:contain;
+}
+
+.portal{
+  margin:0.5em 8px 2px 6px; padding:0;
+  background-color:#232324;
+  border:2px solid #000;
+}
+/* beveled block-style heading */
+.portal h3{
+  margin:0;
+  padding:calc(0.5em + 2px);
+  background:
+    conic-gradient(from 180deg at 2px calc(100% - 2px), #6a6b6c 90deg, transparent 0),
+    conic-gradient(from 0 at calc(100% - 2px) 2px, #6a6b6c 90deg, transparent 0),
+    linear-gradient(to top,    #464747 2px, transparent 0),
+    linear-gradient(to bottom, #5a5b5c 2px, transparent 0),
+    linear-gradient(to left,   #464747 2px, transparent 0),
+    linear-gradient(to right,  #5a5b5c 2px, transparent 0);
+  background-color:#313233;
+  border-bottom:2px solid #000;
+  color:#fff !important;
+  font-size:0.75em; font-weight:bold;
+  cursor:pointer; user-select:none;
+}
+.portal h3::before{
+  content:""; display:inline-block; position:relative;
+  width:0; height:0;
+  border-style:solid; border-color:#AAA transparent; border-width:6px 5px 0;
+  margin-right:6px; margin-bottom:1px;
+}
+.portal.collapsed h3::before{ transform:rotate(-90deg); }
+.portal.collapsed h3{
+  background:
+    conic-gradient(from 180deg at 2px calc(100% - 2px), #7c7c7d 90deg, transparent 0),
+    conic-gradient(from 0 at calc(100% - 2px) 2px, #7c7c7d 90deg, transparent 0),
+    linear-gradient(to top,    #5a5b5c 2px, transparent 0),
+    linear-gradient(to bottom, #6d6d6e 2px, transparent 0),
+    linear-gradient(to left,   #5a5b5c 2px, transparent 0),
+    linear-gradient(to right,  #6d6d6e 2px, transparent 0);
+  background-color:#48494a;
+  padding:0.5em calc(0.5em + 2px);
+  border-bottom:5px solid #313233;
+}
+.portal.collapsed .body{ display:none; }
+.portal .body{ margin:0; padding:0; }
+.portal ul{ list-style:none; margin:0; padding:0.3em 0.5em; }
+.portal li{ margin:0; padding:0.25em 0; font-size:0.75em; line-height:1.125em; word-wrap:break-word; }
+.portal li a{ color:#BFBFBF !important; }
+.portal li a:hover,.portal li a:focus{ color:#fff !important; }
+
+/* ---------- content slab ---------- */
+#content{
+  position:relative;
+  margin-left:calc(10em - 103px); margin-right:10px; margin-top:52px;
+  /* fixed width (with a fluid fallback so narrow/mobile viewports don't
+     overflow) instead of filling available space -- a fluid width made the
+     layout editor's fixed-px nudge drift at different zoom levels, since
+     the box's own size kept changing relative to that fixed nudge. */
+  width:min(1014px, calc(100% - 10em + 93px));
+  padding:1em;
+  background-color:var(--content-background-color);
+  border-top:6px solid var(--content-border-top-color);
+  border-left:14px solid var(--content-background-color); /* matches the
+    panel's own fill, so any sliver of this gutter not covered by
+    border/brown (they're narrower than this 14px reservation) reads as
+    part of the white panel instead of a gray or brown seam */
+  border-bottom:0; border-right:0;
+  word-wrap:break-word;
+}
+/* left border art: an independent element (was a ::before pseudo, but
+   pseudo-elements can't be dragged separately -- this can, via the layout
+   editor). Height is kept in sync with #content's own live height by JS,
+   unless you resize it by hand, in which case your height sticks. */
+#content-border{
+  position:absolute;
+  left:calc(10em - 103px); top:353px; /* header-h(335px) + 18px, hardcoded -- see #page-tabs comment above */
+  width:7px; height:302px;
+  background:var(--content-border-left) no-repeat top left;
+  background-size:100% auto; /* tracks the element's own width, so resizing it actually scales the art instead of just clipping it */
+  pointer-events:none;
+  z-index:5; /* above sidebar(2)/head(3)/logo(4) too, so it's always reachable no matter where it's dragged */
+}
+@media screen and (min-width:982px){
+  #content-border{ left:calc(11em - 103px); }
+}
+/* brown fill + corner cap, split from your angled brown.png:
+   - #content-brown is the flat/opaque part (brown-fill.png), repeat-y so it
+     tiles cleanly to any height, kept (by JS) exactly capH shorter than
+     content's true bottom so the corner below has room to sit flush.
+   - #content-brown-corner is nested inside it, pinned to top:100% (i.e.
+     right where the shortened fill ends) with width:100% + aspect-ratio,
+     so it always scales in proportion to #content-brown's own width --
+     no independent stretching, so the angle never distorts regardless of
+     how tall the page gets. */
+#content-brown{
+  position:absolute;
+  left:calc(10em - 103px); top:561px; /* header-h(335px) + 226px, hardcoded -- see #page-tabs comment above */
+  width:7px; height:302px; /* JS-synced fallback starting size */
+  background:url('img/brown-fill.png') repeat-y top left;
+  background-size:100% auto;
+  pointer-events:none;
+  z-index:5;
+}
+@media screen and (min-width:982px){
+  #content-brown{ left:calc(11em - 103px); }
+}
+#content-brown-corner{
+  position:absolute;
+  left:0; top:100%; width:100%;
+  aspect-ratio:14/46; /* brown-corner.png's native size -- scales height to match this element's current width, always in proportion */
+  background:url('img/brown-corner.png') no-repeat top left;
+  background-size:100% 100%;
+  pointer-events:none;
+}
+/* bottom-left 3D corner */
+#content::after{
+  content:""; position:absolute;
+  border-top:6px solid transparent;
+  border-left:6px solid var(--base-background-color);
+  left:-14px; bottom:0;
+}
+
+.firstHeading{
+  margin:0 0 0.25em; padding:0 0 0.17em;
+  font-family:'Minecraft','Silkscreen','Linux Libertine','Georgia','Times',serif;
+  font-size:1.8em; font-weight:normal; line-height:1.375;
+  border-bottom:1px solid var(--border-base);
+}
+#bodyContent{ font-size:0.875rem; line-height:1.6; }
+#bodyContent h2{
+  margin-top:1em; margin-bottom:0.25em; padding-bottom:0.17em;
+  font-family:'Minecraft','Silkscreen','Linux Libertine','Georgia','Times',serif;
+  font-size:1.5em; font-weight:normal;
+  border-bottom:1px solid var(--border-base);
+}
+#bodyContent h3{ margin:0.3em 0; font-size:1.2em; font-weight:bold; }
+#bodyContent p{ margin:0.5em 0; }
+#bodyContent ul{ margin:0.3em 0 0 1.6em; padding:0; }
+
+/* ---------- main page: hide redundant heading ---------- */
+body.mainpage .firstHeading{ display:none; }
+
+/* ---------- franchise/section tab strip ---------- */
+.franchise-tabs{
+  display:flex; align-items:flex-end; margin:0 0 12px; width:100%; /* was 92%/auto-centered -- didn't match the full-width content boxes below it */
+  background:transparent; border-radius:0; overflow:hidden; /* was solid white -- showed as a white line in the gap above the shorter selected tab */
+}
+.franchise-tabs a{
+  position:relative;
+  z-index:1; /* above .selected (z-index:0) so an unselected neighbor's edge always clips over the selected tab's, on both sides -- not just whichever side happens to come later in DOM order */
+  flex:1; display:flex; align-items:center; justify-content:center; gap:8px;
+  padding:12px 4px; font-size:0.85em; font-weight:bold; color:var(--color-base);
+  background:#EBEBEB; /* flat fill, same structure as .selected just in gray -- a uniform 3px border on every side (matching .selected's) instead of mismatched widths per side, which was mitering badly at the corners */
+  border:var(--panel-border-width) solid #818992; /* outer border */
+  box-shadow:inset 0 0 0 3px #EFEFEF; /* inner border, uniform 3px, slightly lighter than the fill */
+  /* smooths the height change (from padding) and color swap when a tab
+     gains/loses .selected, instead of snapping instantly */
+  transition:padding 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, color 0.25s ease;
+}
+/* thickens just the bottom of the inset ring above -- same color, so it
+   reads as one continuous line that's thin on 3 sides and thick on the
+   4th, not a separate/overlapping line. unselected tabs only. */
+.franchise-tabs a:not(.selected)::before{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:6px;
+  background:#C0C0C0; /* neutral gray at rest -- only switches to the tab's own dark color on hover */
+  /* thin light line on top of the thick bar, same idea as the border+inset
+     pairing on .selected tabs -- box-sizing:border-box (global) shrinks the
+     background fill to make room for it instead of the border sitting outside. */
+  border-top:3px solid #EFEFEF; /* matches the resting inset ring color */
+  transition:background-color 0.25s ease, border-top-color 0.25s ease; /* matches the parent tab's own transition, so the bar fades in sync instead of snapping instantly while everything else eases */
+}
+/* dark version of each tab's own color, but only while hovering --
+   same shades as each tab's .selected border-color. border-top-color pairs
+   each with its own .selected inset (the lighter shade), same as .selected's
+   own border+inset pairing. */
+.franchise-tabs a:nth-child(1):not(.selected):hover::before{ background:#225d00; border-top-color:#45a80c; } /* Main */
+.franchise-tabs a:nth-child(2):not(.selected):hover::before{ background:#6B4F99; border-top-color:#A98FD1; } /* Streamers */
+.franchise-tabs a:nth-child(3):not(.selected):hover::before{ background:#386676; border-top-color:#6FA0B5; } /* Lore */
+.franchise-tabs a:nth-child(4):not(.selected):hover::before{ background:#B08F35; border-top-color:#E8CE85; } /* Events */
+.franchise-tabs a:nth-child(5):not(.selected):hover::before{ background:#4F8B5D; border-top-color:#93C89F; } /* Photos */
+/* each tab draws its own full border, so two sitting side by side doubles
+   up into a thick seam -- pull every tab but the first left by its own
+   border-width so the shared edge overlaps into a single line instead
+   (later tabs paint on top of earlier ones in normal flow, so the overlap
+   just shows the later tab's border, not a blend of both) */
+.franchise-tabs a:not(:first-child){ margin-left:-3px; }
+.franchise-tabs a:hover{ text-decoration:none; }
+/* hover uses each tab's own full selected color (same fill/border/inset/text
+   as .selected, not just a pale tint of it) -- so hovering previews exactly
+   what clicking it would look like. */
+.franchise-tabs a:nth-child(1):hover{ background:#378f00; border-color:#225d00; box-shadow:inset 0 0 0 3px #45a80c; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.45); } /* Main */
+.franchise-tabs a:nth-child(2):hover{ background:#8A6BBF; border-color:#6B4F99; box-shadow:inset 0 0 0 3px #A98FD1; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.45); } /* Streamers */
+.franchise-tabs a:nth-child(3):hover{ background:#4B89A3; border-color:#386676; box-shadow:inset 0 0 0 3px #6FA0B5; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.45); } /* Lore */
+.franchise-tabs a:nth-child(4):hover{ background:#D9B44A; border-color:#B08F35; box-shadow:inset 0 0 0 3px #E8CE85; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.45); } /* Events */
+.franchise-tabs a:nth-child(5):hover{ background:#71B481; border-color:#4F8B5D; box-shadow:inset 0 0 0 3px #93C89F; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.45); } /* Photos */
+.franchise-tabs a.selected{
+  background:#378f00; /* flat base fill, no gradient */
+  border:3px solid #225d00; /* outer border */
+  box-shadow:inset 0 0 0 3px #45a80c; /* inner border, uniform 3px on every side */
+  color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.45);
+  /* shorter box than the other tabs (less padding) so it visibly sits lower
+     at the top -- the row is bottom-aligned (align-items:flex-end), so the
+     bottoms stay flush regardless of this box's own height. Both top and
+     bottom reduced by the same amount (not just top) so the icon/text stay
+     centered in the shorter box instead of getting crammed against the top. */
+  padding:9px 4px;
+  z-index:0;
+}
+/* per-tab selected colors, in place of every tab turning the same green */
+.franchise-tabs a:nth-child(2).selected{
+  background:#8A6BBF; /* lavender purple -- Streamers */
+  border-color:#6B4F99;
+  box-shadow:inset 0 0 0 3px #A98FD1;
+}
+.franchise-tabs a:nth-child(3).selected{
+  background:#4B89A3; /* slate blue -- Lore */
+  border-color:#386676;
+  box-shadow:inset 0 0 0 3px #6FA0B5;
+}
+.franchise-tabs a:nth-child(4).selected{
+  background:#D9B44A; /* mid-tone yellow -- Events */
+  border-color:#B08F35;
+  box-shadow:inset 0 0 0 3px #E8CE85;
+}
+.franchise-tabs a:nth-child(5).selected{
+  background:#71B481; /* Photos -- greener/lighter than Main's own green so they read as distinct */
+  border-color:#4F8B5D;
+  box-shadow:inset 0 0 0 3px #93C89F;
+}
+.franchise-tabs a::after{
+  /* present on every tab (not just .selected), scaled to 0 width so it's
+     invisible until selected -- animates growing in from nothing instead of
+     just popping into existence at full size. transform:scaleX (not the
+     width property) so the browser can animate it on the GPU without
+     recalculating page layout every frame -- animating width was causing
+     visible stutter since it forces a full reflow on each animation frame.
+     Same thickness/vertical position as the inner border's bottom segment
+     (3px in, 3px thick), but short and centered like a label underline
+     rather than spanning the full tab width. */
+  content:""; position:absolute; left:50%; bottom:0; width:40px; height:3px;
+  background:#fff; transform:translateX(-50%) scaleX(0);
+  transition:transform 0.3s ease;
+}
+.franchise-tabs a.selected::after{
+  transform:translateX(-50%) scaleX(1);
+}
+.franchise-tabs .ico{ image-rendering:pixelated; image-rendering:crisp-edges; }
+.franchise-tabs .ico{
+  flex:none; width:25px; height:25px; border-radius:0;
+  background-color:#9aa7b4; /* base fill */
+  border:2px solid #202020; /* outer border */
+  /* 100% instead of a fixed px value -- at fractional browser zoom, a fixed
+     size and the box's own (border-shrunk) content area round to device
+     pixels independently and can land 1px apart, showing as a gap on some
+     zoom levels but not others. Percentage sizing ties the image directly
+     to whatever the content area actually rounds to, so they always match. */
+  background-repeat:no-repeat; background-position:center; background-size:100%;
+}
+.franchise-tabs a:not(.selected) .ico{ position:relative; top:-2px; }
+.franchise-tabs a.selected .ico{ background-color:#7f8b96; }
+
+/* cave.png peeking out from behind the right edge of the content box.
+   cave.png is a full opaque Minecraft screenshot (not a transparent
+   cutout) -- z-index:-1 tucks it behind #content's own painted background
+   (and everything else in the normal flow), so the portion that still
+   overlaps the content box is hidden, and only the slice that sticks out
+   past its right edge, over the bare page background, actually shows.
+   Same fixed offset from #content on every page (matches the main page's
+   own #cave-peek) so it sits in the same spot site-wide. */
+#cave-peek{
+  position:absolute;
+  z-index:-1;
+  top:321.8px; left:750px;
+  width:720px; height:645px;
+  background-image:url('img/cave.png');
+  background-repeat:no-repeat;
+  background-position:0 0;
+  background-size:720px auto;
+  image-rendering:pixelated; image-rendering:crisp-edges;
+  pointer-events:none;
+}
+
+/* ---------- collapsible info bar (e.g. "recent updates") ---------- */
+.collapsible-bar{
+  background:#fff; border-radius:0;
+  border:var(--panel-border-width) solid var(--panel-border);
+  box-shadow:inset 0 0 0 3px var(--panel-ring);
+  margin-bottom:12px;
+}
+.collapsible-bar .bar-head{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:calc(0.5em + 2px) 12px;
+  background:#EBEBEB;
+  border-bottom:2px solid var(--panel-border);
+  font-size:0.95em; font-weight:bold; color:var(--color-base);
+  cursor:pointer; user-select:none;
+}
+.collapsible-bar .bar-head::after{ content:"▾"; font-size:0.8em; color:var(--border-base); }
+.collapsible-bar.collapsed .bar-head::after{ content:"▸"; }
+.collapsible-bar.collapsed .bar-body{ display:none; }
+.collapsible-bar .bar-body{ padding:8px 12px; font-size:0.85em; }
+
+/* ---------- small social icon row ---------- */
+.social-row{ display:flex; gap:8px; justify-content:center; margin-top:10px; }
+.social-row a{
+  width:34px; height:34px; border-radius:0;
+  border:2px solid #202020;
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-size:0.8em; font-weight:bold;
+}
+.social-row a:hover{ text-decoration:none; filter:brightness(1.15); }
+
+/* ---------- main-page panels: same flat-color/thick-border/inset-ring
+   language as .franchise-tabs, header bar reuses .portal h3's beveled
+   block style, so every content box reads as the same skin as the tabs
+   and sidebar instead of a separate plain-white look. ---------- */
+.panel{
+  background:#fff; border-radius:0;
+  border:var(--panel-border-width) solid var(--panel-border);
+  box-shadow:inset 0 0 0 3px var(--panel-ring);
+  margin-bottom:12px;
+}
+#bodyContent .panel > h2{
+  position:relative;
+  margin:0; padding:calc(0.5em + 2px) 12px 15px;
+  background:#EBEBEB;
+  box-shadow:inset 0 0 0 3px var(--panel-ring);
+  color:var(--color-base);
+  font-family:inherit; font-size:1.05em; font-weight:bold;
+}
+#bodyContent .panel > h2::after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:6px;
+  background:#C0C0C0;
+  border-top:3px solid var(--panel-ring);
+  border-bottom:var(--panel-border-width) solid var(--panel-border);
+}
+.panel .inner{ padding:12px; }
+.panel .inner > :first-child{ margin-top:0; }
+.panel .inner > :last-child{ margin-bottom:0; }
+
+.grid-2{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:12px; }
+.grid-half{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+
+.hero{
+  position:relative; overflow:hidden; min-height:180px;
+  padding:10px 12px; color:#fff; background:#5d4a2a;
+  border-radius:0;
+  border:var(--panel-border-width) solid var(--panel-border);
+  box-shadow:inset 0 0 0 3px rgba(255,255,255,.15);
+  text-shadow:1px 1px 2px rgba(0,0,0,.8);
+}
+.hero h3{ margin:0 0 3px; font-size:1.1em; }
+.hero .tag{
+  position:absolute; right:8px; top:8px; padding:2px 9px; border-radius:0;
+  border:1px solid rgba(0,0,0,.4);
+  background:var(--accent); font-size:0.75em; font-weight:bold; text-shadow:none;
+}
+.hero .base{ position:absolute; left:12px; bottom:9px; font-size:0.8em; }
+
+/* ---------- streamer preview cards ---------- */
+.streamers-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.streamer-card{
+  position:relative;
+  display:block; text-align:center; overflow:hidden;
+  background:#fff; border-radius:0;
+  border:var(--panel-border-width) solid var(--panel-border);
+  box-shadow:inset 0 0 0 3px var(--panel-ring);
+  color:var(--color-base);
+}
+/* thick bottom bar, same construction as .franchise-tabs
+   a:not(.selected)::before -- a 6px bar with a lighter 3px top edge,
+   sitting at the card's own bottom edge (under the info text). */
+.streamer-card::after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:6px;
+  background:#C0C0C0;
+  border-top:3px solid var(--panel-ring);
+}
+.streamer-card:hover{ text-decoration:none; }
+.streamer-card:hover .avatar{ background-color:#ABADAE; }
+.streamer-card .avatar{
+  position:relative; display:block; height:95px;
+  background-color:#B8BABB;
+  background-image:url('img/icons/Spyglass.png');
+  background-repeat:no-repeat; background-position:center; background-size:48px;
+  border-top:5px solid #8E8F90;
+  border-bottom:5px solid #CACBCC;
+}
+.streamer-card .live{
+  position:absolute; left:6px; top:6px;
+  padding:1px 8px; border-radius:0;
+  border-bottom:3px solid #a81310; /* darker shade of the fill, not gray */
+  background:#e91916; color:#fff; font-size:0.7em; font-weight:bold;
+}
+.streamer-card .live.offline{ background:#767676; border-bottom-color:#4a4a4a; }
+.streamer-card .card-link{
+  position:absolute; inset:0; z-index:1;
+  color:inherit; text-decoration:none;
+}
+.streamer-card .info{
+  position:relative;
+  display:flex; align-items:center; justify-content:space-between; gap:6px;
+  padding:8px 8px 13px; text-align:left;
+}
+.streamer-card .info-text{ min-width:0; }
+.streamer-card .name{ font-weight:bold; font-size:0.9em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.streamer-card .game{ font-size:0.78em; color:#54595d; margin-top:2px; }
+.streamer-card .platform-link{
+  position:relative; z-index:2; flex:none;
+  width:27px; height:27px; border-radius:0;
+  display:flex; align-items:center; justify-content:center;
+}
+.streamer-card .platform-link img{
+  display:block; width:100%; height:100%;
+  image-rendering:pixelated; image-rendering:crisp-edges;
+}
+.streamer-card .platform-link:hover{ filter:brightness(1.15); }
+
+.tiles{ display:grid; grid-template-columns:repeat(7,1fr); gap:8px; }
+.tile{
+  position:relative;
+  display:flex; flex-direction:column; padding:11px 5px 13px; text-align:center;
+  background:#EBEBEB; border-radius:0;
+  border:var(--panel-border-width) solid var(--panel-border);
+  box-shadow:inset 0 2px 0 0 var(--panel-ring), inset 0 -2px 0 0 var(--panel-ring); /* top/bottom only, no left/right inner border */
+  color:#111111; font-size:0.85em; font-weight:bold;
+  overflow:hidden;
+}
+/* the label sits in whatever space is left under the icon (which stays a
+   fixed height, flush to the top) and centers its own text vertically in
+   that space -- otherwise a short one-line name (e.g. "Meret") just sits at
+   the top of that space while a tile stretched taller by a longer, wrapping
+   neighbor's name (e.g. "Sophisticated Backpacks (Fabric Port)") in the same
+   grid row leaves empty space below the short name instead of around it. */
+.tile .label{ flex:1; display:flex; align-items:center; justify-content:center; }
+.tile:hover{ background:#dcdcdc; text-decoration:none; }
+/* thick bottom bar, same construction as .streamer-card::after -- a 6px
+   bar with a lighter 3px top edge, sitting at the tile's own bottom edge
+   (under the label text). */
+.tile::after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:6px;
+  background:#C0C0C0;
+  border-top:3px solid var(--panel-ring);
+  transition:background-color 0.15s ease;
+}
+/* subtle, uniform shift (not each tile its own color, like the franchise
+   tabs' hover bars do) -- just a modest step darker than the resting
+   #C0C0C0, same shade on every tile regardless of which one. */
+.tile:hover::after{ background:#A8ADB3; }
+/* the icon's own top/bottom bevel, expanded from a small centered square
+   into a full-width image zone (like the reference tile's separate
+   image/label areas) instead of just framing the icon alone -- negative
+   margins cancel out .tile's own padding so this reaches flush to the
+   tile's border on the top/left/right. */
+.tile .ico{
+  position:relative;
+  display:block; width:calc(100% + 10px); height:78px;
+  margin:-11px -5px 10px -5px; border-radius:0; /* extra bottom margin nudges the label down so it centers in the footer strip instead of sitting flush under the icon */
+  border-top:5px solid #8E8F90;
+  border-bottom:5px solid #CACBCC;
+  box-shadow:0 2.5px 0 0 var(--panel-border); /* thin divider right under the bevel, same weight/color as the tile's own outer border */
+  background-color:#B8BABB; background-repeat:no-repeat; background-position:center; background-size:58px;
+}
+/* the icon artwork's own slight drop shadow -- a separate transparent
+   layer carrying just the icon image (not the gray box fill), so
+   drop-shadow traces the icon's own silhouette instead of casting a
+   shadow around the whole rectangular box. */
+.tile .ico::before{
+  content:""; position:absolute; inset:0;
+  background-image:inherit; background-repeat:no-repeat; background-position:center; background-size:58px;
+  filter:drop-shadow(1px 2px 1.5px rgba(0,0,0,.4));
+}
+
+.buttons{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+.button{
+  flex:1; min-width:110px; padding:8px 14px; text-align:center;
+  background:#EBEBEB; border-radius:0;
+  border:var(--panel-border-width) solid var(--panel-border);
+  box-shadow:inset 0 0 0 2px var(--panel-ring);
+  color:var(--color-base); font-size:0.85em; font-weight:bold;
+}
+.button:hover{ background:#dcdcdc; text-decoration:none; }
+.button.go{
+  background:#378f00; border-color:#225d00;
+  box-shadow:inset 0 0 0 2px #45a80c;
+  color:#fff; font-weight:bold;
+  text-shadow:0 1px 1px rgba(0,0,0,.3);
+}
+.button.go:hover{ background:#45a80c; }
+
+.wikitable{
+  background-color:var(--neutral); margin:1em 0; border-radius:0;
+  border:var(--panel-border-width) solid var(--panel-border); border-collapse:collapse;
+}
+.wikitable th,.wikitable td{ border:1px solid var(--panel-border); padding:0.2em 0.4em; }
+.wikitable th{ background-color:#EBEBEB; color:var(--color-base); border-bottom:2px solid var(--panel-border); text-align:center; }
+
+.catlinks{
+  background-color:var(--neutral); margin-top:1em; border-radius:0;
+  border:var(--panel-border-width) solid var(--panel-border); padding:5px; clear:both; font-size:0.8em;
+}
+.catlinks a{ color:#111111; }
+.catlinks ul{ display:inline; margin:0; padding:0; list-style:none; }
+.catlinks li{
+  display:inline-block; line-height:1.25em; margin:0.125em 0;
+  border-left:1px solid var(--panel-border); padding:0 0.5em;
+}
+.catlinks li:first-child{ border-left:0; padding-left:0.25em; }
+
+/* ---------- footer ---------- */
+#footer{
+  /* #footer sits outside #page, so it doesn't inherit #page's own
+     width:1200px/margin:auto centering. #page's left edge is
+     (viewport - 1200px)/2 since it's a fixed 1200px box centered with
+     margin:auto; #content then sits calc(10em - 103px) further right than
+     that, at a fixed width of 1014px. Reproducing both the same offset and
+     the same width here (instead of the previous width:1200px box that
+     only matched content's *padding*, not its actual edges) makes this
+     box's visible border land exactly on #content's left/right edges. */
+  width:1014px;
+  margin:10px 0 10px calc((100% - 1200px) / 2 + 10em - 103px);
+  box-sizing:border-box;
+  padding:0.5em 0.75em;
+  background-color:#232324;
+  border:4px solid #313233;
+  outline:2px solid #000; outline-offset:-2px;
+  position:relative; /* containing block for .footer-socials, pinned to this box's own corner */
+}
+#footer::after{ content:''; clear:both; display:block; }
+#footer ul{ list-style:none; margin:0; padding:0; }
+/* small gray social icon row, pinned to the footer's own bottom-right
+   corner -- same dark/gray palette as the rest of the footer (not the
+   brand-colored versions on the About page's own social row), since this
+   is a quiet corner detail, not a call to action. */
+.footer-contact{ position:absolute; right:0.75em; bottom:0.5em; display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
+.footer-email{ color:#BFBFBF; font-size:0.68em; }
+.footer-socials{ display:flex; gap:4px; }
+.footer-socials a{
+  width:24px; height:24px; border-radius:0;
+  display:flex; align-items:center; justify-content:center;
+}
+.footer-socials img{
+  display:block; width:100%; height:100%;
+  image-rendering:pixelated; image-rendering:crisp-edges; /* these are pixel-art icons at 512x512 native -- keep them crisp scaled down, not blurred */
+}
+.footer-socials a:hover{ filter:brightness(1.3); text-decoration:none; }
+#footer li{ color:#fff !important; font-size:0.75em; padding:0.5em 0; line-height:1.4; }
+#footer a{ color:#BFBFBF !important; }
+#footer a:hover{ color:#fff !important; }
+/* line-height/font-size both trimmed a notch from the identity line above --
+   this row (and the copyright line right above it) reads as smaller,
+   secondary text next to it. */
+#footer-places li{ display:inline-block; margin-right:1em; line-height:1.6; font-size:0.68em; }
+/* the copyright/non-affiliation line -- same gray as the footer's own links
+   (not the brighter white the identity line above it uses). padding-bottom:0
+   plus a small margin-top pulls this line (and the Privacy policy/About/
+   Disclaimers row that follows it, since it's right after in normal flow)
+   down as a pair, further from the identity line above and further into the
+   footer box's own bottom padding, without touching the identity line's own
+   spacing at all. */
+#footer-info li:last-child{ color:#BFBFBF !important; font-size:0.68em; padding-bottom:0; margin-top:6px; }
+
+/* ---------- >=982px ---------- */
+@media screen and (min-width:982px){
+  #content,#page-tabs{ margin-left:calc(11em - 103px); }
+  #footer{ margin-left:calc((100% - 1200px) / 2 + 11em - 103px); } /* sidebar is 11em (not 10em) at this width, so #content shifts right by 103px more -- match it here */
+  #content{ padding:1.25em 1.5em 1.5em; width:min(1014px, calc(100% - 11em + 93px)); }
+}
+
+/* ---------- was a <=900px breakpoint here collapsing .tiles to 4
+   columns, .grid-2/.grid-half to a single column, and .streamers-grid to
+   2 columns. Removed: the main page's hero-grid (Modpack/Events banners)
+   deliberately never collapses at any width -- see its own comment on
+   index.html -- specifically so the auto-fit-to-width script (the
+   early <script> right after the favicon link) is the only thing that
+   responds to window/viewport size, visually scaling this whole fixed
+   ~1200px design down to fit instead of reflowing it. This breakpoint
+   predates that script and used real window.innerWidth (which zoom does
+   NOT change -- only actual browser/OS zoom does), so as a real window
+   got dragged narrower it kept collapsing these grids' columns on its
+   own schedule while hero-grid never budged, and the two drifting out of
+   sync with each other -- one collapsing, one rigid -- is what read as
+   things "getting misaligned" while the window was being resized. Now
+   every grid on the page stays at its normal (wide) column count at any
+   width, same as hero-grid always has, and only ever shrinks visually
+   via zoom. */
+
+/* ---------- <=720px: sidebar drops below content, above the footer ---------- */
+@media screen and (max-width:720px){
+  /* #mw-page-base/#content/#mw-panel/#footer are the only normal-flow
+     children of #page at this width (everything else -- #mw-head,
+     #content-border, #content-brown -- is position:absolute, so flex order
+     doesn't touch them). #footer is actually nested inside #page (despite
+     what its own comment claims), so it needs an explicit order too --
+     without one it defaults to order:0 and jumps ahead of everything else.
+     Reordering puts the sidebar after #content and before #footer, instead
+     of DOM order's default (sidebar first, then content, then footer). */
+  #page{ display:flex; flex-direction:column; }
+  #mw-page-base{ order:1; }
+  #content{ order:2; }
+  #mw-panel{ order:3; }
+  #footer{ order:4; }
+
+  /* #mw-head used to get pulled up to top:13px here (with page-tabs/p-search
+     margin-top:40px) on the assumption the logo would be small/absent at
+     this width -- it isn't (#p-logo is a fixed 339px tall, doesn't shrink),
+     so that offset put the tabs right in the middle of the logo art. Left
+     at the same position as every other width, which already clears it. */
+  #mw-page-base::after{ content:none; }
+  #page-tabs,#content{ margin-left:10px !important; }
+  #content{ margin-right:10px; width:auto; }
+  /* were display:none here on the assumption this breakpoint only ever means
+     a genuinely narrow/mobile screen, where tracing #content's left edge
+     stops making sense once the sidebar drops below it instead of beside it.
+     But body has an unconditional min-width:1200px, so this breakpoint also
+     fires from browser zoom alone (shrinks the *viewport* below 720px CSS px
+     without the document actually getting any narrower) -- and zooming in
+     is exactly when you'd still want these decorations visible. So: stay
+     visible, just re-anchored to #content's own new mobile-mode left edge
+     (margin-left:10px above) instead of the desktop calc(10em - 103px). */
+  #content-border,#content-brown{ left:10px; }
+  #footer{ margin-left:8px !important; }
+  #mw-panel{
+    position:static !important; display:flex; flex-direction:column; width:100%;
+    padding:0 8px;
+  }
+  #p-logo{ margin:1em auto 0; }
+  .portal{ margin:0.5em 0 2px; }
+  .search-wrap{ width:100%; max-width:100%; }
+  /* float:right (not none) so it wraps below the tabs when there's no room
+     beside them, instead of overlapping -- float:none dropped it onto the
+     same line as the floated tabs with no clearance, since a non-floated
+     block doesn't clear a float, it just lets content wrap around it. */
+  #p-search{ float:right; margin-right:8px; }
+}
+
+/* ---------- layout editor (drag elements around, positions persist) ---------- */
+body.drag-mode [data-drag-id],
+body.select-mode [data-drag-id]{
+  outline:2px dashed rgba(107,164,30,.85);
+  outline-offset:2px;
+}
+body.drag-mode [data-drag-id]{ cursor:move; }
+body.select-mode [data-drag-id]{ cursor:pointer; }
+/* #content-border/#content-brown are pointer-events:none normally
+   (decorative, shouldn't block clicks on what's behind them) but need
+   to be grabbable while editing */
+body.drag-mode #content-border, body.drag-mode #content-brown,
+body.select-mode #content-border, body.select-mode #content-brown{ pointer-events:auto; }
+body.drag-mode [data-drag-id]:hover{ outline-color:#ffdd55; }
+[data-drag-id].dragging{ opacity:.85; z-index:999 !important; }
+body.drag-mode [data-drag-id].grouped{ outline-style:solid; outline-color:#3aa0ff; }
+body.select-mode [data-drag-id].group-selected{ outline-style:solid; outline-color:#3aa0ff; outline-width:3px; }
+
+.resize-handle{
+  display:none;
+  position:fixed; width:12px; height:12px; margin:-6px 0 0 -6px;
+  background:#6BA41E; border:2px solid #fff; border-radius:50%;
+  cursor:nwse-resize; z-index:1001;
+  box-shadow:0 1px 3px rgba(0,0,0,.6);
+}
+body.drag-mode .resize-handle{ display:block; }
+
+.snap-guide{ position:fixed; background:#ff4dd8; z-index:1002; pointer-events:none; display:none; }
+.snap-guide.v{ top:0; bottom:0; width:1px; }
+.snap-guide.h{ left:0; right:0; height:1px; }
+
+#layout-editor{
+  display:none; /* hidden from the page -- code/functionality untouched, just not rendered */
+  position:fixed; right:14px; bottom:14px; z-index:1000;
+  font-family:"Minecraft", "Silkscreen", "Liberation Sans", Arial, sans-serif; font-size:0.8em;
+  background:#232324; color:#fff; border:2px solid #313233; border-radius:4px;
+  padding:8px; width:230px;
+  box-shadow:0 2px 10px rgba(0,0,0,.5);
+}
+#layout-editor button{
+  font:inherit; cursor:pointer; border:0; border-radius:2px;
+  padding:6px 8px; margin:0 4px 4px 0;
+  background:#3a3b3c; color:#fff;
+}
+#layout-editor button:hover{ background:#4a4b4c; }
+#layout-editor button.on{ background:var(--accent); color:#111; font-weight:bold; }
+#layout-editor pre{
+  margin:6px 0 0; max-height:160px; overflow:auto;
+  background:#111; color:#9cff9c; padding:6px; border-radius:2px;
+  font-size:0.85em; white-space:pre-wrap; word-break:break-all;
+}
+#layout-editor .hint{ color:#bbb; font-size:0.9em; margin:4px 0 0; }
+</style>
+</head>
+<body>
+<div id="page">
+
+<div id="mw-page-base"></div>
+<div id="mw-head-base"></div>
+
+<div id="p-logo" data-drag-id="logo" data-drag-label="Logo"><a href="index.html" aria-label="Imperial Topaz home"></a></div>
+
+<!-- ===================== SIDEBAR ===================== -->
+<div id="mw-panel" data-drag-id="sidebar" data-drag-label="Sidebar">
+  <nav class="portal">
+    <h3>Navigation</h3>
+    <div class="body">
+      <ul>
+        <li><a href="index.html">Main page</a></li>
+        <li><a href="#">Recent changes</a></li>
+        <li><a href="#">Random page</a></li>
+        <li><a href="#">How to help</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <nav class="portal">
+    <h3>The Story</h3>
+    <div class="body">
+      <ul>
+        <li><a href="#">Prologue</a></li>
+        <li><a href="#">Season One</a></li>
+        <li><a href="#">Season Two</a></li>
+        <li><a href="#">Factions</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <nav class="portal">
+    <h3>Streamers</h3>
+    <div class="body">
+      <ul>
+        <li><a href="streamers.html">All streamers</a></li>
+        <li><a href="streamers.html">Who's live now</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <nav class="portal collapsed">
+    <h3>Tools</h3>
+    <div class="body">
+      <ul>
+        <li><a href="#">Upload file</a></li>
+        <li><a href="#">Special pages</a></li>
+      </ul>
+    </div>
+  </nav>
+</div>
+
+<!-- ===================== HEAD ===================== -->
+<div id="mw-head">
+
+  <div id="page-tabs" data-drag-id="tabs" data-drag-label="Tabs">
+    <nav class="vector-tabs">
+      <ul>
+        <li><a href="index.html">Main Page</a></li>
+        <li class="selected"><a href="modpack.html">Mods</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="disclaimers.html">Disclaimer</a></li>
+        <li><a href="privacy.html">Policy</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <div id="p-search" data-drag-id="search" data-drag-label="Search bar">
+    <form id="site-search-form">
+      <div class="search-wrap"><input type="search" id="site-search-input" placeholder="Search Your Wiki" autocomplete="off"><span class="search-icon" aria-hidden="true"></span></div>
+      <div class="site-search-results" id="site-search-results" hidden></div>
+    </form>
+  </div>
+
+  <script src="img/streamer_roster.js"></script>
+  <script src="img/modpack_list.js"></script>
+  <script>
+  (function(){
+    // client-side site search -- this is a static wiki with no server-side
+    // index, so it matches the typed text against page titles/keywords plus
+    // two real content lists (the included mods and the streamer roster),
+    // so a search actually finds specific things, not just section buttons
+    // you already have on screen.
+    var SITE_PAGES = [
+      { title: 'Main Page', url: 'index.html', type: 'Page', keywords: ['home','main','main page','server','cobblemon','imperial topaz'] },
+      { title: 'Streamers', url: 'streamers.html', type: 'Page', keywords: ['streamer','streamers','twitch','youtube','kick','creator','creators','live'] },
+      { title: 'Lore', url: 'lore.html', type: 'Page', keywords: ['lore','story','history'] },
+      { title: 'Events', url: 'events.html', type: 'Page', keywords: ['event','events','tournament','season','timeline','chapter'] },
+      { title: 'Photos', url: 'photos.html', type: 'Page', keywords: ['photo','photos','gallery','screenshot','screenshots','picture','pictures'] },
+      { title: 'Mods', url: 'modpack.html', type: 'Page', keywords: ['mod','mods','modpack','download','texture pack'] },
+      { title: 'About', url: 'about.html', type: 'Page', keywords: ['about','contact','socials','discord'] },
+      { title: 'Disclaimers', url: 'disclaimers.html', type: 'Page', keywords: ['disclaimer','disclaimers','legal'] },
+      { title: 'Privacy Policy', url: 'privacy.html', type: 'Page', keywords: ['privacy','policy','data'] }
+    ];
+
+    var ALL_ENTRIES = SITE_PAGES.slice();
+    (window.MODPACK_LIST || []).forEach(function(m){
+      ALL_ENTRIES.push({ title: m.name, url: m.url, type: 'Mod', keywords: [], external: true });
+    });
+    (window.STREAMER_ROSTER || []).forEach(function(s){
+      ALL_ENTRIES.push({ title: s.name, url: 'streamers.html?q=' + encodeURIComponent(s.name), type: 'Streamer', keywords: [s.platform] });
+    });
+
+    var form = document.getElementById('site-search-form');
+    var input = document.getElementById('site-search-input');
+    var results = document.getElementById('site-search-results');
+    if (!form || !input || !results) return;
+
+    var matches = [];
+    var activeIndex = -1;
+
+    function scoreEntry(entry, q){
+      var title = entry.title.toLowerCase();
+      if (title === q) return 100;
+      if (title.indexOf(q) === 0) return 80;
+      if (title.indexOf(q) !== -1) return 60;
+      for (var i = 0; i < entry.keywords.length; i++){
+        var k = entry.keywords[i].toLowerCase();
+        if (k === q) return 90;
+        if (k.indexOf(q) === 0) return 50;
+        if (k.indexOf(q) !== -1) return 30;
+      }
+      return 0;
+    }
+
+    function search(q){
+      q = q.trim().toLowerCase();
+      if (!q) return [];
+      return ALL_ENTRIES.map(function(entry){ return { entry: entry, score: scoreEntry(entry, q) }; })
+        .filter(function(s){ return s.score > 0; })
+        .sort(function(a, b){ return b.score - a.score; })
+        .map(function(s){ return s.entry; });
+    }
+
+    function setActive(i){
+      var links = results.querySelectorAll('a');
+      links.forEach(function(a){ a.classList.remove('active'); });
+      if (i >= 0 && i < links.length){ links[i].classList.add('active'); activeIndex = i; }
+    }
+
+    function renderResults(){
+      results.innerHTML = '';
+      activeIndex = -1;
+      if (!matches.length) { results.hidden = true; return; }
+      matches.slice(0, 8).forEach(function(entry, i){
+        var a = document.createElement('a');
+        a.href = entry.url;
+        if (entry.external) { a.target = '_blank'; a.rel = 'noopener'; }
+        var title = document.createElement('span');
+        title.className = 'result-title';
+        title.textContent = entry.title;
+        var type = document.createElement('span');
+        type.className = 'result-type';
+        type.textContent = entry.type;
+        a.appendChild(title);
+        a.appendChild(type);
+        a.addEventListener('mouseenter', function(){ setActive(i); });
+        results.appendChild(a);
+      });
+      results.hidden = false;
+    }
+
+    function go(){
+      if (!matches.length) return;
+      var entry = matches[Math.max(activeIndex, 0)];
+      if (entry.external) window.open(entry.url, '_blank', 'noopener');
+      else window.location.href = entry.url;
+    }
+
+    input.addEventListener('input', function(){
+      matches = search(input.value);
+      renderResults();
+    });
+
+    input.addEventListener('keydown', function(e){
+      var links = results.querySelectorAll('a');
+      if (e.key === 'ArrowDown'){ e.preventDefault(); setActive(Math.min(activeIndex + 1, links.length - 1)); }
+      else if (e.key === 'ArrowUp'){ e.preventDefault(); setActive(Math.max(activeIndex - 1, 0)); }
+      else if (e.key === 'Escape'){ results.hidden = true; }
+      else if (e.key === 'Enter'){ e.preventDefault(); go(); }
+    });
+
+    form.addEventListener('submit', function(e){ e.preventDefault(); go(); });
+
+    document.addEventListener('click', function(e){
+      if (!form.contains(e.target)) results.hidden = true;
+    });
+  })();
+  </script>
+</div>
+
+<div id="content-border" data-drag-id="border" data-drag-label="Left border"></div>
+<div id="content-brown" data-drag-id="brown" data-drag-label="Brown fill"><div id="content-brown-corner"></div></div>
+
+<!-- ===================== CONTENT ===================== -->
+<div id="content" data-drag-id="content" data-drag-label="Main panel">
+  <nav class="franchise-tabs">
+    <a href="index.html"><span class="ico" style="background-image:url('img/mc_iso.png')"></span>Main</a>
+    <a href="streamers.html"><span class="ico" style="background-image:url('img/streamer.png')"></span>Streamers</a>
+    <a href="lore.html"><span class="ico" style="background-image:url('img/lore.png')"></span>Lore</a>
+    <a href="events.html"><span class="ico" style="background-image:url('img/events.png')"></span>Events</a>
+    <a href="photos.html"><span class="ico" style="background-image:url('img/photos.png')"></span>Photos</a>
+  </nav>
+
+  <h1 class="firstHeading">Modpack</h1>
+
+  <div id="bodyContent">
+
+    <div id="cave-peek"></div>
+
+    <div class="panel">
+      <h2>About the Modpack</h2>
+      <div class="inner">
+        <p>Imperial Topaz runs on Fabric for Minecraft 1.21.1, built on top of Cobblemon with a batch of add-ons layered in for trainer battles, breeding, and Pokémon-specific fixes and animations. Beyond the Cobblemon side, the pack adds storage and organization mods, a small player-run economy (shops, a casino), quality-of-life and performance tweaks, and streamer-facing tools like cutscenes and instant replays for capturing moments on stream.</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Included Mods</h2>
+      <div class="inner">
+        <div class="tiles">
+          <a class="tile" href="https://modrinth.com/datapack/ability-upgrade-cobblemon" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/ability-upgrade-cobblemon.png')"></span><span class="label">Ability Upgrade - Cobblemon</span></a>
+          <a class="tile" href="https://modrinth.com/mod/advancementdisable" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/advancementdisable.png')"></span><span class="label">Advancement Disable</span></a>
+          <a class="tile" href="https://modrinth.com/mod/area_lib" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/Stone.png')"></span><span class="label">Area Lib</span></a>
+          <a class="tile" href="https://modrinth.com/mod/casino-rocket" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/casino-rocket.png')"></span><span class="label">Casino Rocket</span></a>
+          <a class="tile" href="https://modrinth.com/mod/casinorocket-additions" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/casinorocket-additions.png')"></span><span class="label">Casino Rocket Additions</span></a>
+          <a class="tile" href="https://modrinth.com/mod/cobblemon-torchmaster-fix" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/cobblemon-torchmaster-fix.png')"></span><span class="label">Cobblemon Torchmaster Fix</span></a>
+          <a class="tile" href="https://modrinth.com/mod/cobblemon-trainer-battle" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/cobblemon-trainer-battle.webp')"></span><span class="label">Cobblemon Trainer Battle</span></a>
+          <a class="tile" href="https://modrinth.com/mod/cobbreeding" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/cobbreeding.png')"></span><span class="label">Cobbreeding</span></a>
+          <a class="tile" href="https://modrinth.com/mod/cutscene-api" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/Spyglass.png')"></span><span class="label">Cutscene API</span></a>
+          <a class="tile" href="https://modrinth.com/datapack/extended-wold-height-1024" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/extended-wold-height-1024.webp')"></span><span class="label">Extended World Height (Y=1024)</span></a>
+          <a class="tile" href="https://modrinth.com/datapack/extra-move-anims-cobblemon" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/extra-move-anims-cobblemon.webp')"></span><span class="label">Extra Move Animations (Cobblemon)</span></a>
+          <a class="tile" href="https://modrinth.com/datapack/flan-cobblemon-extension" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/flan-cobblemon-extension.png')"></span><span class="label">Flan Cobblemon Extension</span></a>
+          <a class="tile" href="https://modrinth.com/mod/flashback" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/flashback.webp')"></span><span class="label">Flashback</span></a>
+          <a class="tile" href="https://modrinth.com/mod/glitchcore" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/glitchcore.png')"></span><span class="label">GlitchCore</span></a>
+          <a class="tile" href="https://modrinth.com/mod/pneumono_gravestones" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/pneumono_gravestones.webp')"></span><span class="label">Gravestones</span></a>
+          <a class="tile" href="https://modrinth.com/mod/matthiesen-lib" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/matthiesen-lib.webp')"></span><span class="label">Matthiesen Lib</span></a>
+          <a class="tile" href="https://modrinth.com/mod/meret" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/meret.webp')"></span><span class="label">Meret</span></a>
+          <a class="tile" href="https://modrinth.com/mod/noxesium" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/noxesium.webp')"></span><span class="label">Noxesium</span></a>
+          <a class="tile" href="https://modrinth.com/mod/pneumono_core" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/pneumono_core.png')"></span><span class="label">PneumonoCore</span></a>
+          <a class="tile" href="https://modrinth.com/mod/sophisticated-backpacks-(unoffical-fabric-port)" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/sophisticated-backpacks-fabric-port.webp')"></span><span class="label">Sophisticated Backpacks (Fabric Port)</span></a>
+          <a class="tile" href="https://modrinth.com/mod/sophisticated-core-(unofficial-fabric-port)" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/sophisticated-core-fabric-port.png')"></span><span class="label">Sophisticated Core (Fabric Port)</span></a>
+          <a class="tile" href="https://modrinth.com/mod/spuds-shops" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/spuds-shops.webp')"></span><span class="label">Spud's Shops</span></a>
+          <a class="tile" href="https://modrinth.com/mod/storagedrawers" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/storagedrawers.png')"></span><span class="label">Storage Drawers</span></a>
+          <a class="tile" href="https://modrinth.com/mod/svvideo" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/svvideo.webp')"></span><span class="label">SVVideo</span></a>
+          <a class="tile" href="https://modrinth.com/mod/terrablender" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/terrablender.png')"></span><span class="label">TerraBlender</span></a>
+          <a class="tile" href="https://modrinth.com/mod/too-cheap" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/too-cheap.png')"></span><span class="label">Too Cheap!</span></a>
+          <a class="tile" href="https://modrinth.com/mod/warputils" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/warputils.webp')"></span><span class="label">WarpUtils</span></a>
+          <a class="tile" href="https://modrinth.com/mod/watermedia-binaries" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/watermedia-binaries.webp')"></span><span class="label">WATERMeDIA: Multimedia Binaries</span></a>
+          <a class="tile" href="https://www.curseforge.com/minecraft/mc-mods/watermedia-platform-extension" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/watermedia.png')"></span><span class="label">WATERMeDIA: Platform Extension</span></a>
+          <a class="tile" href="https://modrinth.com/mod/watermedia" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/watermedia.png')"></span><span class="label">WATERMeDIA: Multimedia API</span></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="catlinks">Category: <ul><li><a href="#">Modpack</a></li></ul></div>
+  </div>
+</div>
+
+<!-- ===================== FOOTER ===================== -->
+<div id="footer">
+  <ul id="footer-info">
+    <li>Imperial Topaz Wiki is the official wiki for the Imperial Topaz Cobblemon SMP, built and maintained by Touta2X.</li>
+    <li>&copy; Touta2x. Not affiliated with Mojang, Microsoft, or the Cobblemon mod team.</li>
+  </ul>
+  <ul id="footer-places">
+    <li><a href="privacy.html">Privacy policy</a></li>
+    <li><a href="about.html">About</a></li>
+    <li><a href="disclaimers.html">Disclaimers</a></li>
+  </ul>
+  <div class="footer-contact">
+    <div class="footer-email">touta2xbusiness@gmail.com</div>
+    <div class="footer-socials">
+      <a href="https://x.com/touta2x" target="_blank" rel="noopener" title="X (Twitter)"><img src="img/icons/xtwitter_icon_bg.png" alt="X (Twitter)"></a>
+      <a href="https://www.instagram.com/touta2x" target="_blank" rel="noopener" title="Instagram"><img src="img/icons/instagram_icon_bg.png" alt="Instagram"></a>
+      <a href="https://www.tiktok.com/@touta2x" target="_blank" rel="noopener" title="TikTok"><img src="img/icons/tiktok_icon_bg.png" alt="TikTok"></a>
+      <a href="https://www.twitch.tv/touta2x" target="_blank" rel="noopener" title="Twitch"><img src="img/icons/twitch_icon_bg.png" alt="Twitch"></a>
+      <a href="https://discord.gg/67pWHqtfEQ" target="_blank" rel="noopener" title="Discord"><img src="img/icons/discord_icon.png" alt="Discord"></a>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- ===================== LAYOUT EDITOR ===================== -->
+<div id="layout-editor">
+  <button id="layout-editor-toggle" type="button">Edit layout</button>
+  <button id="layout-editor-snap" type="button" class="on">Snap: On</button>
+  <button id="layout-editor-reset" type="button">Reset to saved default</button>
+  <button id="layout-editor-copy" type="button">Copy JSON</button>
+  <button id="layout-editor-select" type="button">Select for group</button>
+  <button id="layout-editor-group" type="button">Group selected</button>
+  <button id="layout-editor-ungroup" type="button">Ungroup selected</button>
+  <div class="hint">Toggle on, then drag the dashed-outline elements or their green corner handle to resize. Drag near another element's edge/center or the page center to snap (toggle Snap off for free 1px placement). To move several elements together: "Select for group", click each one (blue outline), then "Group selected" -- dragging any grouped element (solid blue outline) now moves the whole group. Saves automatically.</div>
+  <pre id="layout-editor-log">{}</pre>
+</div>
+
+<script>
+// restore scroll position saved just before navigating here (franchise-tabs
+// click handler below) or before a plain refresh (the scroll/pagehide
+// listeners further down) -- makes switching franchise tabs feel like
+// flipping between panels of one menu, and refreshing stay where you were,
+// instead of always dumping you back at the top.
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+(function(){
+  var savedY = sessionStorage.getItem('wikiScrollY');
+  function restoreScroll(){
+    if (savedY !== null) window.scrollTo(0, parseFloat(savedY));
+  }
+  restoreScroll();
+  // re-applied once everything (fonts, background images) has actually
+  // finished loading -- restoring immediately can get silently clamped
+  // back near the top if the page isn't its full height yet at that point.
+  window.addEventListener('load', restoreScroll);
+
+  // kept up to date continuously (not just on tab clicks) so a plain
+  // refresh -- which fires no click handler -- still has a fresh position
+  // to restore from above.
+  var ticking = false;
+  function saveScroll(){
+    sessionStorage.setItem('wikiScrollY', window.scrollY);
+    ticking = false;
+  }
+  window.addEventListener('scroll', function(){
+    if (!ticking){ requestAnimationFrame(saveScroll); ticking = true; }
+  }, {passive:true});
+  window.addEventListener('pagehide', saveScroll);
+})();
+
+document.querySelectorAll('.portal h3, .collapsible-bar .bar-head').forEach(h => {
+  h.addEventListener('click', () => h.parentElement.classList.toggle('collapsed'));
+});
+
+// ---------- vector tabs (Main Page/Talk/Read/Edit/History): same deal as
+// the franchise tabs below -- all still href="#" placeholders, so left
+// unhandled they trigger the browser's default anchor-jump (a hard scroll
+// to the top of the document), which reads as the whole page stuttering.
+// Intercepting the click and just swapping .selected in place makes
+// switching tabs move nothing on the page.
+document.querySelectorAll('.vector-tabs li a').forEach(tab => {
+  tab.addEventListener('click', function(e){
+    if (this.getAttribute('href') === '#') {
+      e.preventDefault();
+      var li = this.closest('li');
+      li.closest('ul').querySelectorAll('li.selected').forEach(x => x.classList.remove('selected'));
+      li.classList.add('selected');
+    }
+  });
+});
+
+// ---------- franchise tabs: clicking one selects it (green) and unselects the rest (gray) ----------
+// only intercepts placeholder "#" tabs -- ones with a real destination (like
+// the Streamers tab linking to streamers.html) just navigate normally, but
+// stash the current scroll position first so the destination page can
+// restore it (see the sessionStorage read up top).
+document.querySelectorAll('.franchise-tabs a').forEach(tab => {
+  tab.addEventListener('click', function(e){
+    if (this.getAttribute('href') === '#') {
+      e.preventDefault();
+      this.closest('.franchise-tabs').querySelectorAll('a.selected').forEach(a => a.classList.remove('selected'));
+      this.classList.add('selected');
+    } else {
+      sessionStorage.setItem('wikiScrollY', window.scrollY);
+    }
+  });
+});
+
+// ---------- layout editor: drag/resize elements, snap to alignment guides, positions persist ----------
+(function(){
+  // Bumped from 'wikiLayoutOffsets' -- the whole approved layout got baked
+  // permanently into the real CSS below (like the actual Minecraft Wiki:
+  // zero inline positioning styles, everything in the stylesheet), so any
+  // old saved nudges from before that point no longer apply to anything and
+  // would double them up if we kept reading them from the old key.
+  var STORAGE_KEY = 'wikiLayoutOffsets_v2';
+  var SNAP = 8; // px
+  var pageEl = document.getElementById('page');
+  var els = Array.prototype.slice.call(document.querySelectorAll('[data-drag-id]'));
+  // empty on purpose -- the previous baked layout is now permanent CSS, not
+  // a JS-applied offset. This is just the starting point for NEW nudges.
+  var DEFAULT_OFFSETS = {};
+  var offsets = null;
+  try{ offsets = JSON.parse(localStorage.getItem(STORAGE_KEY)); }catch(e){ offsets = null; }
+  if (!offsets) offsets = JSON.parse(JSON.stringify(DEFAULT_OFFSETS)); // deep copy -- never share objects with DEFAULT_OFFSETS, or dragging would mutate the "default" itself
+  // back-fill any ids added to DEFAULT_OFFSETS after this browser already had a saved
+  // layout, so newly-added elements (like "brown") still get a starting position
+  // instead of silently falling back to raw CSS with no offset applied at all
+  Object.keys(DEFAULT_OFFSETS).forEach(function(id){
+    if (!offsets[id]) offsets[id] = JSON.parse(JSON.stringify(DEFAULT_OFFSETS[id]));
+  });
+
+  var GROUPS_KEY = 'wikiLayoutGroups';
+  var groups = {}; // dragId -> groupId, elements sharing a groupId move together
+  try{ groups = JSON.parse(localStorage.getItem(GROUPS_KEY)) || {}; }catch(e){ groups = {}; }
+  function saveGroups(){ localStorage.setItem(GROUPS_KEY, JSON.stringify(groups)); renderGroupStyles(); }
+  function groupMembers(id){
+    var gid = groups[id];
+    if (!gid) return [id];
+    return Object.keys(groups).filter(function(k){ return groups[k] === gid; });
+  }
+  function renderGroupStyles(){
+    els.forEach(function(el){
+      el.classList.toggle('grouped', !!groups[el.dataset.dragId]);
+    });
+  }
+
+  function byId(id){ return els.find(function(e){ return e.dataset.dragId === id; }); }
+
+  // Only <=720px actually restructures the layout (sidebar/tabs/search go
+  // static/stacked) -- the 721-960px range just shrinks tab width via CSS,
+  // it doesn't change position/structure at all. So 720 is the real cutoff:
+  // below it, a fixed-px nudge tuned for the desktop 2-column layout makes
+  // no sense and gets cleared; at/above it, the layout is still the same
+  // desktop structure the nudges were tuned for, so keep applying them.
+  var DESKTOP_MIN = 721;
+  function isDesktop(){ return window.innerWidth >= DESKTOP_MIN; }
+
+  function apply(id){
+    var o = offsets[id];
+    var el = byId(id);
+    if (!el) return;
+    if (!isDesktop()){
+      el.style.translate = '';
+      el.style.width = '';
+      el.style.height = '';
+      return;
+    }
+    el.style.translate = o ? (o.x + 'px ' + o.y + 'px') : '';
+    el.style.width  = (o && o.w) ? o.w + 'px' : '';
+    el.style.height = (o && o.h) ? o.h + 'px' : '';
+  }
+  function applyAll(){ els.forEach(function(el){ apply(el.dataset.dragId); }); }
+  applyAll();
+  renderGroupStyles();
+
+  // #content-border/#content-brown's heights track #content's live rendered
+  // height (so they always reach exactly as far down as the content panel
+  // does, even as it grows) unless you've dragged their own resize handle,
+  // in which case that height sticks instead.
+  function syncBorderHeight(){
+    if (!isDesktop()) return; // hidden below 720px anyway (see CSS)
+    var c = byId('content');
+    if (!c) return;
+    var contentBottom = c.getBoundingClientRect().bottom;
+    // only "brown" auto-tracks content's height -- "border" is a fixed
+    // 302px decorative accent near the top now (baked into its CSS), it was
+    // never meant to stretch the whole way down
+    ['brown'].forEach(function(id){
+      var el = byId(id);
+      if (!el) return;
+      // no saved-height override here (unlike every other draggable element)
+      // -- this one always tracks #content's real height live, since every
+      // page has a different amount of content/a different height, so a
+      // manually-resized height from one page (or from however tall the
+      // page happened to be whenever it got dragged) would be wrong on
+      // every other page/every other page state. It never stops short of
+      // content's own bottom edge now, on any page.
+      // align this element's own bottom to content's bottom -- can't just
+      // copy content's height, since border/brown usually start lower down
+      // than content's own top, which would overshoot by exactly that gap
+      var h = contentBottom - el.getBoundingClientRect().top;
+      // "brown" has a corner cap nested below it (see #content-brown-corner)
+      // that takes up its own proportional slice at the bottom -- shorten
+      // the fill by that much so the cap has room and the two sit flush
+      h -= el.getBoundingClientRect().width * (46 / 14);
+      // +2px so the fill+corner assembly deliberately overshoots content's
+      // bottom edge slightly instead of landing exactly on it -- sub-pixel
+      // rounding in the math above can otherwise leave it a hair short,
+      // showing as a thin diagonal gap right at the seam.
+      // Math.round -- getBoundingClientRect returns fractional CSS px, and
+      // browser zoom changes how those fractions round to the device pixel
+      // grid, so the same logical height came out a hair different at
+      // different zoom levels. This ResizeObserver fires on zoom (it changes
+      // #content's rendered size too), so unrounded output made the fill
+      // visibly shift by that fraction every time you zoomed.
+      // getBoundingClientRect() (used for both contentBottom and el's own
+      // top/width above) reports the *current rendered* (zoomed) pixels,
+      // but a CSS height we assign here is a *logical* value that the
+      // browser will scale by zoom itself when it renders -- assigning the
+      // already-zoomed h straight through would apply zoom to it a second
+      // time (shrinking it far more than intended once the auto-fit-to-
+      // width script has zoomed the page). Dividing by the current zoom
+      // factor first cancels that out, so the end *rendered* height always
+      // matches h regardless of what zoom happens to be right now.
+      var zoom = parseFloat(document.body.style.zoom) || 1;
+      if (h > 0) el.style.height = Math.round((h + 2) / zoom) + 'px';
+    });
+
+    // Same double-scaling problem as the height above, but for WIDTH: these
+    // strips are only 7px wide to begin with (or whatever you've dragged
+    // them to), so once the auto-fit-to-width script starts zooming the
+    // page out on a narrow window, that width shrinks right along with
+    // everything else -- 7px at zoom 1 is already thin, 7px at zoom 0.5 is
+    // basically a hairline, easy to lose against the stone texture. Keep
+    // the *rendered* width constant (equal to whatever it's set to at
+    // 100% zoom -- the CSS default, or your own saved drag-resize) instead
+    // of letting it shrink further, the same way the height above is kept
+    // matched to content's real bottom regardless of zoom.
+    var zoomW = parseFloat(document.body.style.zoom) || 1;
+    ['border','brown'].forEach(function(id){
+      var el = byId(id);
+      if (!el) return;
+      var baseW = (offsets[id] && offsets[id].w) ? offsets[id].w : 7;
+      el.style.width = Math.round(baseW / zoomW) + 'px';
+    });
+  }
+  syncBorderHeight();
+  // manual call-sites (below) can miss reflows that happen after they run --
+  // fonts loading in, images settling, etc. -- so watch #content directly
+  // and re-sync whenever its actual box size changes, not just on the events
+  // we happen to hook.
+  if (window.ResizeObserver && byId('content')){
+    new ResizeObserver(function(){ syncBorderHeight(); positionHandles(); }).observe(byId('content'));
+  }
+
+  var logEl = document.getElementById('layout-editor-log');
+  var toggleBtn = document.getElementById('layout-editor-toggle');
+  var snapBtn = document.getElementById('layout-editor-snap');
+  var resetBtn = document.getElementById('layout-editor-reset');
+  var copyBtn = document.getElementById('layout-editor-copy');
+  var snapEnabled = true;
+  snapBtn.addEventListener('click', function(){
+    snapEnabled = !snapEnabled;
+    snapBtn.textContent = 'Snap: ' + (snapEnabled ? 'On' : 'Off');
+    snapBtn.classList.toggle('on', snapEnabled);
+  });
+
+  function render(){ logEl.textContent = JSON.stringify(offsets, null, 2); }
+  render();
+
+  function save(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(offsets));
+    render();
+    console.log('[layout editor] saved offsets:', offsets);
+  }
+
+  // resize handles: fixed-position dots kept glued to each element's bottom-right corner
+  var handles = {};
+  els.forEach(function(el){
+    var h = document.createElement('div');
+    h.className = 'resize-handle';
+    h.dataset.forId = el.dataset.dragId;
+    h.title = 'Drag to resize ' + (el.dataset.dragLabel || el.dataset.dragId);
+    document.body.appendChild(h);
+    handles[el.dataset.dragId] = h;
+  });
+  function positionHandles(){
+    els.forEach(function(el){
+      var r = el.getBoundingClientRect();
+      var h = handles[el.dataset.dragId];
+      h.style.left = r.right + 'px';
+      h.style.top = r.bottom + 'px';
+    });
+  }
+  positionHandles();
+  window.addEventListener('resize', function(){ applyAll(); syncBorderHeight(); positionHandles(); });
+  document.addEventListener('scroll', positionHandles, true);
+
+  toggleBtn.addEventListener('click', function(){
+    var on = document.body.classList.toggle('drag-mode');
+    toggleBtn.textContent = on ? 'Editing… (on)' : 'Edit layout';
+    toggleBtn.classList.toggle('on', on);
+    positionHandles();
+  });
+
+  resetBtn.addEventListener('click', function(){
+    offsets = JSON.parse(JSON.stringify(DEFAULT_OFFSETS));
+    applyAll();
+    syncBorderHeight();
+    positionHandles();
+    save();
+  });
+
+  // ----- grouping: select multiple elements, move them together -----
+  var selectBtn = document.getElementById('layout-editor-select');
+  var groupBtn = document.getElementById('layout-editor-group');
+  var ungroupBtn = document.getElementById('layout-editor-ungroup');
+  var pendingSelection = [];
+
+  function setPending(id, on){
+    var el = byId(id);
+    var i = pendingSelection.indexOf(id);
+    if (on && i === -1) pendingSelection.push(id);
+    if (!on && i !== -1) pendingSelection.splice(i, 1);
+    if (el) el.classList.toggle('group-selected', on);
+  }
+  function clearPending(){ pendingSelection.slice().forEach(function(id){ setPending(id, false); }); }
+
+  selectBtn.addEventListener('click', function(){
+    var on = document.body.classList.toggle('select-mode');
+    selectBtn.textContent = on ? 'Selecting… (on)' : 'Select for group';
+    selectBtn.classList.toggle('on', on);
+    if (!on) clearPending();
+  });
+
+  function exitSelectMode(){
+    document.body.classList.remove('select-mode');
+    selectBtn.textContent = 'Select for group';
+    selectBtn.classList.remove('on');
+    clearPending();
+  }
+
+  groupBtn.addEventListener('click', function(){
+    if (pendingSelection.length < 2){
+      window.alert('Select 2 or more elements first (turn on "Select for group", then click them).');
+      return;
+    }
+    // reuse an existing group id among the selection if there is one, so grouping
+    // a new element into an already-grouped set merges into that same group
+    var existing = pendingSelection.map(function(id){ return groups[id]; }).filter(Boolean)[0];
+    var gid = existing || ('g' + Date.now());
+    pendingSelection.forEach(function(id){ groups[id] = gid; });
+    saveGroups();
+    exitSelectMode();
+  });
+
+  ungroupBtn.addEventListener('click', function(){
+    if (!pendingSelection.length){
+      window.alert('Select the grouped elements you want to ungroup first.');
+      return;
+    }
+    pendingSelection.forEach(function(id){ delete groups[id]; });
+    saveGroups();
+    exitSelectMode();
+  });
+
+  function onSelectClick(e){
+    if (!document.body.classList.contains('select-mode')) return;
+    e.preventDefault(); e.stopPropagation();
+    var id = e.currentTarget.dataset.dragId;
+    setPending(id, pendingSelection.indexOf(id) === -1);
+  }
+  els.forEach(function(el){ el.addEventListener('click', onSelectClick); });
+
+  copyBtn.addEventListener('click', function(){
+    var text = JSON.stringify(offsets, null, 2);
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){
+        copyBtn.textContent = 'Copied!';
+        setTimeout(function(){ copyBtn.textContent = 'Copy JSON'; }, 1200);
+      }).catch(function(){ window.prompt('Copy this JSON:', text); });
+    } else {
+      window.prompt('Copy this JSON:', text);
+    }
+  });
+
+  // ----- snap guide lines -----
+  var guideV = document.createElement('div'); guideV.className = 'snap-guide v';
+  var guideH = document.createElement('div'); guideH.className = 'snap-guide h';
+  document.body.appendChild(guideV); document.body.appendChild(guideH);
+  function showGuide(axis, pos){
+    var g = axis === 'v' ? guideV : guideH;
+    g.style.display = 'block';
+    if (axis === 'v') g.style.left = pos + 'px'; else g.style.top = pos + 'px';
+  }
+  function hideGuide(axis){ (axis === 'v' ? guideV : guideH).style.display = 'none'; }
+
+  function bestSnap(candidates, targetRects, axis){
+    var best = null;
+    targetRects.forEach(function(t){
+      var vals = axis === 'x' ? [t.left, t.left + t.width / 2, t.right]
+                               : [t.top, t.top + t.height / 2, t.bottom];
+      candidates.forEach(function(c){
+        vals.forEach(function(v){
+          var d = Math.abs(c - v);
+          if (d <= SNAP && (!best || d < best.d)) best = { d: d, delta: v - c, guide: v };
+        });
+      });
+    });
+    return best;
+  }
+
+  // ----- move drag (moves the whole group together, if the dragged element is grouped) -----
+  var dragEl = null, dragId = null, startX = 0, startY = 0, startRect = null, dragTargets = [], dragMembers = [];
+
+  function onPointerDown(e){
+    if (!document.body.classList.contains('drag-mode')) return;
+    if (document.body.classList.contains('select-mode')) return;
+    var el = e.currentTarget;
+    e.preventDefault();
+    dragEl = el;
+    dragId = el.dataset.dragId;
+    startX = e.clientX; startY = e.clientY;
+    startRect = el.getBoundingClientRect();
+
+    var memberIds = groupMembers(dragId);
+    dragMembers = memberIds.map(function(id){
+      var mEl = byId(id);
+      var o = offsets[id] || { x: 0, y: 0 };
+      return { id: id, el: mEl, baseX: o.x, baseY: o.y };
+    }).filter(function(m){ return m.el; });
+
+    dragTargets = els.filter(function(other){ return other !== el; }).map(function(other){ return other.getBoundingClientRect(); });
+    dragTargets.push(pageEl.getBoundingClientRect());
+    dragMembers.forEach(function(m){ m.el.classList.add('dragging'); });
+    el.setPointerCapture(e.pointerId);
+  }
+  function onPointerMove(e){
+    if (!dragEl) return;
+    var dx = e.clientX - startX, dy = e.clientY - startY;
+    var left = startRect.left + dx, top = startRect.top + dy;
+    var w = startRect.width, h = startRect.height;
+    var snapX = snapEnabled ? bestSnap([left, left + w / 2, left + w], dragTargets, 'x') : null;
+    var snapY = snapEnabled ? bestSnap([top, top + h / 2, top + h], dragTargets, 'y') : null;
+    if (snapX){ dx += snapX.delta; showGuide('v', snapX.guide); } else hideGuide('v');
+    if (snapY){ dy += snapY.delta; showGuide('h', snapY.guide); } else hideGuide('h');
+    dragMembers.forEach(function(m){
+      m.el.style.translate = (m.baseX + dx) + 'px ' + (m.baseY + dy) + 'px';
+    });
+    positionHandles();
+  }
+  function onPointerUp(e){
+    if (!dragEl) return;
+    var dx = e.clientX - startX, dy = e.clientY - startY;
+    dragMembers.forEach(function(m){
+      var o = offsets[m.id] || {};
+      o.x = Math.round(m.baseX + dx); o.y = Math.round(m.baseY + dy);
+      offsets[m.id] = o;
+      m.el.classList.remove('dragging');
+    });
+    dragEl = null; dragId = null; dragMembers = [];
+    hideGuide('v'); hideGuide('h');
+    save();
+  }
+
+  els.forEach(function(el){
+    el.addEventListener('pointerdown', onPointerDown);
+    el.addEventListener('pointermove', onPointerMove);
+    el.addEventListener('pointerup', onPointerUp);
+  });
+
+  // ----- resize via corner handle -----
+  var resizeEl = null, resizeId = null, rsX = 0, rsY = 0, startW = 0, startH = 0;
+
+  function onResizeDown(e){
+    if (!document.body.classList.contains('drag-mode')) return;
+    e.preventDefault(); e.stopPropagation();
+    resizeId = e.currentTarget.dataset.forId;
+    resizeEl = byId(resizeId);
+    rsX = e.clientX; rsY = e.clientY;
+    var r = resizeEl.getBoundingClientRect();
+    startW = r.width; startH = r.height;
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }
+  // most elements are chunky UI panels (40x24 floor is reasonable); the
+  // border is a thin 14px-wide strip, so it needs a much lower floor to
+  // actually be shrinkable.
+  var MIN_SIZE = { border: { w: 4, h: 20 }, brown: { w: 4, h: 20 } };
+  function onResizeMove(e){
+    if (!resizeEl) return;
+    var min = MIN_SIZE[resizeId] || { w: 40, h: 24 };
+    var w = Math.max(min.w, Math.round(startW + (e.clientX - rsX)));
+    var h = Math.max(min.h, Math.round(startH + (e.clientY - rsY)));
+    resizeEl.style.width = w + 'px';
+    resizeEl.style.height = h + 'px';
+    positionHandles();
+  }
+  function onResizeUp(e){
+    if (!resizeEl) return;
+    var o = offsets[resizeId] || { x: 0, y: 0 };
+    o.w = parseInt(resizeEl.style.width, 10);
+    o.h = parseInt(resizeEl.style.height, 10);
+    offsets[resizeId] = o;
+    resizeEl = null; resizeId = null;
+    syncBorderHeight(); // resizing #content itself changes its rendered height
+    save();
+  }
+
+  Object.keys(handles).forEach(function(id){
+    var h = handles[id];
+    h.addEventListener('pointerdown', onResizeDown);
+    h.addEventListener('pointermove', onResizeMove);
+    h.addEventListener('pointerup', onResizeUp);
+  });
+})();
+</script>
+
+</body>
+</html>

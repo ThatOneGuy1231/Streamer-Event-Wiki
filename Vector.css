@@ -1,0 +1,2030 @@
+/* All CSS here will be loaded for users of the Vector skin */
+
+/**
+ * See [[MediaWiki:Common.css]] for desktop and mobile styles, e.g. templates.
+ *
+ * See [[MediaWiki:Vector-theme-dark.css]] for desktop dark theme related styles.
+ *
+ * See [[MediaWiki:Minerva.css]] for mobile theme related styles.
+ * See [[MediaWiki:Minerva-theme-dark.css]] for mobile dark theme related styles.
+ */
+
+/* Default styles:
+ * [[File:Wiki.png]] [[File:Wiki@2x.png]] [[File:Minwi-background.png]]
+ * [[File:Background.png]] [[File:Header-background.png]]
+ * [[File:Vector-tabs.png]] [[File:Vector-tabs-first.png]]
+ * [[File:Background-HiDPI.png]] [[File:Header-background-HiDPI.png]]
+ * [[File:Vector-tabs-HiDPI.png]] [[File:Vector-tabs-first-HiDPI.png]]
+ */
+:root {
+	--wiki-logo: url('/images/Wiki.png');
+	--base-background: url('filepath://Background.png');
+	--header-background: url('filepath://Header-background.png');
+	--minwi-background: url('filepath://Minwi-background.png');
+	--vector-tabs: url('filepath://Vector-tabs.png');
+	--vector-tabs-first: url('filepath://Vector-tabs-first.png');
+
+	--wiki-logo-hidpi: url('/images/Wiki@2x.png');
+	--base-background-hidpi: url('filepath://Background-HiDPI.png');
+	--header-background-hidpi: url('filepath://Header-background-HiDPI.png');
+	--vector-tabs-hidpi: url('filepath://Vector-tabs-HiDPI.png');
+	--vector-tabs-first-hidpi: url('filepath://Vector-tabs-first-HiDPI.png');
+
+	--color-base: #202122;
+	--content-secondary-text-color: #555555;
+	--base-background-color: #303030;
+	--content-background-color: #E6EFF4;
+	--content-border-top-color: #B4BEC3;
+	--content-border-left-color: #171717;
+	--content-border-top-right-color: #784c2a;
+	--simplesearch-top-border-color: #FFFFFF;
+	--simplesearch-left-border-color: #888888;
+	--simplesearch-topright-grass-color: #6BA41E;
+	--searchinput-placeholder-color: #72777D;
+
+	--sidebar-display-minecraft: initial;
+	--sidebar-display-dungeons: none;
+	--sidebar-display-dungeons2: none;
+	--sidebar-display-earth: none;
+	--sidebar-display-legends: none;
+	--sidebar-display-story-mode: none;
+	--sidebar-display-tutorial: none;
+	--sidebar-display-movie: none;
+}
+
+/* Dungeons styles:
+ * [[File:Dungeons Wiki.png]] [[File:Header-background-dungeons.png]]
+ * [[File:Vector-tabs-dungeons.png]] [[File:Vector-tabs-first-dungeons.png]]
+ * [[File:Dungeons Wiki HiDPI.png]] [[File:Header-background-dungeons-HiDPI.png]]
+ * [[File:Vector-tabs-dungeons-HiDPI.png]] [[File:Vector-tabs-first-dungeons-HiDPI.png]]
+ */
+body.rootpage-Minecraft_Dungeons,
+body.rootpage-Talk_Minecraft_Dungeons,
+body.ns-10000:not(.rootpage-Dungeons_Wiki),
+body.ns-10001:not(.rootpage-Dungeons_talk_Wiki) {
+	/* Overwrite theme gadget styles */
+	--base-background: url('filepath://Background-dungeons.png');
+	--base-background-hidpi: url('filepath://Background-dungeons-HiDPI.png');
+
+	/*--wiki-logo: url('filepath://Dungeons_Wiki.png');*/
+	--header-background: url('filepath://Header-background-dungeons.png');
+	--vector-tabs: url('filepath://Vector-tabs-dungeons.png');
+	--vector-tabs-first: url('filepath://Vector-tabs-first-dungeons.png');
+
+	/*--wiki-logo-hidpi: url('filepath://Dungeons_Wiki_HiDPI.png');*/
+	--header-background-hidpi: url('filepath://Header-background-dungeons-HiDPI.png');
+	--vector-tabs-hidpi: url('filepath://Vector-tabs-dungeons-HiDPI.png');
+	--vector-tabs-first-hidpi: url('filepath://Vector-tabs-first-dungeons-HiDPI.png');
+
+	--content-background-color: #F2EEE7;
+	--content-border-top-color: #C5B494;
+	--content-border-top-right-color: #595959;
+	--simplesearch-before-border-left-color: #3A3B3A;
+	--simplesearch-topright-grass-color: #F26417;
+	--search-form-after-border-top-color: #F27633;
+
+	--sidebar-display-minecraft: none;
+	--sidebar-display-dungeons: initial;
+	--sidebar-display-dungeons2: none;
+	--sidebar-display-earth: none;
+	--sidebar-display-legends: none;
+	--sidebar-display-story-mode: none;
+	--sidebar-display-tutorial: none;
+	--sidebar-display-movie: none;
+}
+
+/* Dungeons 2 styles:
+ * [[File:Dungeons Wiki.png]] [[File:Background-dungeons2.png]]
+ * [[File:Header-background-dungeons2.png]] [[File:Vector-tabs-dungeons2.png]]
+ * [[File:Vector-tabs-first-dungeons2.png]]
+ * [[File:Dungeons Wiki HiDPI.png]] [[File:Background-dungeons2-HiDPI.png]]
+ * [[File:Header-background-dungeons2-HiDPI.png]] [[File:Vector-tabs-dungeons2-HiDPI.png]]
+ * [[File:Vector-tabs-first-dungeons2-HiDPI.png]]
+ */
+body.rootpage-Minecraft_Dungeons_II,
+body.rootpage-Talk_Minecraft_Dungeons_II,
+body.ns-10000.rootpage-Dungeons_Wiki,
+body.ns-10001.rootpage-Dungeons_talk_Wiki,
+body.ns-10014,
+body.ns-10015 {
+	/* Overwrite theme gadget styles */
+	--base-background: url('filepath://Background-dungeons2.png');
+	--base-background-hidpi: url('filepath://Background-dungeons2-HiDPI.png');
+
+	/*--wiki-logo: url('filepath://Dungeons_Wiki.png');*/
+	--header-background: url('filepath://Header-background-dungeons2.png');
+	--vector-tabs: url('filepath://Vector-tabs-dungeons2.png');
+	--vector-tabs-first: url('filepath://Vector-tabs-first-dungeons2.png');
+
+	/*--wiki-logo-hidpi: url('filepath://Dungeons_Wiki_HiDPI.png');*/
+	--header-background-hidpi: url('filepath://Header-background-dungeons2-HiDPI.png');
+	--vector-tabs-hidpi: url('filepath://Vector-tabs-dungeons2-HiDPI.png');
+	--vector-tabs-first-hidpi: url('filepath://Vector-tabs-first-dungeons2-HiDPI.png');
+
+  	--content-background-color: #E3E8F1;
+	--content-border-top-color: #8E9EBD;
+	--simplesearch-topright-grass-color: #2489E3;
+	--search-form-after-border-top-color: #3E96E4;
+
+	--sidebar-display-minecraft: none;
+	--sidebar-display-dungeons: none;
+	--sidebar-display-dungeons2: initial;
+	--sidebar-display-earth: none;
+	--sidebar-display-legends: none;
+	--sidebar-display-story-mode: none;
+	--sidebar-display-tutorial: none;
+	--sidebar-display-movie: none;
+}
+
+/* Dungeons Wiki Portal styles */
+html body.ns-10000.rootpage-Dungeons_Wiki,
+html body.ns-10001.rootpage-Dungeons_talk_Wiki {
+	--sidebar-display-dungeons: initial;
+	--sidebar-display-dungeons2: initial;
+}
+
+/* Earth styles:
+ * [[File:Earth Wiki.png]] [[File:Header-background-earth.png]]
+ * [[File:Vector-tabs-earth.png]] [[File:Vector-tabs-first-earth.png]]
+ * [[File:Earth Wiki HiDPI.png]] [[File:Header-background-earth-HiDPI.png]]
+ * [[File:Vector-tabs-earth-HiDPI.png]] [[File:Vector-tabs-first-earth-HiDPI.png]]
+ */
+body.rootpage-Minecraft_Earth,
+body.rootpage-Talk_Minecraft_Earth,
+body.ns-10002,
+body.ns-10003 {
+	/* Overwrite theme gadget styles */
+	--base-background: url('filepath://Background.png');
+	--base-background-hidpi: url('filepath://Background-HiDPI.png');
+
+	/*--wiki-logo: url('filepath://Earth_Wiki.png');*/
+	--header-background: url('filepath://Header-background-earth.png');
+	--vector-tabs: url('filepath://Vector-tabs-earth.png');
+	--vector-tabs-first: url('filepath://Vector-tabs-first-earth.png');
+
+	/*--wiki-logo-hidpi: url('filepath://Earth_Wiki_HiDPI.png');*/
+	--header-background-hidpi: url('filepath://Header-background-earth-HiDPI.png');
+	--vector-tabs-hidpi: url('filepath://Vector-tabs-earth-HiDPI.png');
+	--vector-tabs-first-hidpi: url('filepath://Vector-tabs-first-earth-HiDPI.png');
+
+	--content-background-color: #E5EDFF;
+	--content-border-top-color: #B7BDCC;
+	--content-border-top-right-color: #406b7f;
+	--simplesearch-before-border-left-color: #284350;
+	--simplesearch-topright-grass-color: #0FD36D;
+	--search-form-after-border-top-color: #2DDA81;
+
+	--sidebar-display-minecraft: none;
+	--sidebar-display-dungeons: none;
+	--sidebar-display-dungeons2: none;
+	--sidebar-display-earth: initial;
+	--sidebar-display-legends: none;
+	--sidebar-display-story-mode: none;
+	--sidebar-display-tutorial: none;
+	--sidebar-display-movie: none;
+}
+
+/* Legends styles:
+ * [[File:Background-legends.png]] [[File:Background-legends-HiDPI.png]]
+ * [[File:Header-background-legends.png]] [[File:Vector-tabs-legends.png]]
+ * [[File:Vector-tabs-first-legends.png]] [[File:Header-background-legends-HiDPI.png]]
+ * [[File:Vector-tabs-legends-HiDPI.png]] [[File:Vector-tabs-first-legends-HiDPI.png]]
+ */
+body.rootpage-Minecraft_Legends,
+body.rootpage-Talk_Minecraft_Legends,
+body.ns-10006,
+body.ns-10007 {
+	/* Overwrite theme gadget styles */
+	--base-background: url('filepath://Background-legends.png');
+	--base-background-hidpi: url('filepath://Background-legends-HiDPI.png');
+
+	/*--wiki-logo: url('filepath://Legends_Wiki.png');*/
+	--header-background: url('filepath://Header-background-legends.png');
+	--vector-tabs: url('filepath://Vector-tabs-legends.png');
+	--vector-tabs-first: url('filepath://Vector-tabs-first-legends.png');
+
+	/*--wiki-logo-hidpi: url('filepath://Legends_Wiki_HiDPI.png');*/
+	--header-background-hidpi: url('filepath://Header-background-legends-HiDPI.png');
+	--vector-tabs-hidpi: url('filepath://Vector-tabs-legends-HiDPI.png');
+	--vector-tabs-first-hidpi: url('filepath://Vector-tabs-first-legends-HiDPI.png');
+
+	--content-background-color: #DAEAE9;
+	--content-border-top-color: #9FA2A2;
+	--content-border-top-right-color: #34538c;
+	--simplesearch-before-border-left-color: #203559;
+	--simplesearch-topright-grass-color: #08F9E2;
+	--search-form-after-border-top-color: #2AFDE9;
+
+	--sidebar-display-minecraft: none;
+	--sidebar-display-dungeons: none;
+	--sidebar-display-dungeons2: none;
+	--sidebar-display-earth: none;
+	--sidebar-display-legends: initial;
+	--sidebar-display-story-mode: none;
+	--sidebar-display-tutorial: none;
+	--sidebar-display-movie: none;
+}
+
+/* Story Mode styles:
+ * [[File:Header-background-storymode.png]] [[File:Vector-tabs-storymode.png]]
+ * [[File:Vector-tabs-first-storymode.png]] [[File:Header-background-storymode-HiDPI.png]]
+ * [[File:Vector-tabs-storymode-HiDPI.png]] [[File:Vector-tabs-first-storymode-HiDPI.png]]
+ * [[File:Background-storymode.png]] [[File:Background-storymode-HiDPI.png]]
+ */
+body.rootpage-Minecraft_Story_Mode,
+body.rootpage-Talk_Minecraft_Story_Mode,
+body.rootpage-Minecraft_Story_Mode_-_Season_Two,
+body.rootpage-Talk_Minecraft_Story_Mode_-_Season_Two,
+body.ns-10004,
+body.ns-10005 {
+	/* Overwrite theme gadget styles */
+	--base-background: url('filepath://Background-storymode.png');
+	--base-background-hidpi: url('filepath://Background-storymode-HiDPI.png');
+	--minwi-background: url('filepath://Minwi-background-storymode.png');
+
+	/*--wiki-logo: url('filepath://Story_Mode_Wiki.png');*/
+	--header-background: url('filepath://Header-background-storymode.png');
+	--vector-tabs: url('filepath://Vector-tabs-storymode.png');
+	--vector-tabs-first: url('filepath://Vector-tabs-first-storymode.png');
+
+	/*--wiki-logo-hidpi: url('filepath://Story_Mode_Wiki_HiDPI.png');*/
+	--header-background-hidpi: url('filepath://Header-background-storymode-HiDPI.png');
+	--vector-tabs-hidpi: url('filepath://Vector-tabs-storymode-HiDPI.png');
+	--vector-tabs-first-hidpi: url('filepath://Vector-tabs-first-storymode-HiDPI.png');
+
+	--content-background-color: #f9eddc;
+	--content-border-top-color: #d5c090;
+	--content-border-top-right-color: #503767;
+	--content-border-left-color: #ab9a75;
+	--base-background-color: #dcdaf1;
+	--simplesearch-before-border-left-color: #352343;
+	--simplesearch-topright-grass-color: #d2a734;
+	--search-form-after-border-top-color: #d2a734;
+
+	--sidebar-display-minecraft: none;
+	--sidebar-display-dungeons: none;
+	--sidebar-display-dungeons2: none;
+	--sidebar-display-earth: none;
+	--sidebar-display-legends: none;
+	--sidebar-display-story-mode: initial;
+	--sidebar-display-tutorial: none;
+	--sidebar-display-movie: none;
+}
+
+/* Tutorial styles
+ */
+body.rootpage-Tutorials,
+body.rootpage-Talk_Tutorials,
+body.ns-10010,
+body.ns-10011 {
+	--sidebar-display-minecraft: none;
+	--sidebar-display-dungeons: none;
+	--sidebar-display-dungeons2: none;
+	--sidebar-display-earth: none;
+	--sidebar-display-legends: none;
+	--sidebar-display-story-mode: none;
+	--sidebar-display-tutorial: initial;
+	--sidebar-display-movie: none;
+}
+
+/* Movie styles:
+ * [[File:Background-movie.png]] [[File:Background-movie-HiDPI.png]]
+ * [[File:Header-background-movie.png]] [[File:Vector-tabs-movie.png]]
+ * [[File:Vector-tabs-first-movie.png]] [[File:Header-background-movie-HiDPI.png]]
+ * [[File:Vector-tabs-movie-HiDPI.png]] [[File:Vector-tabs-first-movie-HiDPI.png]]
+ */
+html body.rootpage-A_Minecraft_Movie,
+html body.rootpage-Talk_A_Minecraft_Movie,
+html body.rootpage-A_Minecraft_Movie_Squared,
+html body.rootpage-Talk_A_Minecraft_Movie_Squared,
+html body.ns-10012,
+html body.ns-10013 {
+	--base-background: url('filepath://Background-movie.png');
+	--base-background-hidpi: url('filepath://Background-movie-HiDPI.png');
+
+	--header-background: url('filepath://Header-background-movie.png');
+	--vector-tabs: url('filepath://Vector-tabs-movie.png');
+	--vector-tabs-first: url('filepath://Vector-tabs-first-movie.png');
+
+	--header-background-hidpi: url('filepath://Header-background-movie-HiDPI.png');
+	--vector-tabs-hidpi: url('filepath://Vector-tabs-movie-HiDPI.png');
+	--vector-tabs-first-hidpi: url('filepath://Vector-tabs-first-movie-HiDPI.png');
+
+	--content-background-color: #E8E3E1;
+	--content-border-top-color: #BDB5AF;
+
+	--sidebar-display-minecraft: none;
+	--sidebar-display-dungeons: none;
+	--sidebar-display-dungeons2: none;
+	--sidebar-display-earth: none;
+	--sidebar-display-legends: none;
+	--sidebar-display-story-mode: none;
+	--sidebar-display-tutorial: none;
+	--sidebar-display-movie: initial;
+}
+
+/* Give the background the initial stone texture */
+body {
+	background-color: var(--base-background-color);
+	background-image: var(--minwi-background), var(--header-background), var(--base-background);
+	background-repeat: no-repeat, repeat-x, repeat;
+	background-position: center 570px, top left, top left;
+	background-size: 256px, auto 234px, 468px;
+}
+
+/* Logo */
+.mw-wiki-logo {
+	background-image: var(--wiki-logo);
+	background-size: cover;
+}
+
+#mw-page-base {
+	background: none;
+	height: 85px;
+}
+
+/* Remove excess spacing between the sidebar and the logo */
+div#mw-panel {
+	padding-top: 0;
+	padding-bottom: 10px;
+}
+
+#p-logo,
+#p-logo a {
+	height: 8.75em; /* 140px */
+}
+
+/* Set the outer content link colours to light gray and white */
+#mw-panel *:not(h3) > a:not(:hover):not(:focus),
+#footer a:not(:hover):not(:focus) {
+	color: #BFBFBF !important;
+}
+
+#mw-panel h3,
+#mw-panel a,
+#footer li,
+#footer a {
+	color: #FFF !important;
+}
+
+#mw-panel h3 {
+	text-decoration: none !important;
+	cursor: pointer;
+}
+
+/* Set the tab link colours to black and bold */
+#p-namespaces a,
+#p-associated-pages a,
+#p-views a,
+#p-cactions-label span,
+div#mw-head div.vectorMenu h4,
+div#p-variants.vectorMenu #mw-vector-current-variant {
+	font-weight: bold;
+	text-decoration: none;
+}
+
+/* Use black links */
+#p-namespaces a,
+#p-associated-pages a,
+#p-views a,
+#p-sharing span,
+#p-cactions-label span,
+div#mw-head div.vectorMenu h4 {
+	color: var(--color-base);
+}
+
+#p-namespaces .new a,
+#p-associated-pages .new a,
+#p-views .new a {
+	color: #BA0000;
+}
+
+/* Add some margin to help with the 3D effect */
+#right-navigation,
+#content {
+	margin-right: 10px;
+}
+#footer {
+	margin-right: 8px;
+}
+
+/* Position the tabs */
+#left-navigation,
+#right-navigation {
+	margin-top: 54px;
+}
+
+#mw-head-base {
+	height: 80px;
+	margin-top: -80px;
+}
+
+/* Give the tabs the grass block styling */
+nav.vector-menu-tabs,
+nav.vector-menu-dropdown {
+	background: none;
+	padding: 0;
+	height: 36px;
+}
+
+nav.vector-menu-tabs li a {
+	box-sizing: unset;
+}
+
+nav.vector-menu-tabs,
+nav.vector-menu-tabs a,
+.vector-menu-portal .vector-menu-heading,
+nav.vector-menu-tabs ul,
+nav.vector-menu-tabs ul li.selected,
+#mw-head .vector-menu-dropdown .vector-menu-heading {
+	background: none;
+}
+
+nav.vector-menu-tabs ul li,
+nav.vector-menu-tabs ul li.selected,
+nav.vector-menu-tabs ul li:hover,
+nav.vector-menu-tabs ul li:focus,
+nav.vector-menu-dropdown,
+nav.vector-menu-dropdown:hover,
+nav.vector-menu-dropdown:focus {
+	--ca-background-image: var(--vector-tabs);
+	--ca-background-color: var(--content-border-top-color);
+	background: var(--ca-background-image) no-repeat right 8px top,
+				linear-gradient(to right, var(--ca-background-color) calc(100% - 14px), transparent 0) no-repeat left 6px top 6px;
+	position: relative;
+}
+
+nav.vector-menu-tabs ul li.selected,
+nav.vector-menu-tabs ul li:hover,
+nav.vector-menu-tabs ul li:focus,
+nav.vector-menu-dropdown:hover,
+nav.vector-menu-dropdown:focus {
+	--ca-background-color: var(--content-background-color);
+	background-position-y: bottom, 6px;
+}
+
+nav.vector-menu-tabs ul li:before,
+nav.vector-menu-dropdown:before {
+	content: "";
+	position: absolute;
+	left: 0;
+	background: var(--ca-background-image) var(--content-border-top-color) no-repeat left top;
+	width: 6px;
+	height: 100%;
+	pointer-events: none;
+}
+
+#left-navigation nav.vector-menu-tabs li:first-child:before {
+	background: var(--vector-tabs-first) no-repeat left top;
+	height: 93px
+}
+
+nav.vector-menu-tabs li a {
+	padding: 15px 14px 0 20px;
+	height: 21px;
+	margin-right: 8px;
+}
+
+.vector-menu-tabs .mw-watchlink.icon {
+	/* Force font-size when using the icon */
+	font-size: 16px !important;
+}
+
+.vector-menu-tabs .mw-watchlink.icon a {
+	width: 45px;
+	margin-right: 3px;
+	margin-bottom: -4px;
+}
+
+.vector-menu-tabs .mw-watchlink.icon a:before {
+	left: 1.17em;
+}
+
+nav.vector-menu-dropdown label {
+	padding: 15px 14px 0 20px !important;
+}
+
+nav.vector-menu-dropdown .vector-menu-content {
+	transition: none;
+	margin-left: 6px;
+	min-width: calc(100% - 14px); /* Subtract 14px from the minimum width so that it doesn't cross the grass border */
+}
+
+.vector-menu-dropdown:focus-within .vector-menu-content,
+.vector-menu-dropdown:hover .vector-menu-content {
+	opacity: 1;
+	visibility: visible;
+	height: auto;
+}
+
+nav.vector-menu {
+	margin: 0 8px 0 6px;
+}
+#p-views,
+#p-cactions {
+	margin: 0;
+}
+#p-cactions {
+	padding-right: 8px;
+}
+
+#left-navigation nav.vector-menu {
+	margin-left: 0;
+}
+
+nav.vector-menu h3 span {
+	padding-left: 14px;
+	font-weight: bold;
+}
+
+nav.vector-menu h3 a {
+	height: 36px;
+	margin-right: 8px;
+}
+
+nav.vector-menu div.vector-menu-content {
+	top: 35px;
+}
+
+.vector-menu-portal .vector-menu-content,
+#p-personal .vector-menu-content-list,
+#footer {
+	background-color: #232324;
+	border: 2px #313233 solid;
+}
+nav.vector-menu-portal,
+#p-personal {
+	background-color: #232324;
+	border: 2px black solid;
+}
+
+/* Collapsible side panel sections (arrow copied from the Aether Wiki) */
+#mw-panel nav.vector-menu-portal h3:before {
+	content: "";
+	display: inline-block;
+	background: 0 0;
+	position: relative;
+	width: 0;
+	height: 0;
+	border-style: solid;
+	border-color: #AAA transparent;
+	border-width: 6px 5px 0;
+	margin-right: -11px;
+	margin-bottom: 1px;
+}
+
+#mw-panel nav.vector-menu-portal.collapsed h3:before {
+	-webkit-transform: rotate(-90deg);
+	transform: rotate(-90deg);
+}
+
+.vector-legacy-sidebar .vector-menu-portal {
+	display: var(--sidebar-display, block);
+	margin: 0.5em 8px 2px 6px;
+	padding: 0;
+}
+
+.vector-legacy-sidebar .vector-menu-portal .vector-menu-content {
+	margin-left: 0;
+	padding: 0;
+}
+
+.vector-legacy-sidebar .vector-menu-portal .vector-menu-content-list {
+	padding: 0.3em 0.5em;
+}
+
+div#mw-panel nav.vector-menu-portal h3 {
+	background: conic-gradient(from 180deg at 2px calc(100% - 2px), #6a6b6c 90deg, transparent 0),
+				conic-gradient(from 0 at calc(100% - 2px) 2px, #6a6b6c 90deg, transparent 0),
+				linear-gradient(to top, #464747 2px, transparent 0px),
+				linear-gradient(to bottom, #5a5b5c 2px, transparent 0px),
+				linear-gradient(to left, #464747 2px, transparent 0px),
+				linear-gradient(to right, #5a5b5c 2px, transparent 0px);
+	background-color: #313233;
+	padding: calc(0.5em + 2px);
+	border-bottom: 2px solid black;
+}
+
+@media screen and (min-width: 720px) {
+	div#mw-panel nav.vector-menu-portal.collapsed h3 {
+		background: conic-gradient(from 180deg at 2px calc(100% - 2px), #7c7c7d 90deg, transparent 0),
+					conic-gradient(from 0 at calc(100% - 2px) 2px, #7c7c7d 90deg, transparent 0),
+					linear-gradient(to top, #5a5b5c 2px, transparent 0),
+					linear-gradient(to bottom, #6d6d6e 2px, transparent 0),
+					linear-gradient(to left, #5a5b5c 2px, transparent 0),
+					linear-gradient(to right, #6d6d6e 2px, transparent 0);
+		background-color: #48494a;
+		padding: 0.5em calc(0.5em + 2px);
+		border-bottom: 5px solid #313233;
+	}
+}
+
+.vector-legacy-sidebar .vector-menu-portal .vector-menu-heading {
+	margin: 0;
+}
+
+nav.mw-portlet.emptyPortlet {
+	display: none;
+}
+
+/* Uncomment this to unhide the "Navigation" header of the first sidebar box */
+/* #p-logo + .mw-portlet .vector-menu-heading {
+	display: block;
+} */
+
+/*#mw-panel nav.vector-menu-portal.collapsed .vector-menu-content {
+	display: none;
+}*/
+
+/* Style the personal links */
+#p-personal {
+	right: 10px;
+	top: 5px;
+	margin-right: 0;
+	margin-left: 10px;
+}
+
+#p-personal a {
+	color: white;
+}
+
+.mw-echo-alert {
+	background-color: #8e721c;
+	border: 1px solid #fff;
+	border-radius: 4px;
+	font-weight: bold;
+}
+
+#p-personal .vector-menu-content-list {
+	padding: 1px 0.5em 1px 0;
+}
+
+.vector-user-menu-legacy li {
+	padding-top: 0.3em;
+	padding-bottom: 0.3em;
+}
+
+#p-personal .oo-ui-icon-bell, #p-personal .mw-ui-icon-bell::before,
+#p-personal .oo-ui-icon-tray, #p-personal .mw-ui-icon-tray::before {
+	filter: invert(1);
+}
+.vector-user-menu-legacy #pt-anonuserpage,
+.vector-user-menu-legacy #pt-tmpuserpage,
+.vector-user-menu-legacy #pt-userpage a {
+	filter: invert(1);
+	padding-top: 0;
+	background-size: 14px;
+	background-position: unset;
+}
+
+.vector-user-menu-legacy #pt-anonuserpage span,
+.vector-user-menu-legacy #pt-tmpuserpage span {
+	color: lightgrey;
+	filter: invert(1);
+}
+
+.vector-user-menu-legacy #pt-userpage a span {
+	color: white;
+	filter: invert(1);
+	will-change: filter; /* Fix safari bug */
+}
+
+.skin-vector-legacy #p-personal #pt-notifications-notice,
+.skin-vector-legacy #p-personal #pt-notifications-alert {
+	margin-right: 0;
+}
+
+.skin-vector-legacy #pt-notifications-notice .mw-echo-notifications-badge,
+.skin-vector-legacy #pt-notifications-alert .mw-echo-notifications-badge {
+	top: 0;
+	width: 14px;
+	height: 14px;
+	background-size: 14px 14px;
+	margin-right: 8px;
+}
+
+.skin-vector-legacy #pt-notifications-notice .mw-echo-notifications-badge.mw-echo-notifications-badge-all-read,
+.skin-vector-legacy #pt-notifications-alert .mw-echo-notifications-badge.mw-echo-notifications-badge-all-read {
+	margin-right: 2px;
+}
+
+.skin-vector-legacy #pt-notifications-notice .mw-echo-notifications-badge:after,
+.skin-vector-legacy #pt-notifications-alert .mw-echo-notifications-badge:after {
+	top: 4px;
+	filter: invert(1);
+	border-color: var(--color-inverted-fixed);
+	color: var(--color-inverted-fixed);
+}
+
+/* Style the simple search */
+#p-search {
+	margin-left: 0;
+}
+
+#p-search form {
+	position: relative;
+	margin-top: 6px;
+	padding: 0 4px 0 5px;
+	height: 27px;
+}
+
+#simpleSearch {
+	top: -3px;
+	border: 0;
+	border-top: 3px solid var(--simplesearch-top-border-color);
+	border-left: 3px solid var(--simplesearch-left-border-color);
+	background-color: #D0CFCF;
+	background-image: -webkit-linear-gradient(#C3C3C3, #DBDBDB);
+	background-image: linear-gradient(#C3C3C3, #DBDBDB);
+	-webkit-transition: none !important;
+	-moz-transition: none !important;
+	transition: none !important;
+}
+
+#simpleSearch:before {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	left: -3px;
+	border-top: 3px solid var(--simplesearch-left-border-color);
+	border-left: 3px solid var(--content-border-top-color);
+	z-index: 1;
+}
+
+#simpleSearch:after {
+	content: "";
+	position: absolute;
+	top: -3px;
+	right: 0;
+	border-top: 3px solid var(--simplesearch-topright-grass-color);
+	border-left: 3px solid var(--simplesearch-top-border-color);
+}
+
+/* Remove border of search bar */
+#simpleSearch .vector-search-box-input {
+	border: none;
+	border-radius: 0;
+	outline: none;
+	box-shadow: none;
+	height: 27px;
+}
+
+.vector-search-box-input::placeholder {
+	color: var(--searchinput-placeholder-color);
+}
+
+/* Style the simple search */
+#p-search {
+	margin-left: 0;
+	width: unset;
+	min-width: unset;
+}
+
+#p-search #searchform {
+	position: relative;
+	margin-top: 6px;
+	padding: 0 4px 0 5px;
+}
+
+/* Unstyle codex search */
+#p-search #searchform .cdx-text-input__input,
+#p-search #searchform .cdx-search-input,
+#p-search #searchform {
+	background: none;
+	display: block;
+	border: none;
+	border-radius: 0;
+	outline: none;
+	box-shadow: none;
+	height: 27px;
+}
+
+/* Keep old vector default styles */
+#p-search #searchform .cdx-search-input__input-wrapper {
+	height: 100%;
+	min-width: 6.5em;
+	width: 20vw;
+	max-width: 26em;
+	margin: 0;
+}
+
+#p-search #searchform .cdx-search-input__input-wrapper {
+	position: relative;
+	top: -3px;
+	border: 0;
+	border-top: 3px solid var(--simplesearch-top-border-color);
+	border-left: 3px solid var(--simplesearch-left-border-color);
+	background-color: #D0CFCF;
+	background-image: -webkit-linear-gradient(#C3C3C3, #DBDBDB);
+	background-image: linear-gradient(#C3C3C3, #DBDBDB);
+	-webkit-transition: none !important;
+	-moz-transition: none !important;
+	transition: none !important;
+}
+
+#p-search #searchform .cdx-search-input__input-wrapper:before {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	left: -3px;
+	border-top: 3px solid var(--simplesearch-left-border-color);
+	border-left: 3px solid var(--content-border-top-color);
+	z-index: 1;
+}
+
+#p-search #searchform .cdx-search-input__input-wrapper:after {
+	content: "";
+	position: absolute;
+	top: -3px;
+	right: 0;
+	border-top: 3px solid var(--simplesearch-topright-grass-color);
+	border-left: 3px solid var(--simplesearch-top-border-color);
+}
+
+#p-search #searchform .cdx-text-input__input {
+	background-color: rgba(255, 255, 255, 0.5);
+	color: #000;
+	min-height: unset;
+	padding: 5px 2.15384615em 5px 0.4em;
+}
+
+#p-search #searchform .cdx-text-input__input::placeholder {
+	color: var(--searchinput-placeholder-color);
+}
+
+#p-search #searchform .cdx-search-input__end-button {
+	display: block;
+	position: absolute;
+	top: 1px;
+	bottom: 1px;
+	right: 1px;
+	min-width: 28px;
+	width: 2.15384615em;
+	border: 0;
+	padding: 0;
+	cursor: pointer;
+	direction: ltr;
+	text-indent: -99999px;
+	white-space: nowrap;
+	overflow: hidden;
+	z-index: 1;
+	background: no-repeat center / 1.23076923em url(/skins/Vector/resources/skins.vector.styles.legacy/images/search.svg?ac00d);
+	opacity: 0.67;
+	margin: 0;
+	min-height: unset;
+}
+
+#p-search #searchform > .cdx-search-input__end-button {
+	right: 5px;
+}
+
+/* The suggestions shown under the search bar */
+/*#p-search #searchform .cdx-menu {*/
+/*	background-color: #DBDADA;*/
+/*	border-color: #3C3B3B;*/
+/*	box-shadow: none;*/
+/*}*/
+
+/*#p-search #searchform .cdx-menu--has-footer .cdx-menu-item:last-of-type:not(:first-of-type) {*/
+/*	border-color: #3C3B3B;*/
+/*}*/
+
+/*#p-search #searchform .cdx-menu-item--highlighted {*/
+/*	background-color: #0078D7;*/
+/*}*/
+
+/*#p-search #searchform .cdx-menu-item--highlighted .cdx-typeahead-search__search-footer__icon,*/
+/*#p-search #searchform .cdx-menu-item--highlighted .cdx-menu-item__text__supporting-text,*/
+/*#p-search #searchform .cdx-menu-item--highlighted .cdx-menu-item__text__description,*/
+/*#p-search #searchform .cdx-menu-item--highlighted .cdx-menu-item__content,*/
+/*#p-search #searchform .cdx-menu-item--highlighted {*/
+/*	color: #fff;*/
+/*}*/
+
+#p-search #searchform .cdx-thumbnail__placeholder,
+#p-search #searchform .cdx-thumbnail__image {
+	background-color: var(--background-color-base);
+}
+
+/* Fix placeholder text being too light in chrome */
+::-webkit-input-placeholder {
+	color: inherit;
+	opacity: 0.54;
+}
+
+/* The suggestions shown under the search bar */
+.suggestions.searchbar {
+	margin-right: -1px;
+}
+
+.suggestions.searchbar > .suggestions-results,
+.suggestions.searchbar > .mw-searchSuggest-link {
+	display: block;
+	margin-left: 1px;
+}
+
+.suggestions.searchbar .suggestions-results,
+.suggestions.searchbar .suggestions-special,
+.suggestions .suggestions-results,
+.suggestions .suggestions-special {
+	background-color: #DBDADA !important;
+	border-color: #3C3B3B !important;
+}
+
+.suggestions.searchbar .suggestions-result-current,
+.suggestions .suggestions-result-current {
+	background-color: #0078D7 !important;
+}
+
+/* Give the main content area its healthy blue glow and add a border */
+.mw-body, .parsoid-body,
+div#content {
+	position: relative;
+	background-color: var(--content-background-color);
+	border-top: 6px solid var(--content-border-top-color);
+	border-bottom: 0;
+	border-left: 6px solid var(--content-border-left-color);
+	word-wrap: break-word;
+}
+
+/* Add the 3D corners to the main content */
+#mw-page-base::after {
+	content: "";
+	position: absolute;
+	border-top: 6px solid var(--content-border-top-right-color);
+	border-left: 6px solid var(--content-border-top-color);
+	z-index: 1;
+	top: 84px;
+	right: 10px;
+}
+
+#content:after {
+	content: "";
+	position: absolute;
+	border-top: 6px solid transparent;
+	border-left: 6px solid var(--base-background-color);
+	left: -6px;
+	bottom: 0;
+}
+
+#footer {
+	outline: 2px black solid;
+	border-width: 4px;
+	outline-offset: -2px;
+	margin-left: calc(10em + 4px);
+	margin-top: 10px;
+	margin-bottom: 10px;
+	padding: 0.5em 0.75em;
+}
+
+#footer:after {
+	content: '';
+	clear: both;
+	display: block;
+}
+
+@media screen and (min-width: 982px) {
+	/* Position the footer */
+	#footer {
+		margin-left: calc(11em + 4px);
+	}
+}
+
+/* Fix positioning for small screens when the sidebar moves below the content */
+@media screen and (max-width: 720px) {
+	#mw-head {
+		top: 13px;
+	}
+	div#mw-navigation div#mw-panel {
+		position: static !important; /* position: relative may be added to inline styles by built-in JS after page load; it needs an !important to override */
+	}
+
+	/* Add some margin to help with the 3D effect */
+	#left-navigation,
+	#content {
+		margin-left: 10px;
+	}
+	#footer {
+		margin-left: 8px;
+	}
+	#footer:before {
+		content: none;
+	}
+	/* Position the tabs */
+	#left-navigation,
+	#right-navigation {
+		margin-top: 40px;
+	}
+	/* Position the personal links */
+	#p-personal {
+		top: -8px;
+	}
+
+	/* Position the sidebar sections */
+	#mw-panel {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+	}
+	.vector-menu-portal.collapsed {
+		border-bottom: none;
+	}
+	#mw-panel #p-logo {
+		margin: auto;
+		margin-top: 1em;
+	}
+	#mw-panel li {
+		padding: .5em 0;
+	}
+	#mw-panel li a:not([href^="https://discord.gg/"]) {
+		padding: .5em;
+	}
+	#mw-panel li:has([href^="https://discord.gg/"]) {
+		margin: 0 .5em;
+	}
+
+	/* Position searchbar in article body */
+	#p-search {
+		float: none;
+		position: absolute;
+		right: 0;
+		left: 0;
+		margin: 0;
+		bottom: -31px;
+		margin-bottom: -1em;
+	}
+	#p-search #searchform {
+		margin: 0;
+		padding: 0 calc(1em + 16px);
+	}
+	#p-search #searchform .cdx-search-input__input-wrapper {
+		margin: 0;
+		padding: 0;
+		width: 100%;
+		max-width: 100%;
+		border-bottom: 3px solid var(--simplesearch-left-border-color);
+		border-right: 3px solid var(--simplesearch-top-border-color);
+	}
+	#p-search #searchform .cdx-search-input__end-button {
+		right: -2px;
+	}
+	#p-search #searchform > .cdx-search-input__end-button {
+		right: calc(1em + 14px);
+	}
+	.mw-body,
+	.parsoid-body,
+	div#content {
+		padding-top: calc(2em + 33px);
+	}
+	#p-cactions {
+		margin-right: -8px;
+	}
+	.vector-menu-dropdown .vector-menu-content {
+		left: unset;
+		right: 7px;
+	}
+	#p-search #searchform .cdx-search-input__input-wrapper:before,
+	#p-search #searchform .cdx-search-input__input-wrapper:after,
+	#mw-page-base::after {
+		content: none;
+	}
+}
+
+.mw-dismissable-notice-close .dismiss-icon svg {
+	fill: var(--color-base);
+}
+
+/* Various styling for message boxes, based on colours/styling from [[Template:Msgbox]] */
+/*div.mw-warning-with-logexcerpt,*/
+/*.errorbox,*/
+/*.warningbox,*/
+/*.successbox {*/
+/*	padding: .4em .8em;*/
+/*	margin-bottom: 1em;*/
+/*	border: 1px solid #CCC;*/
+/*}*/
+
+/*div.mw-warning-with-logexcerpt,*/
+/*.errorbox {*/
+/*	background: #FDD;*/
+/*	border-left: 4px solid #FAA;*/
+/*}*/
+
+/*.warningbox {*/
+/*	background: #FFC;*/
+/*	border-left: 4px solid #DD8;*/
+/*}*/
+
+/*.successbox {*/
+/*	background: #DFD;*/
+/*	border-left: 4px solid #9C9;*/
+/*}*/
+
+/*.successbox strong p {*/
+/*	margin: 0;*/
+/*}*/
+
+/* Add white background to some areas */
+#asirra_ChallengeTableDiv {
+	background-color: #FFF;
+}
+
+/* Fix diff area styling */
+table.diff {
+	background-color: transparent;
+}
+
+td.diff-addedline,
+td.diff-deletedline {
+	background-color: var(--background-color-base);
+}
+
+/*td.diff-context {*/
+/*	background-color: #F3F3F3;*/
+/*}*/
+
+td.diff-addedline,
+td.diff-deletedline,
+td.diff-context,
+td.diff-addedline .diffchange,
+td.diff-deletedline .diffchange {
+	border-radius: 0;
+}
+
+/* Fix side-by-side editor background colour */
+/*.wikiEditor-ui-controls {*/
+/*	background-color: #E6EFF4;*/
+/*	border-right: 1px solid #E6EFF4;*/
+/*}*/
+
+/* Style notifications to look like achievements: [[File:Achievement background.png]] */
+body .mw-notification-area-layout {
+	top: 80px;
+}
+
+body .mw-notification.mw-notification-type-success,
+body .mw-notification.mw-notification-type-error,
+body .mw-notification.mw-notification-type-warn,
+body .mw-notification {
+	border: 8px solid #555;
+	border-radius: 0;
+	-webkit-border-image: url('filepath://Achievement_background.png') 8 repeat;
+	-moz-border-image: url('filepath://Achievement_background.png') 8 repeat;
+	-o-border-image: url('filepath://Achievement_background.png') 8 repeat;
+	border-image: url('filepath://Achievement_background.png') 8 fill repeat;
+	box-shadow: none;
+	background-color: #212121;
+	background-clip: padding-box;
+	color: #FFF;
+	padding: 0.2em 0.4em;
+}
+
+body .mw-notification.mw-notification-type-success {
+	color: #2d6;
+}
+body .mw-notification.mw-notification-type-error {
+	color: #d33;
+}
+body .mw-notification.mw-notification-type-warn {
+	color: #fc3;
+}
+
+/* HiDPI images */
+@media (-webkit-min-device-pixel-ratio: 1.5), (min-resolution: 1.5dppx) {
+	body {
+		background-image: var(--minwi-background), var(--header-background-hidpi), var(--base-background-hidpi);
+	}
+
+	.mw-wiki-logo {
+		background-image: var(--wiki-logo-hidpi);
+		background-size: 8.4375em auto; /* 135px */
+	}
+
+	nav.vector-menu-tabs ul li,
+	nav.vector-menu-tabs ul li.selected,
+	nav.vector-menu-tabs ul li:hover,
+	nav.vector-menu-tabs ul li:focus,
+	nav.vector-menu-dropdown,
+	nav.vector-menu-dropdown:hover,
+	nav.vector-menu-dropdown:focus {
+		--ca-background-image: var(--vector-tabs-hidpi);
+		background-size: 262px auto, auto;
+	}
+
+	nav.vector-menu-tabs ul li:before,
+	nav.vector-menu-dropdown:before {
+		background-size: 262px auto;
+	}
+
+	#left-navigation nav.vector-menu-tabs li:first-child:before {
+		background-image: var(--vector-tabs-first-hidpi);
+		background-size: 6px auto;
+	}
+}
+
+.wikiEditor-ui .oo-ui-toolbar-popups {
+	right: 0;
+}
+.wikiEditor-ui .ve-init-mw-switchPopupWidget,
+.wikiEditor-ui .oo-ui-popupToolGroup-tools {
+	right: 0 !important;
+	left: unset !important;
+}
+.wikiEditor-ui .ve-init-mw-switchPopupWidget .oo-ui-popupWidget-anchor {
+	margin-left: calc(100% - 1.25em);
+	left: unset !important;
+}
+.wikiEditor-ui .ext-WikiEditor-realtimepreview-button > a.oo-ui-buttonElement-button {
+	display: flex;
+	align-items: center;
+}
+
+body.rootpage-Minecraft_Wiki #firstHeading,
+body.rootpage-Movie_Wiki #firstHeading,
+body.rootpage-Dungeons_Wiki #firstHeading,
+body.rootpage-Legends_Wiki #firstHeading,
+body.rootpage-Story_Mode_Wiki #firstHeading,
+body.rootpage-Earth_Wiki #firstHeading {
+	display: none;
+}
+
+body.rootpage-Minecraft_Wiki #bodyContent,
+body.rootpage-Movie_Wiki #bodyContent,
+body.rootpage-Dungeons_Wiki #bodyContent,
+body.rootpage-Legends_Wiki #bodyContent,
+body.rootpage-Story_Mode_Wiki #bodyContent,
+body.rootpage-Earth_Wiki #bodyContent {
+	clear: both;
+}
+
+body.rootpage-Minecraft_Wiki .mw-indicators,
+body.rootpage-Movie_Wiki .mw-indicators,
+body.rootpage-Dungeons_Wiki .mw-indicators,
+body.rootpage-Legends_Wiki .mw-indicators,
+body.rootpage-Story_Mode_Wiki .mw-indicators,
+body.rootpage-Earth_Wiki .mw-indicators {
+	margin-top: -16px;
+}
+
+/* [[File:Wiki Discord.svg]] */
+div#mw-panel nav.portal li a[href="https://discord.gg/fGdE5ZE"] {
+	display: inline-block;
+	position: relative;
+	height: 20px;
+	width: 119px;
+	margin: 0.25em;
+	max-width: 100%;
+}
+div#mw-panel nav.portal li a[href="https://discord.gg/fGdE5ZE"]::before {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: -0.25em;
+	content: "";
+	background: url('filepath://Wiki_Discord.svg') no-repeat;
+	background-size: contain;
+}
+
+#n-in-Minecraft,
+#n-in-Dungeons,
+#n-in-Dungeons-II,
+#n-in-Earth,
+#n-in-Legends,
+#n-in-Story-Mode,
+#n-in-Tutorial,
+#n-in-Movie,
+#p-Recent_versions li {
+	margin-left: 10px;
+	display: var(--sidebar-display, list-item);
+}
+
+.ns-0 #n-randompage, .ns-1 #n-randompage,
+.ns-10000 #n-randompage, .ns-10001 #n-randompage,
+.ns-10002 #n-randompage, .ns-10003 #n-randompage,
+.ns-10004 #n-randompage, .ns-10005 #n-randompage,
+.ns-10006 #n-randompage, .ns-10007 #n-randompage,
+.ns-10010 #n-randompage, .ns-10011 #n-randompage,
+.ns-10012 #n-randompage, .ns-10013 #n-randompage,
+#p-Recent_versions #n-Bedrock-Edition,
+#p-Recent_versions #n-Java-Edition {
+	margin-left: 0;
+	font-weight: bold;
+}
+
+body.rootpage-Minecraft_Wiki #n-randompage {
+	font-weight: normal;
+}
+
+body.rootpage-Minecraft_Wiki #n-in-Minecraft,
+#n-in-Minecraft {
+	--sidebar-display: none;
+}
+.ns-0 #n-in-Minecraft,
+.ns-1 #n-in-Minecraft,
+#p-Recent_versions,
+#p-useful-pages {
+	--sidebar-display: var(--sidebar-display-minecraft);
+}
+
+#n-in-Dungeons,
+#p-useful-pages-dungeons {
+	--sidebar-display: var(--sidebar-display-dungeons);
+}
+
+#n-in-Dungeons-II,
+#p-useful-pages-dungeons2 {
+	--sidebar-display: var(--sidebar-display-dungeons2);
+}
+
+#n-in-Earth,
+#p-useful-pages-earth {
+	--sidebar-display: var(--sidebar-display-earth);
+}
+
+#n-in-Legends,
+#p-useful-pages-legends {
+	--sidebar-display: var(--sidebar-display-legends);
+}
+
+#n-in-Story-Mode,
+#p-useful-pages-story-mode {
+	--sidebar-display: var(--sidebar-display-story-mode);
+}
+
+#n-in-Tutorial,
+.ns-10010 #p-Recent_versions,
+.ns-10011 #p-Recent_versions,
+.rootpage-Tutorials #p-Recent_versions,
+.rootpage-Talk_Tutorials #p-Recent_versions,
+.ns-10010 #p-useful-pages,
+.ns-10011 #p-useful-pages,
+.rootpage-Tutorials #p-useful-pages,
+.rootpage-Talk_Tutorials #p-useful-pages {
+	--sidebar-display: var(--sidebar-display-tutorial);
+}
+
+#n-in-Movie,
+#p-useful-pages-movie {
+	--sidebar-display: var(--sidebar-display-movie);
+}
+
+/* Hide mobile-only things */
+.mobileonly {
+	display: none;
+}
+
+
+
+/**********
+		Add WikiEditor parity with VisualEditor
+		And fixes for dark theme, VisualEditor and CodeEditor
+**********/
+
+/* Space that the whole editor takes */
+.wikiEditor-ui .wikiEditor-ui-view {
+	margin-left: -1em;
+	margin-right: -1em;
+	border: 0;
+}
+.client-js #editform > .wikiEditor-ui .wikiEditor-ui-view {
+	margin-left: 0;
+	margin-right: 0;
+}
+
+.client-js #editform {
+	margin-left: -1em;
+	margin-right: -1em;
+}
+@media screen and (min-width: 982px) {
+	.wikiEditor-ui .wikiEditor-ui-view {
+		margin-left: -1.7em;
+		margin-right: -1.7em;
+	}
+	.client-js #editform {
+		margin-left: -1.7em;
+		margin-right: -1.7em;
+	}
+}
+
+/* Removes border from the toolbar */
+.wikiEditor-ui .wikiEditor-ui-top {
+	border-bottom: 0;
+}
+
+/* Changes colors of the WikiEditor and VisualEditor toolbars */
+/*.wikiEditor-ui-toolbar,*/
+/*.oo-ui-toolbar-bar,*/
+/*.wikiEditor-ui-toolbar .sections .section,*/
+/*.ve-init-mw-desktopArticleTarget-toolbarPlaceholder-floating .ve-init-mw-desktopArticleTarget-toolbarPlaceholder-bar {*/
+/*	box-shadow: 0px 3px 7px 0px rgba(163,159,159,0.15);*/
+/*}*/
+
+.wikiEditor-ui-toolbar .sections .section .section-advanced .section-visible {
+	border-bottom: 0;
+}
+
+.oo-ui-toolbar-bar .oo-ui-toolbar-actions .oo-ui-toolbar .oo-ui-toolbar-bar {
+	border-bottom: 0;
+	box-shadow: none;
+}
+
+/* Changes buttons of WikiEditor to match VisualEditor's behavior */
+.wikiEditor-ui-toolbar .oo-ui-buttonElement-frameless.oo-ui-iconElement > .oo-ui-buttonElement-button > .oo-ui-iconElement-icon {
+	left: 10px;
+}
+.wikiEditor-ui-toolbar .oo-ui-buttonElement-frameless.oo-ui-iconElement > .oo-ui-buttonElement-button {
+	min-width: 42px;
+	min-height: 42px;
+	text-align: center;
+}
+.wikiEditor-ui-toolbar .group .tool-select,
+.wikiEditor-ui-toolbar .group .tool-select .label:after {
+	height: 42px;
+}
+.wikiEditor-ui-toolbar .group .label {
+	line-height: 39px;
+}
+.wikiEditor-ui-toolbar .group .tool-select .label {
+	line-height: 42px;
+	height: 42px;
+}
+.wikiEditor-ui-toolbar .tabs span.tab {
+	line-height: 42px;
+}
+.wikiEditor-ui-toolbar .tabs span.tab a:before {
+	/*filter: invert(0);*/
+	height: 42px;
+	left: 6px;
+}
+.wikiEditor-ui-toolbar .tabs span.tab a {
+	height: 42px;
+	/*color: #202122;*/
+	padding-left: 22px;
+}
+.wikiEditor-ui-toolbar .tabs {
+	margin: 0;
+}
+.ve-init-mw-editSwitch .oo-ui-popupToolGroup {
+	height: 42px;
+}
+.ve-init-mw-editSwitch .oo-ui-popupToolGroup.oo-ui-iconElement .oo-ui-popupToolGroup-handle {
+	padding-top: 42px;
+}
+
+/* Changes colors of the VisualEditor placeholder toolbar */
+.ve-init-mw-desktopArticleTarget-toolbarPlaceholder-bar {
+	border-bottom: 1px solid #eaecf0;
+	box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2);
+}
+
+/* Changes border color for separator lines on both editors */
+/*.oo-ui-toolbar-bar,*/
+/*.oo-ui-menuToolGroup,*/
+/*.wikiEditor-ui .wikiEditor-ui-view,*/
+/*.wikiEditor-ui-toolbar .sections .section,*/
+/*.wikiEditor-ui-toolbar .group,*/
+/*.wikiEditor-ui-toolbar .section-secondary .group,*/
+/*.wikiEditor-ui .wikiEditor-ui-top,*/
+/*.codeEditor-status-message,*/
+/*.ace_print-margin {*/
+/*	border-color: #cbcbcb;*/
+/*}*/
+/*.ace_print-margin {*/
+/*	background-color: #eaecf0;*/
+/*}*/
+
+/* Removes a shadow under page tabs on VisualEditor */
+.ve-activated .vector-menu-tabs .selected {
+	box-shadow: none;
+}
+
+/* Improves a bit text on the exit without saving changes menu on VisualEditor */
+.oo-ui-messageDialog-title {
+	font-weight: bold;
+}
+
+/* Improves labels on the character insertion menu on VisualEditor */
+.ve-ui-specialCharacterPage h3,
+.ve-ui-mwLatexDialog-content .oo-ui-bookletLayout-stackLayout h3 {
+	font-weight: bold;
+}
+
+/* Changes the color of the highlighting icons' background */
+	/* Hovering */
+/*.tool.oo-ui-buttonElement-frameless.oo-ui-iconElement > .oo-ui-buttonElement-button:is(:hover, :focus-within),*/
+/*.wikiEditor-ui-toolbar .group .tool-select .menu .options .option:is(:hover, :focus-within),*/
+/*.wikiEditor-ui-toolbar .tabs span.tab a:is(:hover, :focus-within),*/
+/*.wikiEditor-ui-toolbar .group div.tool.tool-select a.label:is(:hover, :focus-within),*/
+/*.wikiEditor-ui-toolbar .page-characters div span:hover,*/
+/*.wikiEditor-ui-toolbar .booklet > .index > :hover,*/
+/*.wikiEditor-ui-toolbar .page-characters div .wikiEditor-character-highlighted,*/
+/*.oo-ui-tool.oo-ui-widget-enabled > .oo-ui-tool-link:hover {*/
+/*	background-color: #ebebeb;*/
+/*	color: #202122;*/
+/*	text-decoration: none;*/
+/*}*/
+	/* Active */
+/*.oo-ui-toggleButtonWidget.oo-ui-widget-enabled.oo-ui-buttonElement-frameless.oo-ui-toggleWidget-on .oo-ui-buttonElement-button,*/
+/*.wikiEditor-ui-toolbar .tabs span.tab a.current,*/
+/*.wikiEditor-ui-toolbar .group div.tool.tool-select.options-shown > a.label,*/
+/*.oo-ui-popupToolGroup.oo-ui-popupToolGroup-active > .oo-ui-popupToolGroup-handle,*/
+/*.oo-ui-listToolGroup-tools .oo-ui-tool.oo-ui-widget-enabled:active,*/
+/*.oo-ui-outlineOptionWidget.oo-ui-optionWidget-selected,*/
+/*.oo-ui-tool.oo-ui-widget-enabled > .oo-ui-tool-link:active,*/
+/*.oo-ui-tool.oo-ui-widget-enabled.oo-ui-tool-active > .oo-ui-tool-link,*/
+/*.wikiEditor-ui-toolbar .booklet > .index > .current {*/
+/*	background-color: #dee6f3;*/
+/*	color: #0645ad;*/
+/*}*/
+
+/* Fixes Special characters and Help menus buttons and labels */
+	/* Normal */
+.wikiEditor-ui-toolbar .page-characters div span {
+	border: 1px solid #cbcbcb;
+}
+
+/* Fixes Help menu padding */
+.wikiEditor-ui-toolbar .page-table th,
+.wikiEditor-ui-toolbar .page-table td {
+	padding: 4px;
+}
+
+/* Fixes Help menu colors */
+.wikiEditor-ui-toolbar .page-table td {
+	border-top: 1px solid #cbcbcb;
+}
+
+/* Makes a border color a bit consistent on the notice popup on VisualEditor */
+/*.oo-ui-popupWidget-popup {*/
+/*	border: 1px solid #c8ccd1;*/
+/*}*/
+
+/* Adds some padding at the left of the text editing section */
+.mw-editform #wpTextbox1 {
+	padding-left: 0.8em;
+}
+
+/* Makes the text editing section a certain color on all cases */
+/*.wikiEditor-ui,*/
+/*.CodeMirror,*/
+/*.mw-editform #wpTextbox1,*/
+/*.ace-tm,*/
+/*.wikiEditor-ui textarea {*/
+/*	background: #fbfbfb;*/
+/*	box-shadow: inset 1px -4px 12px 0px rgba(0,0,0,0.15);*/
+/*}*/
+
+/* Makes the syntax highlighting number line more readable
+.CodeMirror-linenumbers,
+.ace-tm .ace_gutter {
+	background: #efefef;
+	border-right: 1px solid #c8ccd1;
+} */
+
+/* Adds more padding to these notices */
+.mw-editTools,
+.templatesUsed,
+.hiddencats,
+.limitreport {
+	padding-left: 1.5em;
+	padding-right: 1.5em;
+}
+
+/* Changes colors of the save section */
+.editOptions {
+	border-top: 0;
+	border-left: 0;
+	border-right: 0;
+	padding: 1.5em;
+}
+
+/* Modifies layout of some elements of the save section */
+	/* Summary section */
+.mw-editform #wpSummaryLabel {
+	margin: 0 1em;
+}
+.editOptions > #wpSummaryLabel {
+	margin: 0;
+}
+	/* Summary preview section */
+.mw-summary-preview {
+	margin: 0 1em;
+}
+.editOptions > .mw-summary-preview {
+	margin: 0;
+}
+	/* Copyright notice section */
+.mw-editform #editpage-copywarn {
+	line-height: 1.4;
+	margin-top: 5px;
+}
+
+/* Changes the edit save popup */
+	/* Background transparency */
+/*.oo-ui-windowManager-modal > .oo-ui-dialog {*/
+/*	background-color: rgb(255 255 255 / 20%);*/
+/*}*/
+	/* Actual background colors */
+/*.oo-ui-windowManager-modal.oo-ui-windowManager-floating > .oo-ui-dialog > .oo-ui-window-frame {*/
+/*	border: 0;*/
+/*	background-color: #fff;*/
+/*}*/
+	/* Separator line colors */
+/*.oo-ui-messageDialog-content > .oo-ui-window-foot {*/
+/*	outline: 1px solid #c8ccd1;*/
+/*}*/
+/*.oo-ui-messageDialog-actions-horizontal .oo-ui-actionWidget {*/
+/*	border-right: 1px solid #c8ccd1;*/
+/*}*/
+	/* Cancel button colors */
+/*.oo-ui-messageDialog-actions-horizontal .oo-ui-actionWidget:first-child > .oo-ui-buttonElement-button {*/
+/*	background-color: #fff;*/
+/*	color: #d33;*/
+/*}*/
+/*.oo-ui-messageDialog-actions-horizontal .oo-ui-actionWidget:first-child > .oo-ui-buttonElement-button:is(:hover, :focus-within) {*/
+/*	background-color: #f7e7e7;*/
+/*}*/
+	/* Accept button colors */
+/*.oo-ui-messageDialog-actions-horizontal .oo-ui-actionWidget:last-child > .oo-ui-buttonElement-button {*/
+/*	background-color: #36c;*/
+/*	color: #fff;*/
+/*}*/
+/*.oo-ui-messageDialog-actions-horizontal .oo-ui-actionWidget:last-child > .oo-ui-buttonElement-button:is(:hover, :focus-within) {*/
+/*	background-color: #447ff5;*/
+/*}*/
+
+/* Other popups */
+	/* Background transparency */
+/*.ui-widget-overlay {*/
+/*	background: rgb(255 255 255 / 20%);*/
+/*}*/
+	/* Actual background colors */
+/*.ui-widget-content {*/
+/*	border: 0;*/
+/*	background: #fff;*/
+/*	color: #323437;*/
+/*}*/
+	/* Input fields */
+/*.ui-widget select {*/
+/*	cursor: pointer;*/
+/*}*/
+#wikieditor-toolbar-file-target,
+#wikieditor-toolbar-file-caption,
+#wikieditor-toolbar-file-alt,
+.ui-widget input,
+.ui-widget select,
+.ui-widget textarea,
+.ui-widget button {
+	border: 1px solid #c0c2c5;
+	padding: 0.3em;
+	border-radius: 3px;
+}
+	/* Header colors */
+body .ui-dialog .ui-widget-header {
+	background: #ebe9e9 !important;
+	border: 0;
+	font-size: 120%;
+	padding: 0.6em 1.4em 0.6em !important;
+	margin: 0.5em 0.5em 0;
+}
+	/* Turns the wrapper of the options into flex */
+.wikieditor-toolbar-field-wrapper {
+	display: flex;
+	gap: 6px;
+	align-items: center;
+	flex-wrap: wrap;
+}
+	/* Turns the Show help text of inserting images into a button */
+.wikieditor-toolbar-file-alt-help {
+	background: #f7f7f7;
+	border: 1px solid #c3c3c3;
+	font-size: 110%;
+	padding: 0.4em 1em 0.4em;
+	border-radius: 2px;
+	cursor: pointer;
+}
+.wikieditor-toolbar-file-alt-help:is(:hover, :focus-within) {
+	background: #eef4ff !important;
+	border-color: #afc4db !important;
+}
+	/* Changes colors of the bottom buttons */
+.ui-dialog .ui-dialog-buttonpane button {
+	background: #f7f7f7 !important;
+	border-color: #c3c3c3 !important;
+	font-weight: bold;
+	font-size: 110%;
+	color: #222222;
+	padding: 0.3em;
+	border-radius: 2px;
+	box-shadow: none;
+}
+.ui-dialog .ui-dialog-buttonpane button:is(:hover, :focus-within) {
+	background: #eef4ff !important;
+	border-color: #afc4db !important;
+}
+
+/* Improvements for colors on Search & Replace */
+#wikieditor-toolbar-replace-nomatch {
+	background-color: #f3cece;
+	border-radius: 4px;
+	padding: 10px;
+	margin-bottom: 16px;
+}
+#wikieditor-toolbar-replace-emptysearch {
+	background-color: #e5e7bf;
+	border-radius: 4px;
+	padding: 10px;
+	margin-bottom: 16px;
+}
+#wikieditor-toolbar-replace-success {
+	background-color: #d6ebd2;
+	border-radius: 4px;
+	padding: 10px;
+	margin-bottom: 16px;
+}
+#wikieditor-toolbar-replace-invalidregex {
+	background-color: #efd6f1;
+	border-radius: 4px;
+	padding: 10px;
+	margin-bottom: 16px;
+}
+
+/* Changes for VisualEditor's save UI */
+.ve-ui-mwSaveDialog-options {
+	background-color: transparent;
+	border: 0;
+}
+.ve-ui-mwSaveDialog-summary {
+	background-color: transparent;
+}
+.ve-ui-changeDescriptionsSelectWidget > .oo-ui-optionWidget {
+	padding: 0.3em 0.6em;
+	border-radius: 3px;
+}
+
+
+
+
+/**********
+		CodeEditor (also called AceEditor) colors
+		Consistency between light and dark themes
+**********/
+/*.ace-tm .ace_comment {*/
+/*	color: #4a5651;*/
+/*}*/
+/*.ace-tm .ace_constant,*/
+/*.ace-tm .ace_string {*/
+/*	color: #b30106;*/
+/*}*/
+/*.ace-tm .ace_variable {*/
+/*	color: #005671;*/
+/*}*/
+/*.ace-tm .ace_support.ace_type,*/
+/*.ace-tm .ace_support.ace_class,*/
+/*.ace-tm .ace_constant.ace_language,*/
+/*.ace-tm .ace_constant.ace_library {*/
+/*	color: #006612;*/
+/*}*/
+/*.ace-tm .ace_constant.ace_numeric,*/
+/*.ace-tm .ace_storage,*/
+/*.ace-tm .ace_keyword {*/
+/*	color: #132be5;*/
+/*}*/
+/*.ace-tm .ace_support.ace_constant {*/
+/*	color: #8c4100;*/
+/*}*/
+/*.ace-tm .ace_entity.ace_name.ace_function {*/
+/*	color: #0070a7;*/
+/*}*/
+/*.ace-tm .ace_comment.ace_doc {*/
+/*	color: #4863c1;*/
+/*}*/
+
+
+
+
+/**********
+		CodeMirror (WikiEditor syntax highlighting) colors
+		Consistency between light and dark themes
+**********/
+	/* Parser functions */
+/*.cm-mw-parserfunction-name,*/
+/*.cm-mw-parserfunction-bracket,*/
+/*.cm-mw-parserfunction-delimiter {*/
+/*	color: #c50000;*/
+/*}*/
+	/* Templates */
+/*.cm-mw-template,*/
+/*.cm-mw-template-name,*/
+/*.cm-mw-template-argument-name,*/
+/*.cm-mw-template-delimiter,*/
+/*.cm-mw-template-bracket {*/
+/*	color: #7500af;*/
+/*}*/
+	/* Page links */
+/*.cm-mw-link-pagename,*/
+/*.cm-mw-link-bracket,*/
+/*.cm-mw-link-delimiter,*/
+/*.cm-mw-extlink,*/
+/*.cm-mw-free-extlink,*/
+/*.cm-mw-extlink-protocol,*/
+/*.cm-mw-free-extlink-protocol,*/
+/*.cm-mw-extlink-bracket {*/
+/*	color: #1318d5;*/
+/*}*/
+	/* Tags */
+/*.cm-mw-mnemonic,*/
+/*.cm-mw-exttag-name,*/
+/*.cm-mw-htmltag-name,*/
+/*.cm-mw-exttag-bracket,*/
+/*.cm-mw-exttag-attribute,*/
+/*.cm-mw-htmltag-bracket,*/
+/*.cm-mw-htmltag-attribute {*/
+/*	color: #095c00;*/
+/*}*/
+	/* Comments */
+/*.cm-mw-comment {*/
+/*	color: #59718d;*/
+/*}*/
+	/* Template variables */
+/*.cm-mw-templatevariable,*/
+/*.cm-mw-templatevariable-bracket,*/
+/*.cm-mw-templatevariable-name,*/
+/*.cm-mw-templatevariable-delimiter {*/
+/*	color: #95580a;*/
+/*}*/
+	/* Links to sections and other formatting */
+/*.cm-mw-list,*/
+/*.cm-mw-indenting,*/
+/*.cm-mw-doubleUnderscore,*/
+/*.cm-mw-signature,*/
+/*.cm-mw-hr,*/
+/*.cm-mw-apostrophes-bold,*/
+/*.cm-mw-apostrophes-italic,*/
+/*.cm-mw-link,*/
+/*.cm-mw-link-tosection,*/
+/*.cm-mw-section-header {*/
+/*	color: #0066be;*/
+/*}*/
+	/* Tables */
+/*.cm-mw-table-bracket,*/
+/*.cm-mw-table-delimiter,*/
+/*.cm-mw-table-definition {*/
+/*	color: #ce007f;*/
+/*}*/
+	/* Matching brackets */
+/*.cm-mw-matchingbracket {*/
+/*	background-color: #c5c54b;*/
+/*}*/
+
+.cm-mw-toggle-wikieditor .oo-ui-labelElement-label {
+	display: none;
+}
+
+#preferences .mw-htmlform-submit-buttons {
+	background-color: var(--content-background-color);
+}
+
+/* <blockquote> */
+.vector-body blockquote {
+	border-left-color: var(--infobox-header-background-color);
+}
+
+/* MediaViewer button */
+.fullMedia button.mw-mmv-view-expanded.cdx-button {
+	display: block;
+}
+
+/* readd legacy .thumb styles for [[Template:FakeImage]] */
+div.tleft, div.floatleft, table.floatleft {
+	float: left;
+	clear: left;
+}
+
+div.tright, div.floatright, table.floatright {
+	clear: right;
+	float: right
+}
+
+@media all and (max-width: calc(640px - 1px)) {
+	body.skin--responsive div.tleft,
+	body.skin--responsive div.floatleft,
+	body.skin--responsive table.floatleft,
+	body.skin--responsive div.tright,
+	body.skin--responsive div.floatright,
+	body.skin--responsive table.floatright {
+		clear: both;
+		float: none;
+	}
+}
+
+div.thumb {
+	width: auto;
+	background-color: transparent;
+	margin-bottom: 0.5em;
+}
+
+div.tleft {
+	margin: 0.5em 1.4em 1.3em 0;
+}
+
+div.tright {
+	margin: 0.5em 0 1.3em 1.4em;
+}
+
+.thumbcaption {
+	text-align: start;
+	line-height: 1.4em;
+	padding: 3px;
+}
+
+.thumbcaption:empty {
+	padding: 0;
+}
+
+div.thumbinner {
+	padding: 3px;
+	text-align: center;
+	overflow: hidden;
+}
+
+@media all and (max-width: calc(640px - 1px)) {
+	body.skin--responsive .mw-parser-output .thumb .thumbinner {
+		display:flex;
+		place-content: flex-start center;
+		flex-flow: column wrap;
+	}
+
+	body.skin--responsive .mw-parser-output .thumb .thumbinner > .thumbcaption {
+		justify-content: space-between;
+		width: 100%;
+		flex: 1 0 100%;
+		order: 1;
+		display: block;
+	}
+}
+
+div.thumbinner {
+	border: 1px solid var(--border-color-subtle);
+	background-color: var(--background-color-interactive-subtle);
+	font-size: 94%
+}
+
+.thumbimage {
+	background-color: var(--background-color-interactive-subtle);
+	border: 1px solid var(--border-color-subtle)
+}
+
+.thumbcaption {
+	border: 0;
+	font-size: 94%
+}
+
+.thumbborder {
+	border: 1px solid #eaecf0
+}
+
+@media print {
+	.mw-body, .parsoid-body, div#content {
+		border: 0;
+	}
+
+	h2,
+	.mw-body a.mw-file-description {
+		border-bottom: 0;
+	}
+
+	#footer {
+		margin-left: 0;
+	}
+
+	html {
+		color-scheme: light !important;
+	}
+
+	table.floatright, div.floatright, table.floatleft, div.floatleft {
+		border: 0;
+	}
+
+	div.thumb {
+		page-break-inside: avoid;
+	}
+
+	div.thumb a {
+		border-bottom: 0;
+	}
+
+	div.thumbinner {
+		background-color: #fff;
+		color: #666;
+		min-width: 100px;
+		border: 1pt solid #000;
+		border-radius: 2px;
+		font-size: 10pt;
+	}
+
+	.thumbborder {
+		border: 1pt solid #ddd;
+	}
+}
