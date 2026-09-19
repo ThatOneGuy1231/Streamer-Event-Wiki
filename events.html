@@ -638,6 +638,13 @@ body.mainpage .firstHeading{ display:none; }
    click away) to save. Editing is password-gated and saves globally via
    ToutaBot's site-content API -- see the script near the bottom of the
    page. ---------- */
+/* hidden until the site-content fetch below applies (or gives up on) the
+   real saved text -- otherwise the placeholder HTML already sitting in the
+   page paints first and then gets visibly swapped a moment later. Layout
+   space is still reserved (visibility, not display), so nothing shifts when
+   it appears. The load script guarantees this always gets cleared, success
+   or failure. */
+.panel.editable{ visibility:hidden; }
 .panel.editable > h2{ user-select:none; }
 .panel.editable > h2 .panel-title{ cursor:pointer; }
 .panel.editable > h2 .edit-hint{
@@ -1449,6 +1456,20 @@ document.querySelectorAll('.franchise-tabs a').forEach(tab => {
   function setToken(t){ try{ sessionStorage.setItem(TOKEN_KEY, t); }catch(e){} }
   function clearToken(){ try{ sessionStorage.removeItem(TOKEN_KEY); }catch(e){} }
 
+  // panels start hidden (see .panel.editable{visibility:hidden} above) so
+  // the placeholder HTML never gets a chance to flash on screen before the
+  // real saved text replaces it -- this is what un-hides them, called once
+  // the swap has happened (or definitely isn't going to). A timeout backs
+  // up the fetch's own success/failure paths in case the request just hangs
+  // instead of erroring outright.
+  var revealed = false;
+  function reveal(){
+    if (revealed) return;
+    revealed = true;
+    panels.forEach(function(panel){ panel.style.visibility = 'visible'; });
+  }
+  setTimeout(reveal, 2500);
+
   // each panel has two independent saved fields: "<key>" (the body's inner
   // HTML) and "<key>-title" (the heading's plain text) -- same flat
   // key->string map on the server, just two entries per panel instead of one.
@@ -1464,7 +1485,8 @@ document.querySelectorAll('.franchise-tabs a').forEach(tab => {
         if (titleEl && key && typeof saved[key + '-title'] === 'string') titleEl.textContent = saved[key + '-title'];
       });
     })
-    .catch(function(e){ console.warn('[site-content] load failed, showing placeholder text:', e); });
+    .catch(function(e){ console.warn('[site-content] load failed, showing placeholder text:', e); })
+    .then(reveal);
 
   // ---------- small styled toast for error/status messages, instead of
   // window.alert()'s plain browser popup ----------

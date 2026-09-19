@@ -1608,7 +1608,7 @@ body.drag-mode .resize-handle{ display:block; }
       </div>
     </div>
 
-    <div class="panel">
+    <div class="panel" id="season-timeline-panel" style="visibility:hidden">
       <h2><span id="season-timeline-title">Season Timeline</span></h2>
       <div class="inner" id="season-timeline-inner">
         <p>Full chapter-by-chapter rundown on the <a href="events">Events</a> page -- same table, kept in sync from there.</p>
@@ -1956,6 +1956,19 @@ document.querySelectorAll('.portal h3, .collapsible-bar .bar-head').forEach(h =>
   var inner = document.getElementById('season-timeline-inner');
   if (!inner) return;
   var titleEl = document.getElementById('season-timeline-title');
+  // starts hidden via inline style (see the panel's own markup) so the
+  // static placeholder table never flashes on screen before the real saved
+  // content replaces it; this reveals it once that's happened (or definitely
+  // isn't going to -- the timeout backs up the fetch's own success/failure
+  // paths in case the request just hangs).
+  var panel = document.getElementById('season-timeline-panel');
+  var revealed = false;
+  function reveal(){
+    if (revealed) return;
+    revealed = true;
+    if (panel) panel.style.visibility = 'visible';
+  }
+  setTimeout(reveal, 2500);
   fetch('https://toutabot-production.up.railway.app/api/public/site-content/events')
     .then(function(res){ return res.json(); })
     .then(function(data){
@@ -1963,7 +1976,8 @@ document.querySelectorAll('.portal h3, .collapsible-bar .bar-head').forEach(h =>
       if (typeof saved['season-timeline'] === 'string') inner.innerHTML = saved['season-timeline'];
       if (titleEl && typeof saved['season-timeline-title'] === 'string') titleEl.textContent = saved['season-timeline-title'];
     })
-    .catch(function(e){ console.warn('[season-timeline mirror] load failed, showing placeholder:', e); });
+    .catch(function(e){ console.warn('[season-timeline mirror] load failed, showing placeholder:', e); })
+    .then(reveal);
 })();
 
 // ---------- vector tabs (Main Page/Talk/Read/Edit/History): same deal as
