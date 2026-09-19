@@ -980,7 +980,7 @@ body.drag-mode .resize-handle{ display:block; }
 <div id="mw-page-base"></div>
 <div id="mw-head-base"></div>
 
-<div id="p-logo" data-drag-id="logo" data-drag-label="Logo"><a href="index.html" aria-label="Imperial Topaz home"></a></div>
+<div id="p-logo" data-drag-id="logo" data-drag-label="Logo"><a href="/" aria-label="Imperial Topaz home"></a></div>
 
 <!-- ===================== SIDEBAR ===================== -->
 <div id="mw-panel" data-drag-id="sidebar" data-drag-label="Sidebar">
@@ -988,7 +988,7 @@ body.drag-mode .resize-handle{ display:block; }
     <h3>Navigation</h3>
     <div class="body">
       <ul>
-        <li><a href="index.html">Main page</a></li>
+        <li><a href="/">Main page</a></li>
         <li><a href="#">Recent changes</a></li>
         <li><a href="#">Random page</a></li>
         <li><a href="#">How to help</a></li>
@@ -1012,8 +1012,8 @@ body.drag-mode .resize-handle{ display:block; }
     <h3>Streamers</h3>
     <div class="body">
       <ul>
-        <li><a href="streamers.html">All streamers</a></li>
-        <li><a href="streamers.html">Who's live now</a></li>
+        <li><a href="streamers">All streamers</a></li>
+        <li><a href="streamers">Who's live now</a></li>
       </ul>
     </div>
   </nav>
@@ -1035,11 +1035,11 @@ body.drag-mode .resize-handle{ display:block; }
   <div id="page-tabs" data-drag-id="tabs" data-drag-label="Tabs">
     <nav class="vector-tabs">
       <ul>
-        <li><a href="index.html">Main Page</a></li>
-        <li><a href="modpack.html">Mods</a></li>
-        <li><a href="about.html">About</a></li>
-        <li class="selected"><a href="disclaimers.html">Disclaimer</a></li>
-        <li><a href="privacy.html">Policy</a></li>
+        <li><a href="/">Main Page</a></li>
+        <li><a href="modpack">Mods</a></li>
+        <li><a href="about">About</a></li>
+        <li class="selected"><a href="disclaimers">Disclaimer</a></li>
+        <li><a href="privacy">Policy</a></li>
       </ul>
     </nav>
   </div>
@@ -1061,15 +1061,15 @@ body.drag-mode .resize-handle{ display:block; }
     // so a search actually finds specific things, not just section buttons
     // you already have on screen.
     var SITE_PAGES = [
-      { title: 'Main Page', url: 'index.html', type: 'Page', keywords: ['home','main','main page','server','cobblemon','imperial topaz'] },
-      { title: 'Streamers', url: 'streamers.html', type: 'Page', keywords: ['streamer','streamers','twitch','youtube','kick','creator','creators','live'] },
-      { title: 'Lore', url: 'lore.html', type: 'Page', keywords: ['lore','story','history'] },
-      { title: 'Events', url: 'events.html', type: 'Page', keywords: ['event','events','tournament','season','timeline','chapter'] },
-      { title: 'Photos', url: 'photos.html', type: 'Page', keywords: ['photo','photos','gallery','screenshot','screenshots','picture','pictures'] },
-      { title: 'Mods', url: 'modpack.html', type: 'Page', keywords: ['mod','mods','modpack','download','texture pack'] },
-      { title: 'About', url: 'about.html', type: 'Page', keywords: ['about','contact','socials','discord'] },
-      { title: 'Disclaimers', url: 'disclaimers.html', type: 'Page', keywords: ['disclaimer','disclaimers','legal'] },
-      { title: 'Privacy Policy', url: 'privacy.html', type: 'Page', keywords: ['privacy','policy','data'] }
+      { title: 'Main Page', url: '/', type: 'Page', keywords: ['home','main','main page','server','cobblemon','imperial topaz'] },
+      { title: 'Streamers', url: 'streamers', type: 'Page', keywords: ['streamer','streamers','twitch','youtube','kick','creator','creators','live'] },
+      { title: 'Lore', url: 'lore', type: 'Page', keywords: ['lore','story','history'] },
+      { title: 'Events', url: 'events', type: 'Page', keywords: ['event','events','tournament','season','timeline','chapter'] },
+      { title: 'Photos', url: 'photos', type: 'Page', keywords: ['photo','photos','gallery','screenshot','screenshots','picture','pictures'] },
+      { title: 'Mods', url: 'modpack', type: 'Page', keywords: ['mod','mods','modpack','download','texture pack'] },
+      { title: 'About', url: 'about', type: 'Page', keywords: ['about','contact','socials','discord'] },
+      { title: 'Disclaimers', url: 'disclaimers', type: 'Page', keywords: ['disclaimer','disclaimers','legal'] },
+      { title: 'Privacy Policy', url: 'privacy', type: 'Page', keywords: ['privacy','policy','data'] }
     ];
 
     var ALL_ENTRIES = SITE_PAGES.slice();
@@ -1077,7 +1077,7 @@ body.drag-mode .resize-handle{ display:block; }
       ALL_ENTRIES.push({ title: m.name, url: m.url, type: 'Mod', keywords: [], external: true });
     });
     (window.STREAMER_ROSTER || []).forEach(function(s){
-      ALL_ENTRIES.push({ title: s.name, url: 'streamers.html?q=' + encodeURIComponent(s.name), type: 'Streamer', keywords: [s.platform] });
+      ALL_ENTRIES.push({ title: s.name, url: 'streamers?q=' + encodeURIComponent(s.name), type: 'Streamer', keywords: [s.platform] });
     });
 
     var form = document.getElementById('site-search-form');
@@ -1174,11 +1174,11 @@ body.drag-mode .resize-handle{ display:block; }
 <!-- ===================== CONTENT ===================== -->
 <div id="content" data-drag-id="content" data-drag-label="Main panel">
   <nav class="franchise-tabs">
-    <a href="index.html"><span class="ico" style="background-image:url('img/mc_iso.png')"></span>Main</a>
-    <a href="streamers.html"><span class="ico" style="background-image:url('img/streamer.png')"></span>Streamers</a>
-    <a href="lore.html"><span class="ico" style="background-image:url('img/lore.png')"></span>Lore</a>
-    <a href="events.html"><span class="ico" style="background-image:url('img/events.png')"></span>Events</a>
-    <a href="photos.html"><span class="ico" style="background-image:url('img/photos.png')"></span>Photos</a>
+    <a href="/"><span class="ico" style="background-image:url('img/mc_iso.png')"></span>Main</a>
+    <a href="streamers"><span class="ico" style="background-image:url('img/streamer.png')"></span>Streamers</a>
+    <a href="lore"><span class="ico" style="background-image:url('img/lore.png')"></span>Lore</a>
+    <a href="events"><span class="ico" style="background-image:url('img/events.png')"></span>Events</a>
+    <a href="photos"><span class="ico" style="background-image:url('img/photos.png')"></span>Photos</a>
   </nav>
 
   <h1 class="firstHeading">Disclaimers</h1>
@@ -1197,14 +1197,14 @@ body.drag-mode .resize-handle{ display:block; }
     <div class="panel">
       <h2>Trademarks</h2>
       <div class="inner">
-        <p>Minecraft is a trademark of Mojang Synergies AB. Cobblemon and other mods referenced on the <a href="modpack.html">Modpack</a> page belong to their respective creators -- this wiki just documents which ones the server uses and links back to their original pages.</p>
+        <p>Minecraft is a trademark of Mojang Synergies AB. Cobblemon and other mods referenced on the <a href="modpack">Modpack</a> page belong to their respective creators -- this wiki just documents which ones the server uses and links back to their original pages.</p>
       </div>
     </div>
 
     <div class="panel">
       <h2>Screenshots &amp; photos</h2>
       <div class="inner">
-        <p>Images on this site are captured in-game and reflect gameplay at the time they were taken -- mods, textures, and builds shown may have changed since. See the <a href="privacy.html">Privacy policy</a> for how server photos get here.</p>
+        <p>Images on this site are captured in-game and reflect gameplay at the time they were taken -- mods, textures, and builds shown may have changed since. See the <a href="privacy">Privacy policy</a> for how server photos get here.</p>
       </div>
     </div>
 
@@ -1226,9 +1226,9 @@ body.drag-mode .resize-handle{ display:block; }
     <li>&copy; Touta2x. Not affiliated with Mojang, Microsoft, or the Cobblemon mod team.</li>
   </ul>
   <ul id="footer-places">
-    <li><a href="privacy.html">Privacy policy</a></li>
-    <li><a href="about.html">About</a></li>
-    <li><a href="disclaimers.html">Disclaimers</a></li>
+    <li><a href="privacy">Privacy policy</a></li>
+    <li><a href="about">About</a></li>
+    <li><a href="disclaimers">Disclaimers</a></li>
   </ul>
   <div class="footer-contact">
     <div class="footer-email">touta2xbusiness@gmail.com</div>
