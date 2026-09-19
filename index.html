@@ -102,9 +102,9 @@
   --panel-border-width: 3px;
   --panel-ring:   #EFEFEF;
 
-  /* photo carousel sidebar/button theme -- translucent black by default,
-     swapped for the original flat-gray look by body.carousel-normal (see
-     #carousel-style-toggle). */
+  /* photo carousel sidebar/button theme -- these are the unused fallback
+     values; body.carousel-normal (always applied, see <body> class) is
+     the finalized flat-gray look actually used. */
   --car-col-fill:     rgba(158,158,158,.28);
   --car-col-border:   #9E9E9E;
   --car-col-top:      5px;
@@ -118,7 +118,7 @@
   --car-bevel-border:    #9E9E9E;
 
   /* shared so every element anchored to the header's left edge (#page-tabs,
-     #content-border, #page-tabs-new, etc.) resolves the exact same value
+     #content-border, etc.) resolves the exact same value
      instead of each repeating "calc(10em - 103px)" independently -- at
      fractional browser zoom, independently-computed copies of the same
      formula can round to device pixels a px apart, showing as a seam
@@ -193,43 +193,9 @@ body{ min-width:1200px; }
 /* ---------- head nav ---------- */
 #mw-head{ position:absolute; top:0; right:0; width:100%; z-index:3; }
 #page-tabs{ float:left; margin-left:var(--tab-left); margin-top:352.75px; } /* header-h(335px) + 17.75px, hardcoded -- calc(var(--header-h) + Npx) here was landing at the wrong offset (rendering up near the top of the viewport) under zoom, since --header-h never actually varies in this file anyway */
-#p-search{ position:relative; z-index:1; float:right; margin-top:360px; margin-right:115px; width:312px; height:63px; } /* header-h(335px) + 25px, hardcoded for the same reason; z-index so it stays on top of #page-tabs-new's image when that's showing */
+#p-search{ position:relative; z-index:1; float:right; margin-top:360px; margin-right:115px; width:312px; height:63px; } /* header-h(335px) + 25px, hardcoded for the same reason */
 
-/* ---------- new one-piece tab bar (toggle preview) ----------
-   Just the image for now, no tab links yet. Same left edge/width as
-   #content itself (1014px) so it lines up flush with the panels below.
-   Positioned at the same spot as #page-tabs (left/top match its own
-   margin-left/margin-top above) so flipping the toggle swaps the two in
-   place. The real #p-search stays on-screen (in its own original spot,
-   see #p-search above) in both modes -- it just ends up sitting on top of
-   whichever bar image is showing, instead of a separate copy of it. */
-#page-tabs-new{
-  display:none;
-  position:absolute; left:var(--tab-left); top:352.75px;
-  width:1014px; height:49px;
-  background:url('img/newvectorbar.png') no-repeat left top;
-  background-size:1014px 49px;
-  image-rendering:pixelated; image-rendering:crisp-edges;
-}
-body.show-new-tabs #page-tabs-new{ display:block; }
-body.show-new-tabs #page-tabs{ display:none; }
-/* nudged up by its own visible height (27px, the search-wrap itself, not
-   the taller 63px container) + 10px so it sits higher on the new, shorter
-   bar image instead of at its old-bar resting spot. */
-body.show-new-tabs #p-search{ margin-top:calc(360px - (27px + 10px) + 2px); margin-right:calc(115px + 15px); }
-
-/* ---------- old/new tab bar toggle button (dev preview control) ---------- */
-#tab-bar-toggle{
-  position:fixed; top:10px; right:10px; z-index:99;
-  padding:6px 12px; border-radius:0;
-  border:var(--panel-border-width) solid var(--panel-border);
-  box-shadow:inset 0 0 0 2px var(--panel-ring);
-  background:#EBEBEB; color:var(--color-base);
-  font-family:inherit; font-size:0.8em; font-weight:bold; cursor:pointer;
-}
-#tab-bar-toggle:hover{ background:#dadada; }
-
-/* ---------- carousel style toggle (dev preview control) ---------- */
+/* ---------- carousel style: finalized "normal" look ---------- */
 body.carousel-normal{
   --car-col-fill:     #DCDCDC;
   --car-col-border:   #EFEFEF;
@@ -268,73 +234,6 @@ body.carousel-normal .photo-carousel .carousel-track{
   border-right:3px solid #858990;
   border-bottom:3px solid #858990;
 }
-/* third state: the later hand-edit that turned the sidebar columns into an
-   invisible shell (arrow = the only visible surface) with its own
-   dedicated top/bottom frame bars + dark track-edge lines, instead of the
-   columns themselves carrying a fill/border. Same arrow colors as
-   .carousel-normal (only the surrounding structure changed), so those
-   reuse plain literals here rather than the --car-* theme vars. */
-body.carousel-new{
-  --car-col-top:      48px;
-  --car-col-bottom:   48px;
-  --car-arrow-fill:      #ffffff;
-  --car-arrow-border:    #838991;
-  --car-arrow-ring:      #EFEFEF;
-  --car-arrow-hover:     #dadada;
-  --car-chevron:         #4a4b4c;
-  --car-bevel-fill:      #C0C0C0;
-  --car-bevel-border:    #EFEFEF;
-}
-body.carousel-new .photo-carousel{
-  background:none; border:none; box-shadow:none;
-}
-body.carousel-new .photo-carousel .carousel-track{
-  top:var(--car-col-top); bottom:var(--car-col-bottom); left:84px; right:84px;
-  border-top:none; border-bottom:none;
-  border-left:none; border-right:none;
-  box-shadow:none;
-}
-body.carousel-new .photo-carousel .track-edge{
-  display:block;
-  position:absolute; top:var(--car-col-top); bottom:var(--car-col-bottom); width:3px;
-  background:var(--panel-border); z-index:1;
-}
-body.carousel-new .photo-carousel .track-edge.left{ left:81px; }
-body.carousel-new .photo-carousel .track-edge.right{ right:81px; }
-body.carousel-new .photo-carousel .carousel-col{
-  background:none; border:none; width:66px;
-}
-body.carousel-new .photo-carousel .arrow{
-  width:60px; height:100%;
-}
-body.carousel-new .photo-carousel::before{
-  content:""; position:absolute; left:84px; right:84px; top:var(--car-col-top); height:3px; z-index:2;
-  background:var(--panel-border); border-bottom:8px solid #2E2F30;
-}
-body.carousel-new .photo-carousel::after{
-  display:none;
-}
-#carousel-style-toggle{
-  position:fixed; top:44px; right:10px; z-index:99;
-  padding:6px 12px; border-radius:0;
-  border:var(--panel-border-width) solid var(--panel-border);
-  box-shadow:inset 0 0 0 2px var(--panel-ring);
-  background:#EBEBEB; color:var(--color-base);
-  font-family:inherit; font-size:0.8em; font-weight:bold; cursor:pointer;
-}
-#carousel-style-toggle:hover{ background:#dadada; }
-
-/* ---------- hero order toggle (dev preview control) ---------- */
-#hero-order-toggle{
-  position:fixed; top:78px; right:10px; z-index:99;
-  padding:6px 12px; border-radius:0;
-  border:var(--panel-border-width) solid var(--panel-border);
-  box-shadow:inset 0 0 0 2px var(--panel-ring);
-  background:#EBEBEB; color:var(--color-base);
-  font-family:inherit; font-size:0.8em; font-weight:bold; cursor:pointer;
-}
-#hero-order-toggle:hover{ background:#dadada; }
-
 /* ---------- tabs ---------- */
 /* tab-sprite-w/h keep the Vector-tabs.png corner graphic (natural 262x72,
    two 36px-tall frames) scaled in lockstep with --tab-h so the frames still
@@ -768,7 +667,6 @@ body.mainpage .firstHeading{ display:none; }
 }
 .photo-carousel .carousel-col.prev-col{ left:0; }
 .photo-carousel .carousel-col.next-col{ right:0; }
-.photo-carousel .track-edge{ display:none; } /* only shown in carousel-new, see the toggle block above */
 /* same bar again along the bottom, spanning under both columns and the photo. */
 .photo-carousel::after{
   content:""; position:absolute; left:0; right:0; bottom:0; height:6px; z-index:2;
@@ -941,13 +839,6 @@ body.mainpage .firstHeading{ display:none; }
 #hero-order-wrap #hero-gallery{ order:2; }
 body.gallery-first #hero-order-wrap #hero-banners{ order:2; }
 body.gallery-first #hero-order-wrap #hero-gallery{ order:1; }
-/* tighten the gap above/below the carousel a bit, but only for the "new"
-   carousel theme -- old/normal and black keep the standard 12px regardless
-   of ordering. Bottom gap (the carousel's own trailing margin) applies in
-   either order; the top gap only matters when the gallery is first (that's
-   the only arrangement where the tabs row sits directly above it). */
-body.carousel-new #hero-gallery .photo-carousel{ margin-bottom:8px; }
-body.gallery-first.carousel-new .franchise-tabs{ margin-bottom:8px; }
 /* fixed px (not 1fr/fluid) so the Modpack/Events banners don't resize with
    zoom/viewport like a fluid grid would -- same fixed-px-over-percentage
    approach used throughout the rest of the page chrome. Specificity (two
@@ -1245,12 +1136,10 @@ body.gallery-first.carousel-new .franchise-tabs{ margin-bottom:8px; }
 /* ---------- >=982px ---------- */
 @media screen and (min-width:982px){
   /* redefine the shared variable itself (not each element's own rule) so
-     #content-border/#content-brown/#page-tabs-new all shift in lockstep
-     with #content/#page-tabs at this breakpoint automatically -- previously
-     each element repeated its own "11em" override, and #page-tabs-new had
-     no override at all, so it silently fell out of sync with the others
-     and drifted whenever the effective viewport crossed this breakpoint
-     (e.g. under browser zoom). */
+     #content-border/#content-brown all shift in lockstep with #content/
+     #page-tabs at this breakpoint automatically -- previously each element
+     repeated its own "11em" override, which could silently fall out of
+     sync with the others (e.g. under browser zoom). */
   :root{ --tab-left: calc(11em - 103px); }
   #footer{ margin-left:calc((100% - 1200px) / 2 + 11em - 103px); } /* sidebar is 11em (not 10em) at this width, so #content shifts right by 103px more -- match it here */
   #content{ padding:1.25em 1.5em 1.5em; width:min(1014px, calc(100% - 11em + 93px)); }
@@ -1405,54 +1294,7 @@ body.drag-mode .resize-handle{ display:block; }
 #layout-editor .hint{ color:#bbb; font-size:0.9em; margin:4px 0 0; }
 </style>
 </head>
-<body class="mainpage">
-<button id="tab-bar-toggle" type="button" onclick="
-  var on = document.body.classList.toggle('show-new-tabs');
-  try{ localStorage.setItem('tab-bar-new', on ? '1' : '0'); }catch(e){}
-  this.textContent = on ? 'Tab bar: new' : 'Tab bar: old';
-">Tab bar: old</button>
-<button id="carousel-style-toggle" type="button" onclick="
-  var order = ['black','normal','new'];
-  var cur = document.body.getAttribute('data-carousel') || 'normal';
-  var next = order[(order.indexOf(cur) + 1) % order.length];
-  document.body.classList.remove('carousel-normal','carousel-new');
-  if(next !== 'black') document.body.classList.add('carousel-' + next);
-  document.body.setAttribute('data-carousel', next);
-  try{ localStorage.setItem('carousel-style', next); }catch(e){}
-  this.textContent = 'Carousel: ' + next;
-">Carousel: normal</button>
-<button id="hero-order-toggle" type="button" onclick="
-  var galleryFirst = document.body.classList.toggle('gallery-first');
-  try{ localStorage.setItem('hero-order', galleryFirst ? 'gallery-first' : 'banners-first'); }catch(e){}
-  this.textContent = galleryFirst ? 'Order: gallery first' : 'Order: banners first';
-">Order: banners first</button>
-<script>
-/* restore all three toggles' last saved state immediately (before the
-   rest of the page renders) so a refresh keeps whichever look you had
-   showing, instead of always resetting back to the default. */
-(function(){
-  var on = false;
-  try{ on = localStorage.getItem('tab-bar-new') === '1'; }catch(e){}
-  if(on){
-    document.body.classList.add('show-new-tabs');
-    document.getElementById('tab-bar-toggle').textContent = 'Tab bar: new';
-  }
-  var carStyle = 'normal';
-  try{ carStyle = localStorage.getItem('carousel-style') || 'normal'; }catch(e){}
-  if(carStyle !== 'black'){
-    document.body.classList.add('carousel-' + carStyle);
-  }
-  document.body.setAttribute('data-carousel', carStyle);
-  document.getElementById('carousel-style-toggle').textContent = 'Carousel: ' + carStyle;
-
-  var heroOrder = 'banners-first';
-  try{ heroOrder = localStorage.getItem('hero-order') || 'banners-first'; }catch(e){}
-  if(heroOrder === 'gallery-first'){
-    document.body.classList.add('gallery-first');
-    document.getElementById('hero-order-toggle').textContent = 'Order: gallery first';
-  }
-})();
-</script>
+<body class="mainpage carousel-normal gallery-first">
 <div id="page">
 
 <div id="mw-page-base"></div>
@@ -1644,12 +1486,6 @@ body.drag-mode .resize-handle{ display:block; }
     });
   })();
   </script>
-
-  <!-- new one-piece tab bar image, hidden by default -- toggled against
-       #page-tabs above via the "Tab bar: old/new" button, see #tab-bar-toggle.
-       #p-search (above) stays on screen in both modes, sitting on top of
-       whichever bar is showing. -->
-  <div id="page-tabs-new"></div>
 </div>
 
 <div id="content-border" data-drag-id="border" data-drag-label="Left border"></div>
@@ -1698,11 +1534,9 @@ body.drag-mode .resize-handle{ display:block; }
       <div class="photo-carousel-wrap" id="hero-gallery">
         <div class="photo-carousel">
           <div class="carousel-track">
-            <img class="slide" id="photo-carousel-img-1" src="img/photos/swiftphoto1.png" alt="Server photo">
-            <img class="slide" id="photo-carousel-img-2" src="img/photos/swifty_image_2.png" alt="Server photo">
+            <img class="slide" id="photo-carousel-img-1" src="img/photos/swiftphoto1.jpg" alt="Server photo">
+            <img class="slide" id="photo-carousel-img-2" src="img/photos/swifty_image_2.jpg" alt="Server photo">
           </div>
-          <div class="track-edge left"></div>
-          <div class="track-edge right"></div>
           <div class="carousel-col prev-col"><div class="arrow prev" id="photo-carousel-prev" aria-label="Previous photo"><span class="chevron"></span></div></div>
           <div class="carousel-col next-col"><div class="arrow next" id="photo-carousel-next" aria-label="Next photo"><span class="chevron"></span></div></div>
         </div>
@@ -1933,7 +1767,7 @@ document.querySelectorAll('.portal h3, .collapsible-bar .bar-head').forEach(h =>
 // shown on the Photos page (img/photos/manifest.js), falling back to a
 // handful of sample photos if nothing's synced yet. ----------
 (function(){
-  var fallbackPhotos = ['img/photos/swiftphoto1.png', 'img/photos/swifty_image_2.png', 'img/photos/swifty_image_3.png', 'img/photos/swifty_image_4.png', 'img/photos/swifty_image_5b.png', 'img/photos/swifty_image_6a.png'];
+  var fallbackPhotos = ['img/photos/swiftphoto1.jpg', 'img/photos/swifty_image_2.jpg', 'img/photos/swifty_image_3.jpg', 'img/photos/swifty_image_4.jpg', 'img/photos/swifty_image_5b.jpg', 'img/photos/swifty_image_6a.jpg'];
   var manifest = (window.PHOTO_MANIFEST || []);
   var photos = manifest.length ? manifest.map(function(p){ return 'img/photos/' + p.file; }) : fallbackPhotos;
 

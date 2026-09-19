@@ -1346,8 +1346,8 @@ body.drag-mode .resize-handle{ display:block; }
     <div class="photo-carousel-wrap">
       <div class="photo-carousel">
         <div class="carousel-track">
-          <img class="slide" id="photo-carousel-img-1" src="img/photos/swiftphoto1.png" alt="Server photo">
-          <img class="slide" id="photo-carousel-img-2" src="img/photos/swifty_image_2.png" alt="Server photo">
+          <img class="slide" id="photo-carousel-img-1" src="img/photos/swiftphoto1.jpg" alt="Server photo">
+          <img class="slide" id="photo-carousel-img-2" src="img/photos/swifty_image_2.jpg" alt="Server photo">
         </div>
         <div class="track-edge left"></div>
         <div class="track-edge right"></div>
@@ -1381,7 +1381,7 @@ body.drag-mode .resize-handle{ display:block; }
       // falling back to a handful of sample photos if nothing's synced yet.
       // Same widget/logic as the one on the main page. ----------
       (function(){
-        var fallbackPhotos = ['img/photos/swiftphoto1.png', 'img/photos/swifty_image_2.png', 'img/photos/swifty_image_3.png', 'img/photos/swifty_image_4.png', 'img/photos/swifty_image_5b.png', 'img/photos/swifty_image_6a.png'];
+        var fallbackPhotos = ['img/photos/swiftphoto1.jpg', 'img/photos/swifty_image_2.jpg', 'img/photos/swifty_image_3.jpg', 'img/photos/swifty_image_4.jpg', 'img/photos/swifty_image_5b.jpg', 'img/photos/swifty_image_6a.jpg'];
         var manifest = (window.PHOTO_MANIFEST || []);
         var photos = manifest.length ? manifest.map(function(p){ return 'img/photos/' + p.file; }) : fallbackPhotos;
 
