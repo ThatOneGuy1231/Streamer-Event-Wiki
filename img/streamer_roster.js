@@ -17,7 +17,7 @@ var STREAMER_ROSTER = [
   { name: 'Lizzy', platform: 'Twitch', url: 'https://www.twitch.tv/lizetterenee', icon: 'img/icons/twitch_icon_bg.png' },
   { name: 'Ocka', platform: 'Twitch', url: 'https://www.twitch.tv/ockalive', icon: 'img/icons/twitch_icon_bg.png' },
   { name: 'Lethalbean', platform: 'Twitch', url: 'https://www.twitch.tv/lethalbeannn', icon: 'img/icons/twitch_icon_bg.png' },
-  { name: 'Swisha', platform: 'Twitch', url: 'https://www.twitch.tv/swishaflame', icon: 'img/icons/twitch_icon_bg.png' },
+  { name: 'Swisha_Flame', platform: 'Twitch', url: 'https://www.twitch.tv/swishaflame', icon: 'img/icons/twitch_icon_bg.png' },
   { name: 'Dasduhh', platform: 'Twitch', url: 'https://www.twitch.tv/Dasduhh_', icon: 'img/icons/twitch_icon_bg.png' },
   { name: 'English', platform: 'Twitch', url: 'https://www.twitch.tv/goodveryenglish', icon: 'img/icons/twitch_icon_bg.png' },
   { name: 'm0rals', platform: 'Twitch', url: 'https://www.twitch.tv/m0rals', icon: 'img/icons/twitch_icon_bg.png' },
