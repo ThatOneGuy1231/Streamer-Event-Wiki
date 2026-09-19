@@ -1869,7 +1869,7 @@ document.querySelectorAll('.portal h3, .collapsible-bar .bar-head').forEach(h =>
     twitchChannels.push(login);
   });
 
-  function renderCard(s, isLive){
+  function renderCard(s, isLive, thumbnail){
     var card = document.createElement('div');
     card.className = 'streamer-card';
 
@@ -1882,7 +1882,8 @@ document.querySelectorAll('.portal h3, .collapsible-bar .bar-head').forEach(h =>
     card.appendChild(link);
 
     var avatar = document.createElement('span');
-    avatar.className = 'avatar';
+    avatar.className = thumbnail ? 'avatar has-thumb' : 'avatar';
+    if (thumbnail) avatar.style.backgroundImage = 'url(' + JSON.stringify(thumbnail) + ')';
     var live = document.createElement('span');
     live.className = isLive ? 'live' : 'live offline';
     live.textContent = isLive ? 'LIVE' : 'OFFLINE';
@@ -1935,9 +1936,12 @@ document.querySelectorAll('.portal h3, .collapsible-bar .bar-head').forEach(h =>
   fetch('https://toutabot-production.up.railway.app/api/public/top-live?limit=' + TOTAL_SLOTS + '&channels=' + encodeURIComponent(twitchChannels.join(',')))
     .then(function(res){ return res.json(); })
     .then(function(data){
-      var top = (data.top || []).map(function(t){ return byChannel[t.channel]; }).filter(Boolean);
-      top.forEach(function(s){ renderCard(s, true); });
-      if (top.length < TOTAL_SLOTS) renderFallback(top.map(function(s){ return s.name; }));
+      var top = (data.top || []).map(function(t){
+        var s = byChannel[t.channel];
+        return s ? { streamer: s, thumbnail: t.thumbnail } : null;
+      }).filter(Boolean);
+      top.forEach(function(t){ renderCard(t.streamer, true, t.thumbnail); });
+      if (top.length < TOTAL_SLOTS) renderFallback(top.map(function(t){ return t.streamer.name; }));
     })
     .catch(function(e){
       console.warn('[top-live] fetch failed:', e);
