@@ -637,20 +637,22 @@ body.mainpage .firstHeading{ display:none; }
    real lore directly in place, click it again (or click away) to save.
    Editing is password-gated (see #edit-login-modal below) and saves
    globally via ToutaBot's site-content API. ---------- */
-.panel.editable > h2{ cursor:pointer; user-select:none; }
+.panel.editable > h2{ user-select:none; }
+.panel.editable > h2 .panel-title{ cursor:pointer; }
 .panel.editable > h2 .edit-hint{
-  float:right; font-size:0.8em; font-weight:normal; color:#767676;
+  float:right; font-size:0.8em; font-weight:normal; color:#767676; cursor:pointer;
   opacity:0; transition:opacity .15s ease;
 }
 .panel.editable > h2:hover .edit-hint{ opacity:1; }
 .panel.editable.editing{ outline:2px dashed var(--accent); outline-offset:2px; }
 .panel.editable.editing > h2 .edit-hint{ opacity:1; }
-.panel.editable .inner[contenteditable="true"]{
+.panel.editable [contenteditable="true"]{
   cursor:text;
   outline:none;
   background:#fffef0;
   box-shadow:inset 0 0 0 1px #e6dfa0;
 }
+.panel.editable > h2 .panel-title[contenteditable="true"]{ padding:0 2px; }
 
 /* ---------- password modal for entering edit mode -- same panel/button
    language as the rest of the site (not a bare browser prompt()). ---------- */
@@ -1243,7 +1245,7 @@ body.drag-mode .resize-handle{ display:block; }
     <div id="cave-peek"></div>
 
     <div class="panel editable" data-panel-key="story">
-      <h2>The Story So Far<span class="edit-hint">click to edit</span></h2>
+      <h2><span class="panel-title">The Story So Far</span><span class="edit-hint">click to edit</span></h2>
       <div class="inner">
         <p>Placeholder intro -- the opening lore for Imperial Topaz goes here. Set the scene: where the server picks up, who the major players are, and what's at stake this season.</p>
       </div>
@@ -1251,14 +1253,14 @@ body.drag-mode .resize-handle{ display:block; }
 
     <div class="grid-half" style="margin-bottom:12px">
       <div class="panel editable" data-panel-key="season-one">
-        <h2>Season One<span class="edit-hint">click to edit</span></h2>
+        <h2><span class="panel-title">Season One</span><span class="edit-hint">click to edit</span></h2>
         <div class="inner">
           <p>Placeholder recap of Season One's major beats.</p>
           <ul><li>Placeholder plot point</li><li>Placeholder plot point</li><li>Placeholder plot point</li></ul>
         </div>
       </div>
       <div class="panel editable" data-panel-key="season-two">
-        <h2>Season Two<span class="edit-hint">click to edit</span></h2>
+        <h2><span class="panel-title">Season Two</span><span class="edit-hint">click to edit</span></h2>
         <div class="inner">
           <p>Placeholder teaser for what's coming in Season Two.</p>
           <ul><li>Placeholder plot point</li><li>Placeholder plot point</li></ul>
@@ -1430,6 +1432,9 @@ document.querySelectorAll('.franchise-tabs a').forEach(tab => {
   function setToken(t){ try{ sessionStorage.setItem(TOKEN_KEY, t); }catch(e){} }
   function clearToken(){ try{ sessionStorage.removeItem(TOKEN_KEY); }catch(e){} }
 
+  // each panel has two independent saved fields: "<key>" (the body's inner
+  // HTML) and "<key>-title" (the heading's plain text) -- same flat
+  // key->string map on the server, just two entries per panel instead of one.
   fetch(API_BASE + '/api/public/site-content/' + PAGE_KEY)
     .then(function(r){ return r.json(); })
     .then(function(data){
@@ -1437,7 +1442,9 @@ document.querySelectorAll('.franchise-tabs a').forEach(tab => {
       panels.forEach(function(panel){
         var key = panel.dataset.panelKey;
         var inner = panel.querySelector(':scope > .inner');
+        var titleEl = panel.querySelector(':scope > h2 .panel-title');
         if (inner && key && typeof saved[key] === 'string') inner.innerHTML = saved[key];
+        if (titleEl && key && typeof saved[key + '-title'] === 'string') titleEl.textContent = saved[key + '-title'];
       });
     })
     .catch(function(e){ console.warn('[site-content] load failed, showing placeholder text:', e); });
@@ -1506,18 +1513,26 @@ document.querySelectorAll('.franchise-tabs a').forEach(tab => {
     });
   }
 
+  function savePanelField(key, html, token){
+    return fetch(API_BASE + '/api/public/site-content/' + PAGE_KEY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Token': token },
+      body: JSON.stringify({ key: key, html: html })
+    });
+  }
+
   function save(panel){
     var key = panel.dataset.panelKey;
     var inner = panel.querySelector(':scope > .inner');
+    var titleEl = panel.querySelector(':scope > h2 .panel-title');
     var token = getToken();
-    if (!key || !inner || !token) return;
-    fetch(API_BASE + '/api/public/site-content/' + PAGE_KEY, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Token': token },
-      body: JSON.stringify({ key: key, html: inner.innerHTML })
-    })
-      .then(function(r){
-        if (r.status === 401){
+    if (!key || !token) return;
+    var requests = [];
+    if (inner) requests.push(savePanelField(key, inner.innerHTML, token));
+    if (titleEl) requests.push(savePanelField(key + '-title', titleEl.textContent, token));
+    Promise.all(requests)
+      .then(function(results){
+        if (results.some(function(r){ return r.status === 401; })){
           clearToken();
           toast('Session expired -- click the header again to log back in, then redo the edit.');
         }
@@ -1527,33 +1542,45 @@ document.querySelectorAll('.franchise-tabs a').forEach(tab => {
 
   panels.forEach(function(panel){
     var heading = panel.querySelector(':scope > h2');
+    var titleEl = panel.querySelector(':scope > h2 .panel-title');
+    var hint = panel.querySelector(':scope > h2 .edit-hint');
     var inner = panel.querySelector(':scope > .inner');
-    if (!heading || !inner) return;
+    if (!heading || !titleEl || !inner) return;
 
+    function ensureAuthed(){
+      return getToken() ? Promise.resolve(true) : login();
+    }
     function beginEditing(){
       panel.classList.add('editing');
       inner.setAttribute('contenteditable', 'true');
-      inner.focus();
+      titleEl.setAttribute('contenteditable', 'true');
+      titleEl.focus();
     }
     function stopEditing(){
       panel.classList.remove('editing');
       inner.removeAttribute('contenteditable');
+      titleEl.removeAttribute('contenteditable');
       save(panel);
     }
 
-    heading.addEventListener('click', function(){
-      if (panel.classList.contains('editing')){
-        stopEditing();
-        return;
-      }
-      if (getToken()){
-        beginEditing();
-      } else {
-        login().then(function(ok){ if (ok) beginEditing(); });
-      }
+    // Starting to edit: click either the title or the "click to edit" hint.
+    // Once editing, clicking the title just places the cursor normally (no
+    // listener fights the browser for it) -- only the hint (now effectively
+    // a "done" button) or clicking away from the whole panel ends editing.
+    titleEl.addEventListener('click', function(){
+      if (!panel.classList.contains('editing')) ensureAuthed().then(function(ok){ if (ok) beginEditing(); });
     });
-    inner.addEventListener('blur', function(){
+    hint.addEventListener('click', function(e){
+      e.stopPropagation();
       if (panel.classList.contains('editing')) stopEditing();
+      else ensureAuthed().then(function(ok){ if (ok) beginEditing(); });
+    });
+    // Safety net: clicking/tabbing away from the whole panel (not just from
+    // title to body, which is still "inside") also ends editing and saves.
+    panel.addEventListener('focusout', function(){
+      requestAnimationFrame(function(){
+        if (panel.classList.contains('editing') && !panel.contains(document.activeElement)) stopEditing();
+      });
     });
   });
 })();
