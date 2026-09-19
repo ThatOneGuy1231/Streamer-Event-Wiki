@@ -797,12 +797,12 @@ body.mainpage .firstHeading{ display:none; }
    tile's border on the top/left/right. */
 .tile .ico{
   position:relative;
-  display:block; width:calc(100% + 8px); height:70px;
+  display:block; width:calc(100% + 8px); height:110px;
   margin:-10px -4px 10px -4px; border-radius:0; /* extra bottom margin nudges the label down so it centers in the footer strip instead of sitting flush under the icon */
   border-top:5px solid #8E8F90;
   border-bottom:5px solid #CACBCC;
   box-shadow:0 2.5px 0 0 var(--panel-border); /* thin divider right under the bevel, same weight/color as the tile's own outer border */
-  background-color:#B8BABB; background-repeat:no-repeat; background-position:center; background-size:52px;
+  background-color:#B8BABB; background-repeat:no-repeat; background-position:center; background-size:84px;
 }
 /* the icon artwork's own slight drop shadow -- a separate transparent
    layer carrying just the icon image (not the gray box fill), so
@@ -810,7 +810,7 @@ body.mainpage .firstHeading{ display:none; }
    shadow around the whole rectangular box. */
 .tile .ico::before{
   content:""; position:absolute; inset:0;
-  background-image:inherit; background-repeat:no-repeat; background-position:center; background-size:52px;
+  background-image:inherit; background-repeat:no-repeat; background-position:center; background-size:84px;
   filter:drop-shadow(1px 2px 1.5px rgba(0,0,0,.4));
 }
 
