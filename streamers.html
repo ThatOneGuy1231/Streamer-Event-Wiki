@@ -707,6 +707,21 @@ body.mainpage .firstHeading{ display:none; }
   border-top:5px solid #8E8F90;
   border-bottom:5px solid #CACBCC;
 }
+/* a real stream thumbnail (photo, not the flat icon fill) -- blurred so it
+   reads as a soft preview frame instead of competing with the LIVE badge/
+   text, and the top/bottom lines go translucent over it so they don't cut
+   across the image as hard opaque bars. */
+.streamer-card .avatar.has-thumb{
+  overflow:hidden;
+  border-top-color:rgba(142,143,144,.5);
+  border-bottom-color:rgba(202,203,204,.5);
+}
+.streamer-card .avatar.has-thumb::before{
+  content:""; position:absolute; inset:-6px;
+  background-image:inherit; background-repeat:no-repeat;
+  background-size:cover; background-position:center;
+  filter:blur(3px);
+}
 .streamer-card .live{
   position:absolute; left:6px; top:6px;
   padding:1px 8px; border-radius:0;
@@ -1321,7 +1336,7 @@ body.drag-mode .resize-handle{ display:block; }
           if (s.platform === 'Twitch') {
             var key = (s.url.split('/').filter(Boolean).pop() || '').toLowerCase();
             if (key) {
-              liveBadges[key] = { badge: live, game: game, platform: s.platform, card: cardEntry };
+              liveBadges[key] = { badge: live, avatar: avatar, game: game, platform: s.platform, card: cardEntry };
               twitchChannels.push(key);
             }
           }
@@ -1331,13 +1346,17 @@ body.drag-mode .resize-handle{ display:block; }
           fetch('https://toutabot-production.up.railway.app/api/public/live-status?channels=' + encodeURIComponent(twitchChannels.join(',')))
             .then(function(res){ return res.json(); })
             .then(function(data){
-              (data.live || []).forEach(function(channel){
-                var entry = liveBadges[channel];
+              (data.live || []).forEach(function(item){
+                var entry = liveBadges[item.channel];
                 if (!entry) return;
                 entry.badge.className = 'live';
                 entry.badge.textContent = 'LIVE';
                 entry.game.textContent = 'Playing Minecraft';
                 entry.card.live = true;
+                if (item.thumbnail) {
+                  entry.avatar.className = 'avatar has-thumb';
+                  entry.avatar.style.backgroundImage = 'url(' + JSON.stringify(item.thumbnail) + ')';
+                }
               });
               // live people bubble to the front (stable sort keeps everyone
               // else in their original roster order) -- re-apply whatever
