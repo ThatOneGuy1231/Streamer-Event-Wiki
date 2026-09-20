@@ -57,4 +57,5 @@ var STREAMER_ROSTER = [
   { name: 'Dots', platform: 'Twitch', url: 'https://www.twitch.tv/dots420', icon: 'img/icons/twitch_icon_bg.png' },
   { name: 'puddinpuddin_', platform: 'Twitch', url: 'https://www.twitch.tv/puddinpuddin_', icon: 'img/icons/twitch_icon_bg.png' },
   { name: 'maiesa', platform: 'Twitch', url: 'https://www.twitch.tv/maiesa', icon: 'img/icons/twitch_icon_bg.png' },
+  { name: 'silly_spirits', platform: 'Twitch', url: 'https://www.twitch.tv/silly__spirits', icon: 'img/icons/twitch_icon_bg.png' },
 ];
