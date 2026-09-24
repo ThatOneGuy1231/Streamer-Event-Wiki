@@ -711,6 +711,7 @@ body.mainpage .firstHeading{ display:none; }
 .streamer-card .platform-link:hover{ filter:brightness(1.15); }
 
 .tiles{ display:grid; grid-template-columns:repeat(7,1fr); gap:8px; }
+.tiles-empty{ padding:0.5em 0; font-size:0.9em; color:#54595d; }
 .tile{
   position:relative;
   display:flex; flex-direction:column; padding:11px 5px 13px; text-align:center;
@@ -1205,38 +1206,11 @@ body.drag-mode .resize-handle{ display:block; }
     <div class="panel">
       <h2>Included Mods</h2>
       <div class="inner">
-        <div class="tiles">
-          <a class="tile" href="https://modrinth.com/datapack/ability-upgrade-cobblemon" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/ability-upgrade-cobblemon.png')"></span><span class="label">Ability Upgrade - Cobblemon</span></a>
-          <a class="tile" href="https://modrinth.com/mod/advancementdisable" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/advancementdisable.png')"></span><span class="label">Advancement Disable</span></a>
-          <a class="tile" href="https://modrinth.com/mod/area_lib" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/Stone.png')"></span><span class="label">Area Lib</span></a>
-          <a class="tile" href="https://modrinth.com/mod/casino-rocket" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/casino-rocket.png')"></span><span class="label">Casino Rocket</span></a>
-          <a class="tile" href="https://modrinth.com/mod/casinorocket-additions" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/casinorocket-additions.png')"></span><span class="label">Casino Rocket Additions</span></a>
-          <a class="tile" href="https://modrinth.com/mod/cobblemon-torchmaster-fix" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/cobblemon-torchmaster-fix.png')"></span><span class="label">Cobblemon Torchmaster Fix</span></a>
-          <a class="tile" href="https://modrinth.com/mod/cobblemon-trainer-battle" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/cobblemon-trainer-battle.webp')"></span><span class="label">Cobblemon Trainer Battle</span></a>
-          <a class="tile" href="https://modrinth.com/mod/cobbreeding" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/cobbreeding.png')"></span><span class="label">Cobbreeding</span></a>
-          <a class="tile" href="https://modrinth.com/mod/cutscene-api" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/Spyglass.png')"></span><span class="label">Cutscene API</span></a>
-          <a class="tile" href="https://modrinth.com/datapack/extended-wold-height-1024" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/extended-wold-height-1024.webp')"></span><span class="label">Extended World Height (Y=1024)</span></a>
-          <a class="tile" href="https://modrinth.com/datapack/extra-move-anims-cobblemon" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/extra-move-anims-cobblemon.webp')"></span><span class="label">Extra Move Animations (Cobblemon)</span></a>
-          <a class="tile" href="https://modrinth.com/datapack/flan-cobblemon-extension" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/flan-cobblemon-extension.png')"></span><span class="label">Flan Cobblemon Extension</span></a>
-          <a class="tile" href="https://modrinth.com/mod/flashback" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/flashback.webp')"></span><span class="label">Flashback</span></a>
-          <a class="tile" href="https://modrinth.com/mod/glitchcore" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/glitchcore.png')"></span><span class="label">GlitchCore</span></a>
-          <a class="tile" href="https://modrinth.com/mod/pneumono_gravestones" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/pneumono_gravestones.webp')"></span><span class="label">Gravestones</span></a>
-          <a class="tile" href="https://modrinth.com/mod/matthiesen-lib" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/matthiesen-lib.webp')"></span><span class="label">Matthiesen Lib</span></a>
-          <a class="tile" href="https://modrinth.com/mod/meret" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/meret.webp')"></span><span class="label">Meret</span></a>
-          <a class="tile" href="https://modrinth.com/mod/noxesium" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/noxesium.webp')"></span><span class="label">Noxesium</span></a>
-          <a class="tile" href="https://modrinth.com/mod/pneumono_core" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/pneumono_core.png')"></span><span class="label">PneumonoCore</span></a>
-          <a class="tile" href="https://modrinth.com/mod/sophisticated-backpacks-(unoffical-fabric-port)" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/sophisticated-backpacks-fabric-port.webp')"></span><span class="label">Sophisticated Backpacks (Fabric Port)</span></a>
-          <a class="tile" href="https://modrinth.com/mod/sophisticated-core-(unofficial-fabric-port)" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/sophisticated-core-fabric-port.png')"></span><span class="label">Sophisticated Core (Fabric Port)</span></a>
-          <a class="tile" href="https://modrinth.com/mod/spuds-shops" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/spuds-shops.webp')"></span><span class="label">Spud's Shops</span></a>
-          <a class="tile" href="https://modrinth.com/mod/storagedrawers" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/storagedrawers.png')"></span><span class="label">Storage Drawers</span></a>
-          <a class="tile" href="https://modrinth.com/mod/svvideo" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/svvideo.webp')"></span><span class="label">SVVideo</span></a>
-          <a class="tile" href="https://modrinth.com/mod/terrablender" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/terrablender.png')"></span><span class="label">TerraBlender</span></a>
-          <a class="tile" href="https://modrinth.com/mod/too-cheap" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/too-cheap.png')"></span><span class="label">Too Cheap!</span></a>
-          <a class="tile" href="https://modrinth.com/mod/warputils" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/warputils.webp')"></span><span class="label">WarpUtils</span></a>
-          <a class="tile" href="https://modrinth.com/mod/watermedia-binaries" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/watermedia-binaries.webp')"></span><span class="label">WATERMeDIA: Multimedia Binaries</span></a>
-          <a class="tile" href="https://www.curseforge.com/minecraft/mc-mods/watermedia-platform-extension" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/watermedia.png')"></span><span class="label">WATERMeDIA: Platform Extension</span></a>
-          <a class="tile" href="https://modrinth.com/mod/watermedia" target="_blank" rel="noopener"><span class="ico" style="background-image:url('img/icons/mods/watermedia.png')"></span><span class="label">WATERMeDIA: Multimedia API</span></a>
-        </div>
+        <p class="tiles-empty">Coming soon...</p>
+        <!-- mod list is being reworked/verified -- swap the <p> above for a
+             <div class="tiles"> full of <a class="tile" href=...><span
+             class="ico" style="background-image:url(...)"></span><span
+             class="label">Name</span></a> entries once it's confirmed. -->
       </div>
     </div>
 

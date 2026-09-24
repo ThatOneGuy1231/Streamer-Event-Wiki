@@ -1,0 +1,8 @@
+# These are plain hand/script-edited JS data files (streamer roster, mod
+# list, photo manifest), but GitHub's linguist heuristics sometimes flag
+# them as "generated" anyway (long, repetitive array-literal files) and
+# collapse their diffs behind a "Load diff" click in PRs/commits. Force
+# them to always show a normal diff.
+img/streamer_roster.js linguist-generated=false
+img/modpack_list.js linguist-generated=false
+img/photos/manifest.js linguist-generated=false

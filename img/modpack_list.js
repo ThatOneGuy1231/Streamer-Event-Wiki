@@ -1,34 +1,6 @@
 // Included-mods list -- kept in sync with the tiles on modpack.html so the
 // site search bar can match individual mods by name, not just page titles.
+// Emptied out while the mod list itself is being reworked/verified -- real
+// entries ({ name: '...', url: '...' } per mod) go back here once confirmed.
 var MODPACK_LIST = [
-  { name: 'Ability Upgrade - Cobblemon', url: 'https://modrinth.com/datapack/ability-upgrade-cobblemon' },
-  { name: 'Advancement Disable', url: 'https://modrinth.com/mod/advancementdisable' },
-  { name: 'Area Lib', url: 'https://modrinth.com/mod/area_lib' },
-  { name: 'Casino Rocket', url: 'https://modrinth.com/mod/casino-rocket' },
-  { name: 'Casino Rocket Additions', url: 'https://modrinth.com/mod/casinorocket-additions' },
-  { name: 'Cobblemon Torchmaster Fix', url: 'https://modrinth.com/mod/cobblemon-torchmaster-fix' },
-  { name: 'Cobblemon Trainer Battle', url: 'https://modrinth.com/mod/cobblemon-trainer-battle' },
-  { name: 'Cobbreeding', url: 'https://modrinth.com/mod/cobbreeding' },
-  { name: 'Cutscene API', url: 'https://modrinth.com/mod/cutscene-api' },
-  { name: 'Extended World Height (Y=1024)', url: 'https://modrinth.com/datapack/extended-wold-height-1024' },
-  { name: 'Extra Move Animations (Cobblemon)', url: 'https://modrinth.com/datapack/extra-move-anims-cobblemon' },
-  { name: 'Flan Cobblemon Extension', url: 'https://modrinth.com/datapack/flan-cobblemon-extension' },
-  { name: 'Flashback', url: 'https://modrinth.com/mod/flashback' },
-  { name: 'GlitchCore', url: 'https://modrinth.com/mod/glitchcore' },
-  { name: 'Gravestones', url: 'https://modrinth.com/mod/pneumono_gravestones' },
-  { name: 'Matthiesen Lib', url: 'https://modrinth.com/mod/matthiesen-lib' },
-  { name: 'Meret', url: 'https://modrinth.com/mod/meret' },
-  { name: 'Noxesium', url: 'https://modrinth.com/mod/noxesium' },
-  { name: 'PneumonoCore', url: 'https://modrinth.com/mod/pneumono_core' },
-  { name: 'Sophisticated Backpacks (Fabric Port)', url: 'https://modrinth.com/mod/sophisticated-backpacks-(unoffical-fabric-port)' },
-  { name: 'Sophisticated Core (Fabric Port)', url: 'https://modrinth.com/mod/sophisticated-core-(unofficial-fabric-port)' },
-  { name: 'Spud\'s Shops', url: 'https://modrinth.com/mod/spuds-shops' },
-  { name: 'Storage Drawers', url: 'https://modrinth.com/mod/storagedrawers' },
-  { name: 'SVVideo', url: 'https://modrinth.com/mod/svvideo' },
-  { name: 'TerraBlender', url: 'https://modrinth.com/mod/terrablender' },
-  { name: 'Too Cheap!', url: 'https://modrinth.com/mod/too-cheap' },
-  { name: 'WarpUtils', url: 'https://modrinth.com/mod/warputils' },
-  { name: 'WATERMeDIA: Multimedia Binaries', url: 'https://modrinth.com/mod/watermedia-binaries' },
-  { name: 'WATERMeDIA: Platform Extension', url: 'https://www.curseforge.com/minecraft/mc-mods/watermedia-platform-extension' },
-  { name: 'WATERMeDIA: Multimedia API', url: 'https://modrinth.com/mod/watermedia' },
 ];
