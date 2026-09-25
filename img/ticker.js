@@ -115,14 +115,20 @@ document.addEventListener('DOMContentLoaded', function(){
   var hintBtn = document.getElementById('ticker-edit-btn');
   var menu = document.getElementById('ticker-edit-menu');
   var colorPicker = document.getElementById('ticker-color-picker');
+  var applyBtn = document.getElementById('ticker-color-apply');
   var doneBtn = document.getElementById('ticker-edit-done');
-  if (!(hintBtn && menu && colorPicker && doneBtn && window.SiteEdit)) return;
+  if (!(hintBtn && menu && colorPicker && applyBtn && doneBtn && window.SiteEdit)) return;
 
   // The browser drops the text selection the moment focus leaves the
   // contenteditable element (which clicking into the native color <input>
   // always does), so the selection has to be captured right before that
   // happens and re-applied right before the color command runs -- standard
   // trick for pairing a contenteditable with an external toolbar control.
+  // Workflow is explicit on purpose (highlight text, pick a color, press
+  // Apply) rather than applying the instant a color is picked -- picking a
+  // color already steals focus/selection once on its own, so folding
+  // "apply" into that same moment made it unclear whether anything had
+  // actually happened.
   var savedRange = null;
   function captureSelection(){
     var sel = window.getSelection();
@@ -131,18 +137,17 @@ document.addEventListener('DOMContentLoaded', function(){
   template.addEventListener('mouseup', captureSelection);
   template.addEventListener('keyup', captureSelection);
 
-  colorPicker.addEventListener('input', function(){
-    // Clicking the native color swatch steals focus away from the
-    // contenteditable text first -- foreColor has to run while that text is
-    // actually focused again, so the focus + selection restore both have to
-    // happen *before* the command, not after (running it while the color
-    // input itself is still focused is a silent no-op).
+  applyBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    if (!savedRange) return;
+    // foreColor has to run while the actual text is focused again (clicking
+    // the color swatch, and this button itself, both moved focus away from
+    // it) -- focus + selection restore have to happen before the command,
+    // not after, or it's a silent no-op.
     template.focus();
-    if (savedRange){
-      var sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(savedRange);
-    }
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(savedRange);
     // styleWithCSS makes foreColor write inline style="color:..." spans
     // instead of legacy <font color> tags -- cleaner HTML, and it's what
     // gets saved to the server as-is.
