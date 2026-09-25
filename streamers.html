@@ -249,49 +249,84 @@ body{ min-width:1200px; }
 }
 #top-ticker-bar .tb-edit:hover{ opacity:1; color:#fff; }
 .ticker-set{ display:flex; align-items:center; }
-.ticker-track .ticker-item.editing{
-  position:relative;
-  cursor:text;
-  outline:none;
-  background:rgba(255,254,240,0.12);
-  box-shadow:inset 0 0 0 1px rgba(230,223,160,0.6);
-  padding:0 4px;
-}
+/* a normal row sibling now, not overlaid on top of the phrase text --
+   overflow:hidden on the phrase box only clips at its own padding-box
+   edge, not any earlier point padding might suggest, so a long phrase's
+   text (or the text cursor, which the browser auto-scrolls into view)
+   could still end up sliding underneath an absolutely-positioned x button
+   layered on top of it. A separate sibling next to the box can never be
+   covered by that box's own content no matter how it scrolls. */
 .ticker-phrase-remove{
+  flex:none; align-self:center;
   display:inline-flex; align-items:center; justify-content:center;
-  width:16px; height:16px; margin-left:6px; vertical-align:middle;
-  font:inherit; font-size:0.6em; line-height:1;
+  width:32px; height:32px;
+  font:inherit; font-size:0.7em; line-height:1;
   border:1px solid #8a2a2a; border-radius:0;
   background:#c94141; color:#fff; cursor:pointer;
   -webkit-user-select:none; user-select:none;
 }
 .ticker-phrase-remove:hover{ background:#e05252; }
+/* editing never touches the live scrolling ticker itself -- each phrase
+   gets its own editable row inside this settings box instead, so the
+   ticker's own layout/size can never shift while editing. */
 #ticker-edit-menu{
-  position:absolute; top:var(--ticker-bar-h); right:16px; z-index:200;
-  max-width:340px; box-sizing:border-box;
+  position:absolute; top:var(--ticker-bar-h); left:16px; width:900px; z-index:200; /* left/width get overwritten by ticker.js to match .tb-ticker's real rendered position -- these are just a sane fallback */
+  box-sizing:border-box;
   font-family:"Minecraft", "Silkscreen", "Liberation Sans", Arial, sans-serif; font-size:0.8em;
   background:#232324; color:#fff; border:2px solid #313233; border-radius:4px;
   padding:10px;
   box-shadow:0 4px 12px rgba(0,0,0,.5);
-  display:flex; flex-wrap:wrap; align-items:center; gap:8px;
 }
 #ticker-edit-menu[hidden]{ display:none; }
-#ticker-edit-menu label{ font-size:0.85em; color:#bbb; }
-#ticker-edit-menu input[type="color"]{
-  width:32px; height:28px; padding:0; border:0; border-radius:2px;
-  background:none; cursor:pointer;
+#ticker-phrase-editor{ display:flex; flex-direction:column; gap:6px; margin-bottom:8px; }
+/* one phrase per row: the phrase text (2/3) and its own link input + button
+   (1/3) side by side, all on the same line. */
+.ticker-phrase-row{ display:flex; align-items:stretch; gap:8px; }
+.ticker-phrase-editor-item{
+  flex:2 1 0%; min-width:0; box-sizing:border-box;
+  padding:6px 8px;
+  background:#111; color:#f2f2f2;
+  border:1px solid #3a3b3c; border-radius:0;
+  font-family:inherit; font-size:1.1em;
+  cursor:text; outline:none;
+  height:32px; white-space:nowrap; overflow:hidden;
 }
-#ticker-edit-menu input[type="text"]{
-  width:120px; box-sizing:border-box; padding:6px; border:0; border-radius:2px;
+.ticker-phrase-link-input{
+  flex:1 1 0%; min-width:0; box-sizing:border-box; padding:6px; border:0; border-radius:0;
+  height:32px;
   background:#111; color:#9cff9c; font-family:inherit; font-size:0.9em;
 }
+.ticker-phrase-link-btn{
+  flex:none; display:inline-flex; align-items:center; justify-content:center;
+  font:inherit; cursor:pointer; border:0; border-radius:0; box-sizing:border-box;
+  height:32px; padding:0 10px;
+  background:#3a3b3c; color:#fff;
+}
+.ticker-phrase-link-btn:hover{ background:#fff; color:#111; }
+.ticker-menu-row{ display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.ticker-menu-add{ display:block; margin-bottom:8px; margin-top:8px; }
+.ticker-menu-actions{ display:flex; justify-content:space-between; margin-top:8px; }
+#ticker-edit-menu label{ font-family:inherit; font-size:1em; color:#bbb; }
+#ticker-edit-menu input[type="color"]{
+  width:32px; height:32px; padding:0; border:0; border-radius:0; box-sizing:border-box;
+  background:none; cursor:pointer;
+}
 #ticker-edit-menu button{
-  font:inherit; cursor:pointer; border:0; border-radius:2px;
-  padding:6px 10px;
+  display:inline-flex; align-items:center; justify-content:center;
+  font:inherit; cursor:pointer; border:0; border-radius:0; box-sizing:border-box;
+  height:32px; padding:0 10px;
   background:#3a3b3c; color:#fff;
 }
 #ticker-edit-menu button:hover{ background:#fff; color:#111; }
-.ticker-track .ticker-item a{ color:inherit; text-decoration:underline; }
+/* higher specificity than the generic #ticker-edit-menu button rule above
+   on purpose -- that rule's own height:32px was silently overriding this
+   button's own square 16x16, since an ID-based selector beats a plain
+   class one regardless of source order. */
+#ticker-edit-menu .ticker-phrase-remove{ width:32px; height:32px; padding:0; }
+#ticker-save{ background:#8bc34a; color:#111; }
+#ticker-save:hover{ background:#9ed363; color:#111; }
+.ticker-track .ticker-item a{ color:inherit; text-decoration:none; }
+.ticker-phrase-editor-item a{ color:inherit; text-decoration:none; }
 
 /* ---------- header strip (transparent: real background image shows through) ---------- */
 #mw-page-base{
@@ -429,7 +464,7 @@ body{ min-width:1200px; }
   transform:translateX(-50%);
   z-index:4;
 }
-#p-logo a{
+#p-logo .logo-img{
   display:block; width:100%; height:100%;
   background-image:var(--wiki-logo);
   background-position:center center; background-repeat:no-repeat;
@@ -1195,7 +1230,7 @@ body.drag-mode .resize-handle{ display:block; }
 </head>
 <body>
 <div id="top-ticker-bar">
-  <a class="tb-logo" href="/" aria-label="Imperial Topaz home"><img src="img/logo.png" alt="Imperial Topaz"></a>
+  <a class="tb-logo" href="/" aria-label="Imperial Topaz home"><img src="img/imp_logo.png" alt="Imperial Topaz"></a>
   <div class="tb-ticker-group">
     <div class="tb-ticker" aria-hidden="true">
       <div class="ticker-track">
@@ -1209,14 +1244,17 @@ body.drag-mode .resize-handle{ display:block; }
   </div>
 </div>
 <div id="ticker-edit-menu" hidden>
-  <label for="ticker-color-picker">Color</label>
-  <input type="color" id="ticker-color-picker" value="#f2f2f2">
-  <button id="ticker-color-apply" type="button">Apply</button>
-  <label for="ticker-link-input">Link</label>
-  <input type="text" id="ticker-link-input" placeholder="https://...">
-  <button id="ticker-link-apply" type="button">Link</button>
-  <button id="ticker-add-phrase" type="button">+ Add phrase</button>
-  <button id="ticker-edit-done" type="button">Done</button>
+  <div class="ticker-menu-row">
+    <label for="ticker-color-picker">Color</label>
+    <input type="color" id="ticker-color-picker" value="#f2f2f2">
+    <button id="ticker-color-apply" type="button">Apply</button>
+  </div>
+  <div id="ticker-phrase-editor"></div>
+  <button id="ticker-add-phrase" type="button" class="ticker-menu-add">+ Add phrase</button>
+  <div class="ticker-menu-actions">
+    <button id="ticker-cancel" type="button">Cancel</button>
+    <button id="ticker-save" type="button">Save</button>
+  </div>
 </div>
 <script src="img/site_edit.js"></script>
 <script src="img/ticker.js"></script>
@@ -1225,7 +1263,7 @@ body.drag-mode .resize-handle{ display:block; }
 <div id="mw-page-base"></div>
 <div id="mw-head-base"></div>
 
-<div id="p-logo" data-drag-id="logo" data-drag-label="Logo"><a href="/" aria-label="Imperial Topaz home"></a></div>
+<div id="p-logo" data-drag-id="logo" data-drag-label="Logo"><div class="logo-img" aria-label="Imperial Topaz"></div></div>
 
 <!-- ===================== SIDEBAR ===================== -->
 <div id="mw-panel" data-drag-id="sidebar" data-drag-label="Sidebar">

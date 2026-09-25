@@ -32,6 +32,9 @@
 // it), and +/x controls to add or remove phrases.
 document.addEventListener('DOMContentLoaded', function(){
   var wrap = document.querySelector('.tb-ticker');
+  var group = document.querySelector('.tb-ticker-group');
+  var bar = document.getElementById('top-ticker-bar');
+  var contentEl = document.getElementById('content');
   var track = document.querySelector('.ticker-track');
   var masterSet = track ? track.querySelector('.ticker-set') : null;
   var itemTemplate = masterSet ? masterSet.querySelector('.ticker-item') : null;
@@ -42,6 +45,29 @@ document.addEventListener('DOMContentLoaded', function(){
   var PLACEHOLDER_HTML = itemTemplate.innerHTML;
 
   var editing = false;
+
+  // Centers the ticker box itself on #content's actual center (not the
+  // ticker bar's own 50%) -- #content isn't symmetrically placed in the
+  // bar's full width (its left sidebar border eats space only on one
+  // side), so a plain left:50%/translateX(-50%) on the group only
+  // coincidentally lines up at one specific viewport width and visibly
+  // drifts at others, worse the more the page is zoomed out. Left/width
+  // on .tb-ticker-group are logical px the browser re-scales by zoom, so
+  // rendered (already zoom-scaled) measurements are divided back down
+  // first, same reasoning as setWidth()/positionMenu() elsewhere here.
+  function positionTicker(){
+    if (!group || !bar || !contentEl) return;
+    var zoom = parseFloat(document.body.style.zoom) || 1;
+    var barRect = bar.getBoundingClientRect();
+    var contentRect = contentEl.getBoundingClientRect();
+    var tickerWidthRendered = 900 * zoom; // .tb-ticker's own CSS width
+    var desiredTickerLeftRendered = (contentRect.left + contentRect.right) / 2 - tickerWidthRendered / 2;
+    var groupLeftRendered = desiredTickerLeftRendered - barRect.left;
+    group.style.left = (groupLeftRendered / zoom) + 'px';
+    group.style.transform = 'none';
+  }
+  positionTicker();
+  window.addEventListener('resize', positionTicker);
 
   function phraseItems(){
     return Array.prototype.slice.call(masterSet.querySelectorAll('.ticker-item'));
@@ -80,6 +106,9 @@ document.addEventListener('DOMContentLoaded', function(){
   function startScrolling(){
     refillClones();
 
+    // keeps scrolling exactly the same regardless of editing state --
+    // editing happens entirely in the settings box now, never on this
+    // element, so there's no reason left to ever pause or reset it.
     var PX_PER_SEC = 55;
     var pos = 0;
     var lastTime = null;
@@ -87,17 +116,25 @@ document.addEventListener('DOMContentLoaded', function(){
       if (lastTime === null) lastTime = now;
       var dt = (now - lastTime) / 1000;
       lastTime = now;
-      if (!editing){
-        var w = setWidth();
-        pos += PX_PER_SEC * dt;
-        if (w && pos >= w) pos -= w;
-        track.style.transform = 'translateX(' + (-pos) + 'px)';
-      } else {
-        lastTime = now; // don't let a big gap while paused count as elapsed time once resumed
-      }
+      var w = setWidth();
+      pos += PX_PER_SEC * dt;
+      if (w && pos >= w) pos -= w;
+      track.style.transform = 'translateX(' + (-pos) + 'px)';
       requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
+  }
+
+  // A phrase left untyped isn't necessarily an empty *string* -- an empty
+  // contenteditable line commonly still holds a stray <br> (or similar),
+  // which is non-empty HTML even though there's no real text in it.
+  // Checking rendered textContent instead of the raw HTML string is what
+  // actually detects "nothing was typed here" (or "nothing worth showing
+  // was ever saved here").
+  function isBlank(html){
+    var tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return !tmp.textContent.trim();
   }
 
   // The saved value is a JSON array of per-phrase HTML strings. Older
@@ -136,7 +173,12 @@ document.addEventListener('DOMContentLoaded', function(){
       .then(function(data){
         var saved = data && data.panels && data.panels[TICKER_FIELD_KEY];
         var phrases = parsePhrases(saved);
-        if (phrases) renderPhrases(phrases);
+        // drops any already-saved blank phrases (e.g. from testing +Add
+        // phrase without typing into it before this got caught at save
+        // time) so old bad data self-heals on load instead of needing to
+        // be clicked through and removed by hand.
+        if (phrases) phrases = phrases.filter(function(p){ return !isBlank(p); });
+        if (phrases && phrases.length) renderPhrases(phrases);
       })
       .catch(function(e){ console.warn('[ticker] load failed, showing placeholder text:', e); })
       .then(begin);
@@ -145,57 +187,69 @@ document.addEventListener('DOMContentLoaded', function(){
     begin();
   }
 
-  // ---------- inline editor: same interaction as the lore/events panels
-  // (click a "click to edit" hint, type straight into the real text, click
-  // away to save) plus a color picker and a link field that both apply to
-  // whatever text is currently selected (in whichever phrase has it), and
-  // +/x controls to add or remove whole phrases. ----------
+  // ---------- editor: click the "click to edit" hint, and a settings box
+  // appears with each phrase as its own row *inside that box* -- the live
+  // scrolling ticker itself is never touched at all (no size/overflow/wrap
+  // changes, doesn't even pause), so its layout/animation can't shift
+  // while editing. A color picker at the top applies to whatever text is
+  // currently selected (in whichever phrase row has it). Each phrase row
+  // has its own link input + Link button right beside it (2/3 phrase text,
+  // 1/3 link) -- linking the *whole* phrase, not a specific highlighted
+  // word, and scoped to that one row instead of "whichever row was last
+  // focused" so there's never any ambiguity about which phrase a link
+  // belongs to. +/x controls add or remove whole phrases, and Cancel/Save
+  // are the only ways to close the box -- clicking elsewhere on the page
+  // does nothing, so an accidental click outside it can't lose or discard
+  // work. ----------
   var hintBtn = document.getElementById('ticker-edit-btn');
   var menu = document.getElementById('ticker-edit-menu');
+  var phraseEditor = document.getElementById('ticker-phrase-editor');
   var colorPicker = document.getElementById('ticker-color-picker');
   var colorApplyBtn = document.getElementById('ticker-color-apply');
-  var linkInput = document.getElementById('ticker-link-input');
-  var linkApplyBtn = document.getElementById('ticker-link-apply');
   var addPhraseBtn = document.getElementById('ticker-add-phrase');
-  var doneBtn = document.getElementById('ticker-edit-done');
-  if (!(hintBtn && menu && colorPicker && colorApplyBtn && linkInput && linkApplyBtn && addPhraseBtn && doneBtn && window.SiteEdit)) return;
+  var cancelBtn = document.getElementById('ticker-cancel');
+  var saveBtn = document.getElementById('ticker-save');
+  if (!(hintBtn && menu && phraseEditor && colorPicker && colorApplyBtn && addPhraseBtn && cancelBtn && saveBtn && window.SiteEdit)) return;
+
+  function editorRows(){
+    return Array.prototype.slice.call(phraseEditor.querySelectorAll('.ticker-phrase-editor-item'));
+  }
 
   // The browser drops the text selection the moment focus leaves whichever
-  // phrase it was in (which clicking into the native color <input>, or any
-  // of the menu's other controls, always does), so the selection -- and
-  // which phrase element it belongs to -- has to be captured right before
-  // that happens and restored right before a command runs. Standard trick
-  // for pairing a contenteditable with an external toolbar control,
-  // generalized here to "whichever phrase currently has focus" instead of
-  // one fixed element.
+  // row it was in (which clicking into the native color <input> always
+  // does), so the selection -- and which row it belongs to -- has to be
+  // captured right before that happens and restored right before a
+  // command runs. Standard trick for pairing a contenteditable with an
+  // external toolbar control, generalized here to "whichever row
+  // currently has focus" instead of one fixed element.
   var savedRange = null;
-  var savedPhrase = null;
+  var savedRow = null;
   function captureSelection(){
     var sel = window.getSelection();
     if (!sel.rangeCount) return;
-    var phrase = phraseItems().filter(function(p){ return p.contains(sel.anchorNode); })[0];
-    if (phrase){
+    var row = editorRows().filter(function(r){ return r.contains(sel.anchorNode); })[0];
+    if (row){
       savedRange = sel.getRangeAt(0).cloneRange();
-      savedPhrase = phrase;
+      savedRow = row;
     }
   }
   function restoreSelection(){
-    if (!savedRange || !savedPhrase) return false;
-    savedPhrase.focus();
+    if (!savedRange || !savedRow) return false;
+    savedRow.focus();
     var sel = window.getSelection();
     sel.removeAllRanges();
     sel.addRange(savedRange);
     return true;
   }
-  masterSet.addEventListener('mouseup', captureSelection);
-  masterSet.addEventListener('keyup', captureSelection);
+  phraseEditor.addEventListener('mouseup', captureSelection);
+  phraseEditor.addEventListener('keyup', captureSelection);
 
   colorApplyBtn.addEventListener('click', function(e){
     e.stopPropagation();
-    // foreColor has to run while the actual phrase text is focused again
-    // (clicking the color swatch, and this button itself, both moved focus
-    // away from it) -- focus + selection restore have to happen before the
-    // command, not after, or it's a silent no-op.
+    // foreColor has to run while the actual row is focused again (clicking
+    // the color swatch, and this button itself, both moved focus away from
+    // it) -- focus + selection restore have to happen before the command,
+    // not after, or it's a silent no-op.
     if (!restoreSelection()) return;
     // styleWithCSS makes foreColor write inline style="color:..." spans
     // instead of legacy <font color> tags -- cleaner HTML, and it's what
@@ -205,111 +259,180 @@ document.addEventListener('DOMContentLoaded', function(){
     captureSelection();
   });
 
-  // same highlight -> fill in -> press pattern as the color control:
-  // highlight text, type/paste a URL, press Link, and that selection
-  // becomes clickable (target="_blank" -- opens in a new tab like the rest
-  // of the site's outbound links -- since execCommand's own createLink
-  // doesn't set that itself). Leaving the URL field blank and pressing
-  // Link removes an existing link from the selection instead.
-  linkApplyBtn.addEventListener('click', function(e){
-    e.stopPropagation();
-    if (!restoreSelection()) return;
-    var phrase = savedPhrase;
-    var url = linkInput.value.trim();
+  // A phrase's content counts as "already just one whole-row link" only
+  // when every child except the remove button is that single <a> --
+  // distinguishes "link the whole phrase" from a color span or some other
+  // partial markup that happens to contain a link.
+  function wholeRowLink(row){
+    var content = Array.prototype.filter.call(row.childNodes, function(n){
+      return !(n.nodeType === 1 && n.classList && n.classList.contains('ticker-phrase-remove'));
+    });
+    if (content.length === 1 && content[0].nodeType === 1 && content[0].tagName === 'A') return content[0];
+    return null;
+  }
+
+  // Links (or, with the field left blank, unlinks) the *entire* phrase row
+  // -- not a specific highlighted word -- so the whole row's content
+  // becomes one <a>. Re-running this on an already-linked row updates that
+  // same <a>'s href instead of nesting a second link inside it. The remove
+  // ("x") button lives outside this row entirely now (a sibling in the
+  // wrapping .ticker-phrase-row, not layered on top of the text), so unlike
+  // before there's nothing to lift out of the way first.
+  function applyLinkToRow(row, url){
+    var existing = wholeRowLink(row);
     if (!url) {
-      document.execCommand('unlink', false, null);
+      if (existing) {
+        while (existing.firstChild) row.insertBefore(existing.firstChild, existing);
+        existing.remove();
+      }
     } else {
       if (!/^([a-z][a-z0-9+.-]*:|#)/i.test(url)) url = 'https://' + url;
-      document.execCommand('createLink', false, url);
-      Array.prototype.slice.call(phrase.querySelectorAll('a:not([target])')).forEach(function(a){
+      if (existing) {
+        existing.href = url;
+      } else {
+        var a = document.createElement('a');
+        a.href = url;
         a.target = '_blank';
         a.rel = 'noopener';
-      });
+        while (row.firstChild) a.appendChild(row.firstChild);
+        row.appendChild(a);
+      }
     }
-    captureSelection();
-  });
+  }
 
-  // Injects a small "x" button into a phrase (only while editing, stripped
-  // again before saving -- same pattern as the Season Timeline table's
-  // per-row delete button on the Events page) so it can be removed on its
-  // own without deleting the others. The last remaining phrase can't be
-  // removed -- there always has to be at least one.
-  function addRemoveButton(phrase){
-    if (phrase.querySelector('.ticker-phrase-remove')) return;
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'ticker-phrase-remove';
-    btn.textContent = '×';
-    btn.setAttribute('aria-label', 'Remove this phrase');
-    btn.addEventListener('click', function(e){
+  // Builds one row per phrase inside the menu's own phrase editor: the
+  // phrase text itself (2/3 width, editable) with a small "x" *beside* it
+  // (not overlaid on top -- overflow:hidden on the text box only clips at
+  // its own edge, so a long phrase's auto-scrolled cursor could still end
+  // up sliding underneath an x layered on top of it; a plain sibling can
+  // never be covered by the box's own scrolling content) to remove this
+  // phrase -- the last remaining one can't be removed, there always has to
+  // be at least one -- plus that same phrase's own link input + button
+  // (1/3 width) right beside that, pre-filled if the phrase is already
+  // linked -- entirely separate from the live scrolling ticker.
+  function addRow(html, focusIt){
+    var rowWrap = document.createElement('div');
+    rowWrap.className = 'ticker-phrase-row';
+
+    var row = document.createElement('div');
+    row.className = 'ticker-phrase-editor-item';
+    row.contentEditable = 'true';
+    row.innerHTML = html;
+
+    var removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'ticker-phrase-remove';
+    removeBtn.textContent = '×';
+    removeBtn.setAttribute('aria-label', 'Remove this phrase');
+    removeBtn.addEventListener('click', function(e){
       e.preventDefault();
       e.stopPropagation();
-      if (phraseItems().length <= 1) return;
-      if (savedPhrase === phrase){ savedRange = null; savedPhrase = null; }
-      phrase.remove();
+      if (editorRows().length <= 1) return;
+      if (savedRow === row){ savedRange = null; savedRow = null; }
+      rowWrap.remove();
     });
-    phrase.appendChild(btn);
+
+    var existingLink = wholeRowLink(row);
+    var linkInput = document.createElement('input');
+    linkInput.type = 'text';
+    linkInput.className = 'ticker-phrase-link-input';
+    linkInput.placeholder = 'https://...';
+    if (existingLink) linkInput.value = existingLink.getAttribute('href');
+
+    var linkBtn = document.createElement('button');
+    linkBtn.type = 'button';
+    linkBtn.className = 'ticker-phrase-link-btn';
+    linkBtn.textContent = 'Link';
+    linkBtn.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      applyLinkToRow(row, linkInput.value.trim());
+      var applied = wholeRowLink(row);
+      linkInput.value = applied ? applied.getAttribute('href') : ''; // reflects the https:// auto-prefix, if any
+    });
+
+    rowWrap.appendChild(row);
+    rowWrap.appendChild(removeBtn);
+    rowWrap.appendChild(linkInput);
+    rowWrap.appendChild(linkBtn);
+    phraseEditor.appendChild(rowWrap);
+    if (focusIt){
+      row.focus();
+      var range = document.createRange();
+      range.selectNodeContents(row);
+      range.collapse(false);
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+    return row;
   }
 
   addPhraseBtn.addEventListener('click', function(e){
     e.stopPropagation();
     if (!editing) return;
-    var el = itemTemplate.cloneNode(false);
-    el.textContent = 'New announcement';
-    masterSet.appendChild(el);
-    addRemoveButton(el);
-    el.focus();
-    var range = document.createRange();
-    range.selectNodeContents(el);
-    var sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range);
+    addRow('New announcement', true);
   });
+
+  // Lines the menu's left edge and width up with .tb-ticker's own actual
+  // rendered box (not a hardcoded guess) -- getBoundingClientRect() gives
+  // already zoom-scaled px, so it's divided back down to logical px first,
+  // same reasoning as itemWidth()/setWidth() above, since the menu isn't
+  // nested inside the ticker bar (that bar clips its own overflow, which
+  // would otherwise cut this popup off) and so isn't affected by the same
+  // zoom transform its ancestors are.
+  function positionMenu(){
+    var zoom = parseFloat(document.body.style.zoom) || 1;
+    var r = wrap.getBoundingClientRect();
+    menu.style.left = (r.left / zoom) + 'px';
+    menu.style.width = (r.width / zoom) + 'px';
+    menu.hidden = false;
+  }
 
   function beginEditing(){
     if (editing) return;
     editing = true;
-    // drop the scrolling clones and freeze the track at rest so the text
-    // isn't sliding out from under the cursor while typing/selecting.
-    Array.prototype.slice.call(track.querySelectorAll('.ticker-set')).forEach(function(el, i){
-      if (i > 0) el.remove();
-    });
-    track.style.transform = 'translateX(0px)';
-    var items = phraseItems();
-    items.forEach(function(phrase){
-      phrase.contentEditable = 'true';
-      phrase.classList.add('editing');
-      addRemoveButton(phrase);
-    });
-    menu.hidden = false;
-    var first = items[0];
-    first.focus();
-    var range = document.createRange();
-    range.selectNodeContents(first);
-    range.collapse(false);
-    var sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range);
+    // visibility, not the hidden attribute -- hidden removes it from
+    // layout entirely, which shrinks .tb-ticker-group's total width and
+    // re-centers it, nudging the ticker box itself sideways. Staying
+    // invisible-but-still-taking-up-space keeps the group's width (and so
+    // the ticker's position) exactly the same whether this is shown or not.
+    hintBtn.style.visibility = 'hidden';
+    phraseEditor.innerHTML = '';
+    phraseItems().forEach(function(phrase, i){ addRow(phrase.innerHTML, i === 0); });
+    positionMenu();
   }
 
-  function stopEditing(){
-    if (!editing) return;
+  // Shared teardown for both Cancel and Save -- closes the box and clears
+  // its editing-only state either way; the two differ only in whether the
+  // phrase rows' content actually gets read and sent anywhere.
+  function closeEditor(){
     editing = false;
+    hintBtn.style.visibility = '';
     menu.hidden = true;
     savedRange = null;
-    savedPhrase = null;
+    savedRow = null;
+    activeRow = null;
+    phraseEditor.innerHTML = '';
+  }
 
-    var items = phraseItems();
-    items.forEach(function(phrase){
-      var btn = phrase.querySelector('.ticker-phrase-remove');
+  function cancelEditing(){
+    if (!editing) return;
+    closeEditor();
+  }
+
+  function saveEditing(){
+    if (!editing) return;
+    var rows = editorRows();
+    rows.forEach(function(row){
+      var btn = row.querySelector('.ticker-phrase-remove');
       if (btn) btn.remove();
-      phrase.contentEditable = 'false';
-      phrase.classList.remove('editing');
     });
     // fall back to the original placeholder rather than saving/showing
     // nothing if every phrase got typed empty and deleted down to blank.
-    var phrases = items.map(function(p){ return p.innerHTML; }).filter(function(h){ return h.trim(); });
+    var phrases = rows.map(function(r){ return r.innerHTML; }).filter(function(h){ return !isBlank(h); });
     if (!phrases.length) phrases = [PLACEHOLDER_HTML];
+    closeEditor();
 
     window.SiteEdit.saveField(GLOBAL_PAGE_KEY, TICKER_FIELD_KEY, JSON.stringify(phrases))
       .then(function(){ window.SiteEdit.toast('Ticker text saved.'); })
@@ -325,27 +448,23 @@ document.addEventListener('DOMContentLoaded', function(){
     });
   });
 
-  doneBtn.addEventListener('click', function(e){
+  cancelBtn.addEventListener('click', function(e){
     e.stopPropagation();
-    stopEditing();
+    cancelEditing();
   });
 
+  saveBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    saveEditing();
+  });
+
+  // No click-away-to-close on purpose -- Cancel and Save are the only way
+  // out, so an accidental click elsewhere on the page can never lose or
+  // silently discard whatever's been typed. Escape is treated the same as
+  // Cancel (never auto-saves).
   menu.addEventListener('click', function(e){ e.stopPropagation(); });
 
-  // click-away safety net, same pattern as the lore/events panels: a
-  // focusout that (on the next frame, so the newly-focused element has
-  // actually landed) checks whether focus moved somewhere outside both the
-  // phrases being edited and the menu before treating it as "done".
-  masterSet.addEventListener('focusout', function(){
-    requestAnimationFrame(function(){
-      if (!editing) return;
-      var active = document.activeElement;
-      if (masterSet.contains(active) || menu.contains(active)) return;
-      stopEditing();
-    });
-  });
-
   document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape' && editing) stopEditing();
+    if (e.key === 'Escape' && editing) cancelEditing();
   });
 });
