@@ -227,6 +227,12 @@ body{ min-width:1200px; }
 .ticker-track{
   display:flex; align-items:center; width:max-content;
   will-change:transform;
+  /* hidden until img/ticker.js has the real saved phrases in place (or has
+     given up trying) -- otherwise the placeholder text already sitting in
+     the page paints first and then visibly swaps a moment later. Layout
+     space is still reserved (visibility, not display), so the bar itself
+     never shifts. */
+  visibility:hidden;
   /* driven entirely by img/ticker.js via requestAnimationFrame, not a CSS
      animation -- a CSS @keyframes infinite loop has to hard-reset from its
      100% state back to 0% every cycle, and that discrete jump was visibly

@@ -128,6 +128,7 @@ document.addEventListener('DOMContentLoaded', function(){
   function begin(){
     if (started) return;
     started = true;
+    track.style.visibility = 'visible';
     startScrolling();
   }
   if (window.SiteEdit){
