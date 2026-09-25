@@ -184,10 +184,14 @@ body{ min-width:1200px; }
   display:block; height:100%; width:auto;
   image-rendering:pixelated; image-rendering:crisp-edges;
 }
-.tb-ticker{
+.tb-ticker-group{
   position:absolute; left:50%; top:0; bottom:0;
   transform:translateX(-50%);
-  width:1014px; /* matches #content's own max width, so it lines up with the content box below */
+  display:flex; align-items:center; gap:10px;
+}
+.tb-ticker{
+  flex:none;
+  width:900px; /* narrowed from #content's own 1014px max width to leave room for the edit hint sitting right beside it, so the group as a whole still lines up about where it used to */
   overflow:hidden;
   display:flex; align-items:center;
 }
@@ -1143,13 +1147,15 @@ body.drag-mode .resize-handle{ display:block; }
 <body>
 <div id="top-ticker-bar">
   <a class="tb-logo" href="/" aria-label="Imperial Topaz home"><img src="img/logo.png" alt="Imperial Topaz"></a>
-  <div class="tb-ticker" aria-hidden="true">
-    <div class="ticker-track">
-      <span class="ticker-set"><span class="ticker-item">Announcements coming soon.</span></span>
+  <div class="tb-ticker-group">
+    <div class="tb-ticker" aria-hidden="true">
+      <div class="ticker-track">
+        <span class="ticker-set"><span class="ticker-item">Announcements coming soon.</span></span>
+      </div>
     </div>
+    <button type="button" class="tb-edit" id="ticker-edit-btn">click to edit</button>
   </div>
   <div class="tb-actions">
-    <button type="button" class="tb-edit" id="ticker-edit-btn">click to edit</button>
     <button type="button" class="tb-admin" id="admin-login-btn">Admin Login</button>
   </div>
 </div>
