@@ -201,8 +201,9 @@ body{ min-width:1200px; }
      of it). */
   position:relative;
   display:flex; align-items:center; justify-content:space-between; gap:16px;
-  background:#1b1b1b;
-  border-bottom:1px solid #000;
+  background-color:#232324;
+  border-top:7px solid transparent; border-bottom:7px solid #313233; /* transparent top border matches the bottom one's thickness so the content area stays vertically centered in the fixed-height bar, instead of the visible-only bottom border eating into just one side and pushing everything up */
+  outline:3px solid #000; outline-offset:-3px;
   height:88px;
   padding:0 16px;
   box-sizing:border-box;
