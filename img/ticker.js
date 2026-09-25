@@ -132,6 +132,12 @@ document.addEventListener('DOMContentLoaded', function(){
   template.addEventListener('keyup', captureSelection);
 
   colorPicker.addEventListener('input', function(){
+    // Clicking the native color swatch steals focus away from the
+    // contenteditable text first -- foreColor has to run while that text is
+    // actually focused again, so the focus + selection restore both have to
+    // happen *before* the command, not after (running it while the color
+    // input itself is still focused is a silent no-op).
+    template.focus();
     if (savedRange){
       var sel = window.getSelection();
       sel.removeAllRanges();
@@ -142,7 +148,6 @@ document.addEventListener('DOMContentLoaded', function(){
     // gets saved to the server as-is.
     document.execCommand('styleWithCSS', false, true);
     document.execCommand('foreColor', false, colorPicker.value);
-    template.focus();
     captureSelection();
   });
 
