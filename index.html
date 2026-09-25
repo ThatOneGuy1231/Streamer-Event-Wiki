@@ -142,6 +142,7 @@
      sky so the seam is invisible) is added above it to push this taller,
      giving the big logo more room. Raise/lower this to resize the sky. */
   --header-h: 335px;
+  --ticker-bar-h: 88px; /* #top-ticker-bar's own height -- referenced here too so body's background layers shift down by the same amount and stay aligned with the foreground instead of drifting out of sync with it */
 }
 
 *{ box-sizing:border-box; }
@@ -159,7 +160,7 @@ body{
     var(--base-background),
     repeating-conic-gradient(rgba(255,255,255,.022) 0% 25%, transparent 0% 50%);
   background-repeat:no-repeat, repeat-x, no-repeat, no-repeat, repeat;
-  background-position:top left, left calc(var(--header-h) - 90px), top left, top center, top left;
+  background-position:left var(--ticker-bar-h), left calc(var(--header-h) - 90px + var(--ticker-bar-h)), left var(--ticker-bar-h), center var(--ticker-bar-h), left var(--ticker-bar-h);
   background-size:auto, auto 468px, 10000px calc(var(--header-h) - 90px + 2px), 3744px 3744px, 16px 16px; /* flat-sky layer is a large fixed width instead of 100% -- dynamic %-sizing on an otherwise fixed-px layout was what let this layer drift out of sync with everything else under zoom. 10000px comfortably covers any realistic window/monitor width, including zoomed out well past 100%, while staying fixed (not recomputed) -- this used to be 4000px, which ran out (showing the stone tile through the gap instead of solid sky) once the page's effective CSS-pixel width exceeded it from zooming out far enough. extended 2px past where the tile begins -- the tile draws on top and never moves, so tabs/content stay put, but any sub-pixel rounding gap is now covered from behind. The stone layer's own position was "top left" (anchored to body's raw left edge) while #page is centered via margin:auto -- as the effective viewport width changes with browser zoom, #page's centered offset shifts but the stone block's left-anchored one didn't, so the texture visibly drifted relative to the page framing. "top center" anchors it the same way #page is centered, so both move together and the gap between them stays constant instead of changing with zoom. */
   background-attachment:scroll, scroll, scroll, scroll, scroll;
   overflow-y:scroll;
@@ -180,6 +181,120 @@ a.new{ color:#ba0000; }
   margin:0 auto;
 }
 body{ min-width:1200px; }
+
+/* ---------- top bar: logo | scrolling ticker | admin login, styled after
+   a typical dark site-wide utility bar (dark strip above the rest of the
+   header). Only the middle section scrolls -- the logo and admin button
+   on either side stay put. Ticker text is a placeholder for now -- edit
+   the two <span class="ticker-item"> copies inside #top-ticker-bar (keep
+   both in sync, they're what makes the loop seamless) once there's real
+   announcement copy to put in it. */
+#top-ticker-bar{
+  /* normal flow (not absolute/overlaid) -- genuinely pushes #page and
+     everything in it down by this bar's own height, same as any other
+     block would. body's own background layers (see body{background-
+     position:...} above) are shifted down by the same --ticker-bar-h so
+     the background art and the foreground layout move down together as
+     one unit, instead of the background staying put while the foreground
+     shifts (which broke their careful alignment -- the whole point of
+     this page's background is that it lines up with the content on top
+     of it). */
+  position:relative;
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  background:#1b1b1b;
+  border-bottom:1px solid #000;
+  height:88px;
+  padding:0 16px;
+  box-sizing:border-box;
+  overflow:hidden;
+}
+#top-ticker-bar .tb-logo{ flex:none; display:block; height:60px; }
+#top-ticker-bar .tb-logo img{
+  display:block; height:100%; width:auto;
+  image-rendering:pixelated; image-rendering:crisp-edges;
+}
+.tb-ticker{
+  position:absolute; left:50%; top:0; bottom:0;
+  transform:translateX(-50%);
+  width:1014px; /* matches #content's own max width, so it lines up with the content box below */
+  overflow:hidden;
+  display:flex; align-items:center;
+}
+.ticker-track{
+  display:flex; align-items:center; width:max-content;
+  will-change:transform;
+  /* driven entirely by img/ticker.js via requestAnimationFrame, not a CSS
+     animation -- a CSS @keyframes infinite loop has to hard-reset from its
+     100% state back to 0% every cycle, and that discrete jump was visibly
+     snapping a few px off from where the smoothly-interpolated frames
+     around it landed. Continuously recomputing the transform every frame
+     (and wrapping the position with a plain subtraction, not a reset to 0)
+     has no such reset point, so there's nothing to snap. */
+}
+.ticker-track .ticker-item{
+  padding-right:100px;
+  white-space:nowrap;
+  color:#f2f2f2;
+  font-size:1.8em;
+  line-height:1;
+  letter-spacing:0.03em;
+}
+#top-ticker-bar .tb-admin{
+  flex:none;
+  font:inherit; font-size:0.68em; font-weight:bold; letter-spacing:0.04em;
+  color:#8bc34a; background:transparent;
+  border:1px solid #8bc34a; border-radius:2px;
+  padding:6px 12px;
+  cursor:pointer;
+}
+#top-ticker-bar .tb-admin:hover{ background:rgba(139,195,74,0.15); }
+
+/* #layout-editor is display:none by default (see its own rule further
+   down) -- unrelated to Admin Login, stays permanently hidden/dev-only. */
+/* ---------- ticker text editor: same inline click-to-edit pattern as the
+   lore/events panels -- a small "click to edit" hint, always visible (not
+   gated behind Admin Login, same as those panels), typing straight into
+   the real ticker text in place. A small color picker sits next to it
+   while editing and applies to whatever text is currently selected, not
+   the whole line. ---------- */
+#top-ticker-bar .tb-actions{ flex:none; display:flex; align-items:center; gap:8px; }
+#top-ticker-bar .tb-edit{
+  flex:none;
+  font:inherit; font-size:0.68em; font-weight:normal; letter-spacing:0.04em;
+  color:#9a9a9a; background:transparent;
+  border:0; padding:6px 4px;
+  cursor:pointer;
+  opacity:0.7; transition:opacity .15s ease, color .15s ease;
+}
+#top-ticker-bar .tb-edit:hover{ opacity:1; color:#fff; }
+.ticker-track .ticker-item.editing{
+  cursor:text;
+  outline:none;
+  background:rgba(255,254,240,0.12);
+  box-shadow:inset 0 0 0 1px rgba(230,223,160,0.6);
+  padding:0 4px;
+}
+#ticker-edit-menu{
+  position:absolute; top:var(--ticker-bar-h); right:16px; z-index:200;
+  box-sizing:border-box;
+  font-family:"Minecraft", "Silkscreen", "Liberation Sans", Arial, sans-serif; font-size:0.8em;
+  background:#232324; color:#fff; border:2px solid #313233; border-radius:4px;
+  padding:10px;
+  box-shadow:0 4px 12px rgba(0,0,0,.5);
+  display:flex; align-items:center; gap:8px;
+}
+#ticker-edit-menu[hidden]{ display:none; }
+#ticker-edit-menu label{ font-size:0.85em; color:#bbb; }
+#ticker-edit-menu input[type="color"]{
+  width:32px; height:28px; padding:0; border:0; border-radius:2px;
+  background:none; cursor:pointer;
+}
+#ticker-edit-menu button{
+  font:inherit; cursor:pointer; border:0; border-radius:2px;
+  padding:6px 10px;
+  background:#3a3b3c; color:#fff;
+}
+#ticker-edit-menu button:hover{ background:#fff; color:#111; }
 
 /* ---------- header strip (transparent: real background image shows through) ---------- */
 #mw-page-base{
@@ -826,6 +941,41 @@ body.mainpage .firstHeading{ display:none; }
 .panel.panel-fill .inner{ display:flex; flex-direction:column; flex:1; }
 .panel.panel-fill .inner .buttons{ margin-top:auto; }
 
+/* ---------- password modal for entering edit mode -- same panel/button
+   language as the rest of the site (not a bare browser prompt()). ---------- */
+#edit-login-modal{
+  display:none; position:fixed; inset:0; z-index:5000;
+  background:rgba(0,0,0,.6);
+  align-items:center; justify-content:center;
+}
+#edit-login-modal.open{ display:flex; }
+#edit-login-modal .box{
+  width:320px; max-width:calc(100% - 32px);
+  background:#fff; border-radius:0;
+  border:var(--panel-border-width) solid var(--panel-border);
+  box-shadow:inset 0 0 0 3px var(--panel-ring);
+}
+#edit-login-modal h3{
+  margin:0; padding:calc(0.5em + 2px) 12px 15px;
+  background:#EBEBEB; box-shadow:inset 0 0 0 3px var(--panel-ring);
+  color:var(--color-base); font-size:1em; font-weight:bold; position:relative;
+}
+#edit-login-modal h3::after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:6px;
+  background:#C0C0C0; border-top:3px solid var(--panel-ring); border-bottom:var(--panel-border-width) solid var(--panel-border);
+}
+#edit-login-modal .body{ padding:12px; }
+#edit-login-modal input{
+  width:100%; box-sizing:border-box; padding:8px; margin-bottom:4px;
+  border:2px solid var(--panel-border); border-radius:0;
+  font-family:inherit; font-size:0.9em; color:var(--color-base);
+}
+#edit-login-modal .error{
+  display:none; color:#ba0000; font-size:0.8em; margin:2px 0 8px;
+}
+#edit-login-modal .error.show{ display:block; }
+#edit-login-modal .actions{ display:flex; gap:8px; margin-top:10px; }
+
 .grid-2{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:12px; }
 .grid-half{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 
@@ -1295,12 +1445,31 @@ body.drag-mode .resize-handle{ display:block; }
 </style>
 </head>
 <body class="mainpage carousel-normal gallery-first">
+<div id="top-ticker-bar">
+  <a class="tb-logo" href="/" aria-label="Imperial Topaz home"><img src="img/logo.png" alt="Imperial Topaz"></a>
+  <div class="tb-ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span class="ticker-item">Announcements coming soon.</span>
+    </div>
+  </div>
+  <div class="tb-actions">
+    <button type="button" class="tb-edit" id="ticker-edit-btn">click to edit</button>
+    <button type="button" class="tb-admin" id="admin-login-btn">Admin Login</button>
+  </div>
+</div>
+<div id="ticker-edit-menu" hidden>
+  <label for="ticker-color-picker">Color</label>
+  <input type="color" id="ticker-color-picker" value="#f2f2f2">
+  <button id="ticker-edit-done" type="button">Done</button>
+</div>
+<script src="img/site_edit.js"></script>
+<script src="img/ticker.js"></script>
 <div id="page">
 
 <div id="mw-page-base"></div>
 <div id="mw-head-base"></div>
 
-<div id="p-logo" data-drag-id="logo" data-drag-label="Logo"><a href="#" aria-label="Your Wiki home"></a></div>
+<div id="p-logo" data-drag-id="logo" data-drag-label="Logo"><a href="/" aria-label="Imperial Topaz home"></a></div>
 
 <!-- ===================== SIDEBAR ===================== -->
 <div id="mw-panel" data-drag-id="sidebar" data-drag-label="Sidebar">
@@ -1626,6 +1795,23 @@ body.drag-mode .resize-handle{ display:block; }
   </div>
 </div>
 
+<!-- ===================== EDIT PASSWORD MODAL ===================== -->
+<div id="edit-login-modal">
+  <div class="box">
+    <h3>Enter password to edit</h3>
+    <div class="body">
+      <form id="edit-login-form">
+        <input type="password" id="edit-login-input" autocomplete="off" placeholder="Password">
+        <div class="error" id="edit-login-error">Wrong password.</div>
+        <div class="actions">
+          <button type="button" class="button" id="edit-login-cancel">Cancel</button>
+          <button type="submit" class="button go" id="edit-login-submit">Unlock</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <!-- ===================== FOOTER ===================== -->
 <div id="footer">
   <ul id="footer-info">
@@ -1679,6 +1865,7 @@ body.drag-mode .resize-handle{ display:block; }
 })();
 </script>
 
+<script src="img/admin_gate.js"></script>
 <!-- ===================== LAYOUT EDITOR ===================== -->
 <div id="layout-editor">
   <button id="layout-editor-toggle" type="button">Edit layout</button>
