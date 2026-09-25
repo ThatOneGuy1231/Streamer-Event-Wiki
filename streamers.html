@@ -247,12 +247,12 @@ body{ min-width:1200px; }
 }
 #ticker-edit-menu{
   position:absolute; top:var(--ticker-bar-h); right:16px; z-index:200;
-  box-sizing:border-box;
+  max-width:340px; box-sizing:border-box;
   font-family:"Minecraft", "Silkscreen", "Liberation Sans", Arial, sans-serif; font-size:0.8em;
   background:#232324; color:#fff; border:2px solid #313233; border-radius:4px;
   padding:10px;
   box-shadow:0 4px 12px rgba(0,0,0,.5);
-  display:flex; align-items:center; gap:8px;
+  display:flex; flex-wrap:wrap; align-items:center; gap:8px;
 }
 #ticker-edit-menu[hidden]{ display:none; }
 #ticker-edit-menu label{ font-size:0.85em; color:#bbb; }
@@ -260,12 +260,17 @@ body{ min-width:1200px; }
   width:32px; height:28px; padding:0; border:0; border-radius:2px;
   background:none; cursor:pointer;
 }
+#ticker-edit-menu input[type="text"]{
+  width:120px; box-sizing:border-box; padding:6px; border:0; border-radius:2px;
+  background:#111; color:#9cff9c; font-family:inherit; font-size:0.9em;
+}
 #ticker-edit-menu button{
   font:inherit; cursor:pointer; border:0; border-radius:2px;
   padding:6px 10px;
   background:#3a3b3c; color:#fff;
 }
 #ticker-edit-menu button:hover{ background:#fff; color:#111; }
+.ticker-track .ticker-item a{ color:inherit; text-decoration:underline; }
 
 /* ---------- header strip (transparent: real background image shows through) ---------- */
 #mw-page-base{
@@ -1184,6 +1189,9 @@ body.drag-mode .resize-handle{ display:block; }
   <label for="ticker-color-picker">Color</label>
   <input type="color" id="ticker-color-picker" value="#f2f2f2">
   <button id="ticker-color-apply" type="button">Apply</button>
+  <label for="ticker-link-input">Link</label>
+  <input type="text" id="ticker-link-input" placeholder="https://...">
+  <button id="ticker-link-apply" type="button">Link</button>
   <button id="ticker-edit-done" type="button">Done</button>
 </div>
 <script src="img/site_edit.js"></script>

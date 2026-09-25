@@ -116,8 +116,10 @@ document.addEventListener('DOMContentLoaded', function(){
   var menu = document.getElementById('ticker-edit-menu');
   var colorPicker = document.getElementById('ticker-color-picker');
   var applyBtn = document.getElementById('ticker-color-apply');
+  var linkInput = document.getElementById('ticker-link-input');
+  var linkApplyBtn = document.getElementById('ticker-link-apply');
   var doneBtn = document.getElementById('ticker-edit-done');
-  if (!(hintBtn && menu && colorPicker && applyBtn && doneBtn && window.SiteEdit)) return;
+  if (!(hintBtn && menu && colorPicker && applyBtn && linkInput && linkApplyBtn && doneBtn && window.SiteEdit)) return;
 
   // The browser drops the text selection the moment focus leaves the
   // contenteditable element (which clicking into the native color <input>
@@ -153,6 +155,33 @@ document.addEventListener('DOMContentLoaded', function(){
     // gets saved to the server as-is.
     document.execCommand('styleWithCSS', false, true);
     document.execCommand('foreColor', false, colorPicker.value);
+    captureSelection();
+  });
+
+  // same highlight -> fill in -> press pattern as the color control:
+  // highlight text, type/paste a URL, press Link, and that selection
+  // becomes clickable (target="_blank" -- opens in a new tab like the rest
+  // of the site's outbound links -- since execCommand's own createLink
+  // doesn't set that itself). Leaving the URL field blank and pressing
+  // Link removes an existing link from the selection instead.
+  linkApplyBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    if (!savedRange) return;
+    template.focus();
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(savedRange);
+    var url = linkInput.value.trim();
+    if (!url) {
+      document.execCommand('unlink', false, null);
+    } else {
+      if (!/^([a-z][a-z0-9+.-]*:|#)/i.test(url)) url = 'https://' + url;
+      document.execCommand('createLink', false, url);
+      Array.prototype.slice.call(template.querySelectorAll('a:not([target])')).forEach(function(a){
+        a.target = '_blank';
+        a.rel = 'noopener';
+      });
+    }
     captureSelection();
   });
 
